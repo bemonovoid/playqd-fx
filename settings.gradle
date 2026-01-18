@@ -1,0 +1,54 @@
+rootProject.name = "playqd-fx"
+
+dependencyResolutionManagement {
+    versionCatalogs {
+        libs {
+            version('javafxVersion', '25.0.1')
+            version('javafxpluginVersion', '0.1.0')
+            version('controlsfxVersion', '11.2.2')
+            version('fontAwesomeVersion', '8.9')
+
+            version('gradleShadowPluginVersion', '9.0.0-beta12')
+            version('gradleGitPropsPluginVersion', '2.4.2')
+            version('logbackVersion', '1.5.16')
+            version('fasterxmlVersion', '2.18.3')
+            version('jUnit5PlatformVersion', '1.12.2')
+            version('jUnit5EngineVersion', '5.12.2')
+//            version('mockitoVersion', '5.17.1')
+            version('playqdVersion', '2.+')
+
+            library('gradle-shadow-plugin', 'com.gradleup.shadow', 'shadow-gradle-plugin').versionRef('gradleShadowPluginVersion')
+
+            library('javafx-base', 'org.openjfx', 'javafx-base').versionRef('javafxVersion')
+            library('javafx-controls', 'org.openjfx', 'javafx-controls').versionRef('javafxVersion')
+            library('javafx-fxml', 'org.openjfx', 'javafx-fxml').versionRef('javafxVersion')
+            library('javafx-swing', 'org.openjfx', 'javafx-swing').versionRef('javafxVersion')
+            library('javafx-graphics', 'org.openjfx', 'javafx-graphics').versionRef('javafxVersion')
+
+            library('controls-fx', 'org.controlsfx', 'controlsfx').versionRef('controlsfxVersion')
+//            library('font-awesome', 'de.jensd', 'fontawesomefx').versionRef('fontAwesomeVersion')
+            library('font-awesome', 'de.jensd', 'fontawesomefx-fontawesome').version('4.7.0-9.1.2')
+//            implementation("de.jensd:fontawesomefx-fontawesome:4.7.0-9.1.2")
+
+            library('logback-core', 'ch.qos.logback', 'logback-core').versionRef('logbackVersion')
+            library('logback-classic', 'ch.qos.logback', 'logback-classic').versionRef('logbackVersion')
+
+            library('commons-io', 'commons-io', 'commons-io').version('2.18.0')
+            library('commons-lang3', 'org.apache.commons', 'commons-lang3').version('3.17.0')
+
+            library('jackson-annotations', 'com.fasterxml.jackson.core', 'jackson-annotations').versionRef('fasterxmlVersion')
+            library('jackson-databind', 'com.fasterxml.jackson.core', 'jackson-databind').versionRef('fasterxmlVersion')
+            library('jackson-datatype-jsr310', 'com.fasterxml.jackson.datatype', 'jackson-datatype-jsr310').versionRef('fasterxmlVersion')
+
+            library('playqd-client', 'io.playqd', 'playqd-client').versionRef('playqdVersion')
+
+            library('junit-platform-commons', 'org.junit.platform', 'junit-platform-commons').versionRef('jUnit5PlatformVersion')
+            library('junit-platform-engine', 'org.junit.platform', 'junit-platform-engine').versionRef('jUnit5PlatformVersion')
+            library('junit-platform-launcher', 'org.junit.platform', 'junit-platform-launcher').versionRef('jUnit5PlatformVersion')
+            library('junit-jupiter-engine', 'org.junit.jupiter', 'junit-jupiter-engine').versionRef('jUnit5EngineVersion')
+            library('junit-jupiter-api', 'org.junit.jupiter', 'junit-jupiter-api').versionRef('jUnit5EngineVersion')
+//            library('mockito-core', 'org.mockito','mockito-core').versionRef('mockitoVersion')
+        }
+    }
+}
+

@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import de.jensd.fx.glyphs.fontawesome.FontAwesomeIconView?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.VBox?>
+<MenuBar xmlns="http://javafx.com/javafx"
+         xmlns:fx="http://javafx.com/fxml"
+         VBox.vgrow="NEVER"
+         fx:id="applicationMenuBar">
+
+    <Menu text="_File">
+
+    </Menu>
+
+    <Menu text="_Edit">
+
+    </Menu>
+
+    <Menu text="_View">
+        <fx:define>
+            <Tooltip fx:id="centerWindowsTooltip" text="Center split browser windows"/>
+        </fx:define>
+        <MenuItem text="Center windows">
+            <graphic>
+                <FontAwesomeIconView glyphName="COLUMNS"/>
+            </graphic>
+        </MenuItem>
+        <MenuItem text="Add window">
+            <graphic>
+                <FontAwesomeIconView glyphName="PLUS"/>
+            </graphic>
+        </MenuItem>
+    </Menu>
+
+    <Menu text="_Commands">
+
+    </Menu>
+
+    <Menu text="_Options">
+        <MenuItem text="Save setup">
+            <graphic>
+                <FontAwesomeIconView glyphName="FLOPPY_ALT"/>
+            </graphic>
+        </MenuItem>
+    </Menu>
+
+    <Menu text="_Help">
+
+    </Menu>
+
+</MenuBar>

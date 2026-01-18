@@ -1,0 +1,88 @@
+import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
+
+buildscript {
+    ext {
+        javaFxPlatform = project.findProperty("targetPlatform") ?: "win"
+        javaFxSdkHome = javaFxPlatform == "osx" ? "${System.env.JAVAFX_OSX_HOME}" : "${System.env.JAVAFX_HOME}"
+        // -PtargetPlatform=mac
+    }
+    dependencies {
+//        classpath 'com.gradleup.shadow:shadow-gradle-plugin:9.0.0-beta12'
+        classpath libs.gradle.shadow.plugin
+    }
+}
+
+plugins {
+    id 'application'
+    id 'java'
+    id 'org.openjfx.javafxplugin' version libs.versions.javafxpluginVersion
+    id 'com.gradleup.shadow' version libs.versions.gradleShadowPluginVersion
+//    id 'com.gorylenko.gradle-git-properties' version libs.versions.gradleGitPropsPluginVersion
+}
+
+apply plugin: 'java'
+apply plugin: 'application'
+apply plugin: 'com.gradleup.shadow'
+
+repositories {
+    mavenLocal()
+    mavenCentral()
+}
+
+dependencies {
+
+    implementation libs.javafx.base
+    implementation libs.javafx.controls
+    implementation libs.javafx.fxml
+    implementation libs.javafx.swing
+    implementation libs.javafx.graphics
+
+    implementation libs.controls.fx
+    implementation libs.font.awesome
+
+    implementation libs.logback.core
+    implementation libs.logback.classic
+
+    implementation libs.commons.io
+    implementation libs.commons.lang3
+
+    implementation libs.jackson.annotations
+    implementation libs.jackson.databind
+    implementation libs.jackson.datatype.jsr310
+
+    implementation libs.playqd.client
+
+    testImplementation libs.junit.platform.commons
+    testRuntimeOnly libs.junit.platform.engine
+    testRuntimeOnly libs.junit.platform.launcher
+    testImplementation libs.junit.jupiter.api
+    testImplementation libs.junit.jupiter.engine
+//    testImplementation libs.mockito.core
+}
+
+jar {
+    manifest {
+        attributes(
+                'Main-Class': 'playqd.Main'
+        )
+    }
+}
+
+javafx {
+    version = '25'
+    sdk = "${javaFxSdkHome}"
+    modules = ['javafx.base', 'javafx.fxml', 'javafx.controls', 'javafx.graphics', 'javafx.swing']
+    platform = "${javaFxPlatform}"
+}
+
+application {
+    mainClass = 'playqd.Main'
+}
+
+tasks.named('shadowJar', ShadowJar) {
+    archiveClassifier = "${javaFxPlatform}"
+}
+
+test {
+    useJUnitPlatform()
+}

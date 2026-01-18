@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import java.lang.String?>
+<?import javafx.collections.FXCollections?>
+<VBox xmlns="http://javafx.com/javafx"
+      xmlns:fx="http://javafx.com/fxml"
+      fx:id="searchVBox"
+      fx:controller="io.playqd.controller.SearchVBoxController" VBox.vgrow="ALWAYS">
+
+    <ToolBar fx:id="searchToolbar">
+        <HBox>
+
+        </HBox>
+        <HBox fx:id="searchTextFieldHBox">
+
+        </HBox>
+        <Pane HBox.hgrow="ALWAYS"/>
+        <HBox alignment="CENTER_LEFT" spacing="2">
+            <Label text="Page size:"/>
+            <ComboBox fx:id="pageSizeComboBox" value="50">
+                <items>
+                    <FXCollections fx:factory="observableArrayList">
+                        <String fx:value="25"/>
+                        <String fx:value="50"/>
+                        <String fx:value="100"/>
+                        <String fx:value="250"/>
+                        <String fx:value="All"/>
+                    </FXCollections>
+                </items>
+            </ComboBox>
+        </HBox>
+    </ToolBar>
+
+    <TabPane fx:id="tabPane" tabClosingPolicy="UNAVAILABLE" VBox.vgrow="ALWAYS">
+
+        <tabs>
+
+            <Tab fx:id="tracksTab" text="Tracks">
+
+                <VBox>
+
+                    <TableView fx:id="tracksTableView" VBox.vgrow="ALWAYS">
+
+                        <columns>
+
+                            <TableColumn fx:id="titleCol" text="Name" reorderable="false"/>
+                            <TableColumn fx:id="artistCol" text="Artist" reorderable="false"/>
+                            <TableColumn fx:id="albumCol" text="Album" reorderable="false"/>
+                            <TableColumn fx:id="genreCol" text="Genre" reorderable="false"/>
+                            <TableColumn fx:id="filenameCol" text="File name" reorderable="false"/>
+                            <TableColumn fx:id="sizeCol" text="Size" reorderable="false"/>
+                            <TableColumn fx:id="lengthCol" text="Length" reorderable="false"/>
+                            <TableColumn fx:id="extensionCol" text="Format" reorderable="false"/>
+                            <TableColumn fx:id="mimeTypeCol" text="Mime type" reorderable="false"/>
+                            <TableColumn fx:id="bitRateCol" text="Bit rate" reorderable="false"/>
+                            <TableColumn fx:id="sampleRateCol" text="Sample rate" reorderable="false"/>
+                            <TableColumn fx:id="bitsPerSampleCol" text="bps" reorderable="false"/>
+                            <TableColumn fx:id="ratingCol" text="Rating" reorderable="false"/>
+                            <TableColumn fx:id="playCountCol" text="Played" reorderable="false"/>
+                            <TableColumn fx:id="lastPlayedDateCol" text="Last played" reorderable="false"/>
+                            <TableColumn fx:id="addedDateCol" text="Added played" reorderable="false"/>
+
+                        </columns>
+
+                    </TableView>
+
+                    <Pagination fx:id="trackPagination" maxPageIndicatorCount="10" currentPageIndex="0">
+
+                    </Pagination>
+
+                </VBox>
+
+            </Tab>
+
+            <Tab text="Artists" disable="true">
+
+            </Tab>
+
+            <Tab text="Albums" disable="true">
+
+            </Tab>
+
+            <Tab text="Genres" disable="true">
+
+            </Tab>
+
+        </tabs>
+    </TabPane>
+
+</VBox>

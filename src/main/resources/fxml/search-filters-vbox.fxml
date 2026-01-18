@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import de.jensd.fx.glyphs.fontawesome.FontAwesomeIconView?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import org.controlsfx.control.*?>
+<?import java.lang.*?>
+<VBox xmlns="http://javafx.com/javafx"
+      xmlns:fx="http://javafx.com/fxml"
+      fx:id="searchFiltersVBox"
+      fx:controller="io.playqd.controller.SearchFiltersVBoxController" VBox.vgrow="ALWAYS">
+
+    <TitledPane text="General">
+        <GridPane vgap="5">
+            <Label text="Search in" GridPane.rowIndex="0" GridPane.columnIndex="0" GridPane.hgrow="ALWAYS"/>
+            <CheckComboBox fx:id="searchInComboBox" GridPane.rowIndex="0" GridPane.columnIndex="1">
+                <items>
+                    <String fx:value="Artists"/>
+                    <String fx:value="Albums"/>
+                    <String fx:value="Genres"/>
+                    <String fx:value="Tracks"/>
+                    <String fx:value="All"/>
+                </items>
+            </CheckComboBox>
+        </GridPane>
+    </TitledPane>
+
+    <TitledPane text="Tracks">
+        <GridPane vgap="5">
+            <Label text="Search by file name" GridPane.rowIndex="0" GridPane.columnIndex="0" GridPane.hgrow="ALWAYS"/>
+            <ToggleSwitch fx:id="searchFilenameSwitch" GridPane.rowIndex="0" GridPane.columnIndex="1" selected="true"/>
+
+            <Label text="Search by lyrics" GridPane.rowIndex="1" GridPane.columnIndex="0"/>
+            <ToggleSwitch fx:id="searchLyricsSwitch" GridPane.rowIndex="1" GridPane.columnIndex="1"/>
+
+            <Label text="Search by comments" GridPane.rowIndex="2" GridPane.columnIndex="0"/>
+            <ToggleSwitch fx:id="searchCommentsSwitch" GridPane.rowIndex="2" GridPane.columnIndex="1"/>
+
+            <Label text="Lyrics exist" GridPane.rowIndex="3" GridPane.columnIndex="0"/>
+            <ToggleSwitch fx:id="lyricsExistSwitch" GridPane.rowIndex="3" GridPane.columnIndex="1"/>
+
+            <Label text="Comments exist" GridPane.rowIndex="4" GridPane.columnIndex="0"/>
+            <ToggleSwitch fx:id="commentsExistSwitch" GridPane.rowIndex="4" GridPane.columnIndex="1"/>
+
+        </GridPane>
+    </TitledPane>
+
+    <TitledPane text="Playback">
+        <GridPane vgap="5" hgap="5">
+            <Label text="Played" GridPane.rowIndex="0" GridPane.columnIndex="0" GridPane.hgrow="ALWAYS"/>
+            <ToggleSwitch GridPane.rowIndex="0" GridPane.columnIndex="2"/>
+
+            <Label text="Since" GridPane.rowIndex="1" GridPane.columnIndex="0"/>
+            <ToggleSwitch fx:id="playedSinceTSwitch" GridPane.rowIndex="1" GridPane.columnIndex="2" disable="true"/>
+
+            <Label text="Date" GridPane.rowIndex="2" GridPane.columnIndex="0"/>
+            <DatePicker fx:id="playedSinceDatePicker" GridPane.rowIndex="2" GridPane.columnIndex="1" disable="true"/>
+            <MenuButton fx:id="fixedPlayedSinceTimeMenuBtn" GridPane.rowIndex="2" GridPane.columnIndex="2" disable="true">
+                <graphic>
+                    <FontAwesomeIconView glyphName="CLOCK_ALT"/>
+                </graphic>
+                <items>
+                    <MenuItem text="1 week" userData="7"/>
+                    <MenuItem text="2 weeks" userData="14"/>
+                    <SeparatorMenuItem/>
+                    <MenuItem text="1 month" userData="30"/>
+                    <MenuItem text="3 months" userData="90"/>
+                    <MenuItem text="6 months" userData="180"/>
+                    <SeparatorMenuItem/>
+                    <MenuItem text="1 year" userData="365"/>
+                </items>
+            </MenuButton>
+
+        </GridPane>
+    </TitledPane>
+</VBox>

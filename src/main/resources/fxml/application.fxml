@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.SplitPane?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.VBox?>
+<VBox xmlns="http://javafx.com/javafx/24"
+      xmlns:fx="http://javafx.com/fxml"
+      fx:id="applicationVBox"
+      fx:controller="io.playqd.controller.ApplicationController">
+
+    <fx:include source="application-menu-bar.fxml" fx:id="applicationMenuBar"/>
+
+    <BorderPane fx:id="rootBorderPane" VBox.vgrow="ALWAYS">
+
+        <center>
+            <SplitPane VBox.vgrow="ALWAYS" dividerPositions="0.2, 0.8">
+                <fx:include source="search-filters-vbox.fxml" fx:id="searchFiltersVBox"/>
+                <fx:include source="search-vbox.fxml" fx:id="searchVBox"/>
+            </SplitPane>
+
+        </center>
+
+        <bottom>
+            <Label text="bottom"/>
+        </bottom>
+
+    </BorderPane>
+
+</VBox>
