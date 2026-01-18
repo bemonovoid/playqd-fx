@@ -13,10 +13,10 @@ public class SearchFiltersVBoxController {
     private VBox searchFiltersVBox;
 
     @FXML
-    private CheckComboBox<String> searchInComboBox;
+    CheckComboBox<String> searchInComboBox;
 
     @FXML
-    private ToggleSwitch commentsExistSwitch, lyricsExistSwitch;
+    ToggleSwitch searchFilenameSwitch, commentsExistSwitch, lyricsExistSwitch;
 
     @FXML
     private void initialize() {
@@ -24,7 +24,6 @@ public class SearchFiltersVBoxController {
     }
 
     private void initControls() {
-        searchInComboBox.getCheckModel().check(3);
         commentsExistSwitch.selectedProperty().addListener((_, _, enabled) ->
                 searchFiltersVBox.fireEvent(new PlayqdEvent.SearchFlagChangedEvent(SearchFlag.COMMENTS_EXIST, enabled)));
         lyricsExistSwitch.selectedProperty().addListener((_, _, enabled) ->

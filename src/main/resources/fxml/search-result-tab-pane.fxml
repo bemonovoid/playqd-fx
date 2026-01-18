@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.TabPane?>
+<?import io.playqd.controller.TracksTab?>
+<?import io.playqd.controller.ArtistsTab?>
+<TabPane xmlns="http://javafx.com/javafx"
+         xmlns:fx="http://javafx.com/fxml"
+         tabClosingPolicy="UNAVAILABLE" javafx.scene.layout.VBox.vgrow="ALWAYS"
+         fx:id="searchResultTabPane"
+         fx:controller="io.playqd.controller.SearchResultTabPaneController">
+
+    <TracksTab fx:id="tracksTab"/>
+
+    <ArtistsTab fx:id="artistsTab"/>
+
+</TabPane>

@@ -28,7 +28,7 @@
     <TitledPane text="Tracks">
         <GridPane vgap="5">
             <Label text="Search by file name" GridPane.rowIndex="0" GridPane.columnIndex="0" GridPane.hgrow="ALWAYS"/>
-            <ToggleSwitch fx:id="searchFilenameSwitch" GridPane.rowIndex="0" GridPane.columnIndex="1" selected="true"/>
+            <ToggleSwitch fx:id="searchFilenameSwitch" GridPane.rowIndex="0" GridPane.columnIndex="1"/>
 
             <Label text="Search by lyrics" GridPane.rowIndex="1" GridPane.columnIndex="0"/>
             <ToggleSwitch fx:id="searchLyricsSwitch" GridPane.rowIndex="1" GridPane.columnIndex="1"/>

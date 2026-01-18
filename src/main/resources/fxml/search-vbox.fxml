@@ -1,18 +1,22 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<?import javafx.collections.FXCollections?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
-<?import java.lang.String?>
-<?import javafx.collections.FXCollections?>
+<?import java.lang.*?>
 <VBox xmlns="http://javafx.com/javafx"
       xmlns:fx="http://javafx.com/fxml"
       fx:id="searchVBox"
       fx:controller="io.playqd.controller.SearchVBoxController" VBox.vgrow="ALWAYS">
 
-    <ToolBar fx:id="searchToolbar">
-        <HBox>
-
+    <ToolBar>
+        <HBox spacing="5">
+            <RadioButton fx:id="containsRadioBtn" text="Contains" selected="true"/>
+            <RadioButton fx:id="startsWithRadioBtn" text="Starts with"/>
         </HBox>
+    </ToolBar>
+
+    <ToolBar>
         <HBox fx:id="searchTextFieldHBox">
 
         </HBox>
@@ -33,60 +37,6 @@
         </HBox>
     </ToolBar>
 
-    <TabPane fx:id="tabPane" tabClosingPolicy="UNAVAILABLE" VBox.vgrow="ALWAYS">
-
-        <tabs>
-
-            <Tab fx:id="tracksTab" text="Tracks">
-
-                <VBox>
-
-                    <TableView fx:id="tracksTableView" VBox.vgrow="ALWAYS">
-
-                        <columns>
-
-                            <TableColumn fx:id="titleCol" text="Name" reorderable="false"/>
-                            <TableColumn fx:id="artistCol" text="Artist" reorderable="false"/>
-                            <TableColumn fx:id="albumCol" text="Album" reorderable="false"/>
-                            <TableColumn fx:id="genreCol" text="Genre" reorderable="false"/>
-                            <TableColumn fx:id="filenameCol" text="File name" reorderable="false"/>
-                            <TableColumn fx:id="sizeCol" text="Size" reorderable="false"/>
-                            <TableColumn fx:id="lengthCol" text="Length" reorderable="false"/>
-                            <TableColumn fx:id="extensionCol" text="Format" reorderable="false"/>
-                            <TableColumn fx:id="mimeTypeCol" text="Mime type" reorderable="false"/>
-                            <TableColumn fx:id="bitRateCol" text="Bit rate" reorderable="false"/>
-                            <TableColumn fx:id="sampleRateCol" text="Sample rate" reorderable="false"/>
-                            <TableColumn fx:id="bitsPerSampleCol" text="bps" reorderable="false"/>
-                            <TableColumn fx:id="ratingCol" text="Rating" reorderable="false"/>
-                            <TableColumn fx:id="playCountCol" text="Played" reorderable="false"/>
-                            <TableColumn fx:id="lastPlayedDateCol" text="Last played" reorderable="false"/>
-                            <TableColumn fx:id="addedDateCol" text="Added played" reorderable="false"/>
-
-                        </columns>
-
-                    </TableView>
-
-                    <Pagination fx:id="trackPagination" maxPageIndicatorCount="10" currentPageIndex="0">
-
-                    </Pagination>
-
-                </VBox>
-
-            </Tab>
-
-            <Tab text="Artists" disable="true">
-
-            </Tab>
-
-            <Tab text="Albums" disable="true">
-
-            </Tab>
-
-            <Tab text="Genres" disable="true">
-
-            </Tab>
-
-        </tabs>
-    </TabPane>
+    <fx:include source="search-result-tab-pane.fxml" fx:id="searchResultTabPane"/>
 
 </VBox>

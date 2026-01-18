@@ -2,9 +2,10 @@ package io.playqd.fxml;
 
 public enum FXMLResource {
 
-    APPLICATION("/fxml/application.fxml");
-//    APPLICATION_MENU_BAR("/fxml/application-menu-bar.fxml");
+    APPLICATION("/fxml/application.fxml"),
 
+    ARTISTS_TAB("/fxml/artists-tab.fxml"),
+    TRACKS_TAB("/fxml/tracks-tab.fxml");
 
     private final String path;
 

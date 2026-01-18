@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.SplitPane?>
+<?import javafx.scene.layout.VBox?>
+<SplitPane xmlns="http://javafx.com/javafx"
+           xmlns:fx="http://javafx.com/fxml"
+           fx:id="searchSplitPane"
+           fx:controller="io.playqd.controller.SearchSplitPaneController"
+           dividerPositions="0.2, 0.8" VBox.vgrow="ALWAYS">
+
+    <fx:include source="search-filters-vbox.fxml" fx:id="searchFiltersVBox"/>
+    <fx:include source="search-vbox.fxml" fx:id="searchVBox"/>
+
+</SplitPane>

@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <?import javafx.scene.control.Label?>
-<?import javafx.scene.control.SplitPane?>
 <?import javafx.scene.layout.BorderPane?>
 <?import javafx.scene.layout.VBox?>
 <VBox xmlns="http://javafx.com/javafx/24"
@@ -14,11 +13,7 @@
     <BorderPane fx:id="rootBorderPane" VBox.vgrow="ALWAYS">
 
         <center>
-            <SplitPane VBox.vgrow="ALWAYS" dividerPositions="0.2, 0.8">
-                <fx:include source="search-filters-vbox.fxml" fx:id="searchFiltersVBox"/>
-                <fx:include source="search-vbox.fxml" fx:id="searchVBox"/>
-            </SplitPane>
-
+            <fx:include source="search-split-pane.fxml" fx:id="searchSplitPane"/>
         </center>
 
         <bottom>
