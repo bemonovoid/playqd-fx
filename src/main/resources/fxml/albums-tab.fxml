@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.VBox?>
+<fx:root xmlns:fx="http://javafx.com/fxml/1"
+         type="javafx.scene.control.Tab"
+         text="Albums"
+         fx:id="albumsTab"
+         fx:controller="io.playqd.controller.AlbumsTabController">
+
+    <VBox>
+
+        <TableView fx:id="tableView" VBox.vgrow="ALWAYS">
+
+            <columns>
+
+                <TableColumn fx:id="nameCol" text="Name" reorderable="false"/>
+                <TableColumn fx:id="releaseDateCol" text="Release date" reorderable="false"/>
+                <TableColumn fx:id="tracksCountCol" text="Tracks" reorderable="false"/>
+                <TableColumn fx:id="genreCol" text="Genre" reorderable="false"/>
+
+            </columns>
+
+        </TableView>
+
+        <Pagination fx:id="pagination" maxPageIndicatorCount="10" currentPageIndex="0"/>
+
+    </VBox>
+
+</fx:root>

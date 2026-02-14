@@ -2,13 +2,18 @@ package io.playqd.controller;
 
 import io.playqd.client.GetTracksResponse;
 import io.playqd.data.Track;
+import io.playqd.player.PlayRequest;
+import io.playqd.player.PlayerEngine;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
 import javafx.fxml.FXML;
 import javafx.scene.control.Tab;
 import javafx.scene.control.TableColumn;
+import javafx.scene.control.TableRow;
+import javafx.scene.input.MouseButton;
 
 import java.time.format.DateTimeFormatter;
+import java.util.Collections;
 
 public class TracksTabController extends SearchResultTabController<Track, GetTracksResponse> {
 
@@ -23,13 +28,20 @@ public class TracksTabController extends SearchResultTabController<Track, GetTra
     @FXML
     private void initialize() {
         initTableInternal();
-        initTablePagination();
+        tableView.setRowFactory(_ -> {
+            var row = new TableRow<Track>();
+            row.setOnMouseClicked(e -> {
+                if (!row.isEmpty() && MouseButton.PRIMARY == e.getButton() && e.getClickCount() == 2) {
+//                    PlayerEngine.play(PlayRequest.singleTrack(row.getItem()));
+                }
+            });
+            return row;
+        });
     }
 
     @Override
     protected final void initTableInternal() {
         setTableCellValueFactories();
-//        treeTableView.setPlaceholder(createPlaceholder());
     }
 
     private void setTableCellValueFactories() {
@@ -64,13 +76,6 @@ public class TracksTabController extends SearchResultTabController<Track, GetTra
     }
 
     @Override
-    protected final void initTablePagination() {
-        pagination.currentPageIndexProperty().addListener((_, _, newIdx) -> {
-//            setTracksTableItems(search(getSearchRequestParams(), newIdx.intValue(), getPageSize()));
-        });
-    }
-
-    @Override
     protected final void setTableItems(GetTracksResponse response) {
         if (!response.isEmpty()) {
             tableView.setItems(FXCollections.observableList(response.content()));
@@ -78,6 +83,11 @@ public class TracksTabController extends SearchResultTabController<Track, GetTra
             tracksTab.setText("Tracks (" + tracksPage.totalElements() + ")");
             pagination.setPageCount(tracksPage.totalPages());
             pagination.setCurrentPageIndex(tracksPage.number());
+        } else {
+            tableView.setItems(FXCollections.observableList(Collections.emptyList()));
+            tracksTab.setText("Tracks");
+            pagination.setPageCount(0);
+            pagination.setCurrentPageIndex(0);
         }
     }
 

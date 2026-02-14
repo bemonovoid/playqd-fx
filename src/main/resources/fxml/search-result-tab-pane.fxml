@@ -1,8 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import javafx.scene.control.TabPane?>
-<?import io.playqd.controller.TracksTab?>
+<?import io.playqd.controller.AlbumsTab?>
 <?import io.playqd.controller.ArtistsTab?>
+<?import io.playqd.controller.TracksTab?>
+<?import javafx.scene.control.TabPane?>
+<?import javafx.scene.layout.VBox?>
+<?import io.playqd.controller.GenresTab?>
 <TabPane xmlns="http://javafx.com/javafx"
          xmlns:fx="http://javafx.com/fxml"
          tabClosingPolicy="UNAVAILABLE" javafx.scene.layout.VBox.vgrow="ALWAYS"
@@ -12,5 +15,9 @@
     <TracksTab fx:id="tracksTab"/>
 
     <ArtistsTab fx:id="artistsTab"/>
+
+    <AlbumsTab fx:id="albumsTab"/>
+
+    <GenresTab fx:id="genresTab"/>
 
 </TabPane>

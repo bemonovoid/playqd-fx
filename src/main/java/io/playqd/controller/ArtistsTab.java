@@ -1,8 +1,11 @@
 package io.playqd.controller;
 
 import io.playqd.client.GetArtistsResponse;
+import io.playqd.data.SearchFlag;
 import io.playqd.fxml.FXMLLoaderUtils;
 import io.playqd.fxml.FXMLResource;
+
+import java.util.function.BiConsumer;
 
 public class ArtistsTab extends SearchResultTab<GetArtistsResponse> {
 
@@ -15,13 +18,15 @@ public class ArtistsTab extends SearchResultTab<GetArtistsResponse> {
         this.controller = FXMLLoaderUtils.getController(resourceLoader, ArtistsTabController.class);
     }
 
-    ArtistsTabController getController() {
-        return controller;
-    }
-
     @Override
     void setItems(GetArtistsResponse response) {
         controller.setTableItems(response);
+    }
+
+    @Override
+    void onPageChanged(BiConsumer<SearchFlag, Integer> consumer) {
+        controller.pagination.currentPageIndexProperty().addListener((_, _, newIdx) ->
+                consumer.accept(SearchFlag.SEARCH_IN_ARTISTS, newIdx.intValue()));
     }
 
 }

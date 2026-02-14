@@ -42,6 +42,8 @@ dependencyResolutionManagement {
 
             library('playqd-client', 'io.playqd', 'playqd-client').versionRef('playqdVersion')
 
+            library('vlcj', 'uk.co.caprica', 'vlcj').version('4.12.1')
+
             library('junit-platform-commons', 'org.junit.platform', 'junit-platform-commons').versionRef('jUnit5PlatformVersion')
             library('junit-platform-engine', 'org.junit.platform', 'junit-platform-engine').versionRef('jUnit5PlatformVersion')
             library('junit-platform-launcher', 'org.junit.platform', 'junit-platform-launcher').versionRef('jUnit5PlatformVersion')

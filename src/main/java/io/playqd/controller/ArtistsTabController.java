@@ -3,10 +3,16 @@ package io.playqd.controller;
 import io.playqd.client.GetArtistsResponse;
 import io.playqd.data.Artist;
 import javafx.beans.property.SimpleStringProperty;
+import javafx.collections.FXCollections;
 import javafx.fxml.FXML;
 import javafx.scene.control.TableColumn;
 
+import java.util.Collections;
+
 public class ArtistsTabController extends SearchResultTabController<Artist, GetArtistsResponse> {
+
+    @FXML
+    private ArtistsTab artistsTab;
 
     @FXML
     private TableColumn<Artist, String> nameCol, albumsCountCol, tracksCountCol;
@@ -19,14 +25,6 @@ public class ArtistsTabController extends SearchResultTabController<Artist, GetA
     @Override
     protected void initTableInternal() {
         setTableCellValueFactories();
-//        treeTableView.setPlaceholder(createPlaceholder());
-    }
-
-    @Override
-    protected void initTablePagination() {
-        pagination.currentPageIndexProperty().addListener((_, _, newIdx) -> {
-//            setTracksTableItems(search(getSearchRequestParams(), newIdx.intValue(), getPageSize()));
-        });
     }
 
     private void setTableCellValueFactories() {
@@ -36,7 +34,19 @@ public class ArtistsTabController extends SearchResultTabController<Artist, GetA
     }
 
     @Override
-    protected void setTableItems(GetArtistsResponse response) {
-
+    protected final void setTableItems(GetArtistsResponse response) {
+        if (!response.isEmpty()) {
+            tableView.setItems(FXCollections.observableList(response.content()));
+            var artistsPage = response.page();
+            artistsTab.setText("Artists (" + artistsPage.totalElements() + ")");
+            pagination.setPageCount(artistsPage.totalPages());
+            pagination.setCurrentPageIndex(artistsPage.number());
+        } else {
+            tableView.setItems(FXCollections.observableList(Collections.emptyList()));
+            artistsTab.setText("Artists");
+            pagination.setPageCount(0);
+            pagination.setCurrentPageIndex(0);
+        }
     }
+
 }

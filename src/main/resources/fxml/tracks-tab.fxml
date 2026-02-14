@@ -14,22 +14,22 @@
 
             <columns>
 
-                <TableColumn fx:id="titleCol" text="Name" reorderable="false"/>
-                <TableColumn fx:id="artistCol" text="Artist" reorderable="false"/>
-                <TableColumn fx:id="albumCol" text="Album" reorderable="false"/>
-                <TableColumn fx:id="genreCol" text="Genre" reorderable="false"/>
-                <TableColumn fx:id="filenameCol" text="File name" reorderable="false"/>
-                <TableColumn fx:id="sizeCol" text="Size" reorderable="false"/>
+                <TableColumn fx:id="artistCol" text="Artist" reorderable="false" minWidth="200"/>
+                <TableColumn fx:id="albumCol" text="Album" reorderable="false" minWidth="200"/>
+                <TableColumn fx:id="titleCol" text="Title" reorderable="false" minWidth="350"/>
                 <TableColumn fx:id="lengthCol" text="Length" reorderable="false"/>
                 <TableColumn fx:id="extensionCol" text="Format" reorderable="false"/>
+                <TableColumn fx:id="sizeCol" text="Size" reorderable="false"/>
+                <TableColumn fx:id="lastPlayedDateCol" text="Last played" reorderable="false"/>
+                <TableColumn fx:id="playCountCol" text="Played" reorderable="false"/>
+                <TableColumn fx:id="addedDateCol" text="Added played" reorderable="false"/>
+                <TableColumn fx:id="genreCol" text="Genre" reorderable="false"/>
+                <TableColumn fx:id="filenameCol" text="File name" reorderable="false"/>
                 <TableColumn fx:id="mimeTypeCol" text="Mime type" reorderable="false"/>
                 <TableColumn fx:id="bitRateCol" text="Bit rate" reorderable="false"/>
                 <TableColumn fx:id="sampleRateCol" text="Sample rate" reorderable="false"/>
                 <TableColumn fx:id="bitsPerSampleCol" text="bps" reorderable="false"/>
                 <TableColumn fx:id="ratingCol" text="Rating" reorderable="false"/>
-                <TableColumn fx:id="playCountCol" text="Played" reorderable="false"/>
-                <TableColumn fx:id="lastPlayedDateCol" text="Last played" reorderable="false"/>
-                <TableColumn fx:id="addedDateCol" text="Added played" reorderable="false"/>
 
             </columns>
 

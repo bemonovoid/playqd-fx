@@ -34,7 +34,7 @@ public class Application extends javafx.application.Application {
         var fxmlLoader = FXMLLoaderUtils.resourceLoader(FXMLResource.APPLICATION);
 
         var scene = new Scene(fxmlLoader.load(), 1600, 1000);
-//        scene.getStylesheets().add("css/krypton.css");
+        scene.getStylesheets().addAll("css/glyphs.css", "css/tables.css");
 
         stage.setTitle("playqd-fx");
         stage.setScene(scene);

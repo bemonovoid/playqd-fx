@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import de.jensd.fx.glyphs.fontawesome.FontAwesomeIconView?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.image.ImageView?>
+<ToolBar xmlns="http://javafx.com/javafx"
+         xmlns:fx="http://javafx.com/fxml"
+         fx:controller="io.playqd.controller.PlayerToolbarController">
+
+    <padding>
+        <Insets topRightBottomLeft="10"/>
+    </padding>
+
+    <HBox alignment="CENTER">
+        <ImageView fx:id="artworkImageView" fitHeight="55" fitWidth="55"/>
+    </HBox>
+
+    <HBox alignment="CENTER">
+        <Button fx:id="playBtn" onAction="#play" style="-fx-background-color: transparent;" minWidth="40">
+            <graphic>
+                <FontAwesomeIconView glyphName="PLAY" glyphSize="18"/>
+            </graphic>
+        </Button>
+
+        <Button fx:id="playNextBtn" onAction="#playNext" style="-fx-background-color: transparent">
+            <graphic>
+                <FontAwesomeIconView glyphName="STEP_FORWARD" glyphSize="16"/>
+            </graphic>
+        </Button>
+    </HBox>
+
+    <HBox HBox.hgrow="ALWAYS">
+        <VBox HBox.hgrow="ALWAYS" spacing="1">
+            <Label fx:id="sliderTitle" text="Playing queue is empty"/>
+            <Slider max="1" fx:id="slider" HBox.hgrow="ALWAYS"/>
+            <HBox >
+                <Label fx:id="sliderFooterLeft"/>
+                <Pane HBox.hgrow="ALWAYS"/>
+                <Label fx:id="sliderFooterRight"/>
+            </HBox>
+        </VBox>
+        <VBox alignment="CENTER">
+            <padding>
+                <Insets left="15"/>
+            </padding>
+            <HBox>
+                <Label fx:id="timeElapsedLabel" text="0:00"/>
+                <Label text=" / "/>
+                <Label fx:id="trackTimeLabel" text="0:00"/>
+            </HBox>
+        </VBox>
+    </HBox>
+
+    <HBox alignment="CENTER">
+        <Separator orientation="VERTICAL"/>
+        <ToggleButton fx:id="shuffleBtn" focusTraversable="false" style="-fx-background-color: transparent;" minWidth="40">
+            <graphic>
+                <FontAwesomeIconView glyphName="RANDOM"/>
+            </graphic>
+        </ToggleButton>
+        <ToggleButton fx:id="repeatBtn" focusTraversable="false" style="-fx-background-color: transparent;" minWidth="40">
+            <graphic>
+                <FontAwesomeIconView glyphName="REPEAT"/>
+            </graphic>
+        </ToggleButton>
+    </HBox>
+
+    <HBox alignment="CENTER">
+        <Button fx:id="volumeBtn" focusTraversable="false" style="-fx-background-color: transparent;" minWidth="40">
+            <graphic>
+                <FontAwesomeIconView glyphName="VOLUME_UP"/>
+            </graphic>
+        </Button>
+
+        <Slider fx:id="volumeSlider" maxWidth="100" value="50"/>
+    </HBox>
+
+    <Pane/>
+
+</ToolBar>

@@ -8,29 +8,25 @@ import io.playqd.service.SearchEngine;
 import io.playqd.service.SearchEngineImpl;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableSet;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-import java.util.Collections;
 import java.util.HashSet;
 
 public abstract class AbstractSearchController {
 
-    protected SearchEngine searchEngine;
+    private static final Logger LOG = LoggerFactory.getLogger(AbstractSearchController.class);
 
-    protected void initializeInternal() {
+    protected SearchEngine searchEngine;
+    protected final ObservableSet<SearchFlag> searchFlags = FXCollections.observableSet(new HashSet<>());
+
+    public AbstractSearchController() {
         this.searchEngine = new SearchEngineImpl();
     }
 
-    protected GetSearchResponse search(SearchRequestParams params) {
-        return search(params, 0 , 50);
-    }
-
-    protected GetSearchResponse search(SearchRequestParams params, int pageIdx, int pageSize) {
+    protected final GetSearchResponse performSearch(SearchRequestParams params, int pageIdx, int pageSize) {
         var pageRequest = new PageRequest(pageIdx, pageSize);
         return searchEngine.search(params, pageRequest);
     }
-
-    protected abstract SearchRequestParams getSearchRequestParams();
-
-    protected abstract int getPageSize();
 
 }

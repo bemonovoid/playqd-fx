@@ -11,7 +11,7 @@ public class SearchEngineImpl implements SearchEngine {
 
     public SearchEngineImpl() {
         this.playqdClient = PlayqdClient.builder()
-                .apiBaseUrl("http://localhost:8016/api/v1")
+                .apiBaseUrl("http://gkos-srv:8016/api/v1")
                 .build();
     }
 

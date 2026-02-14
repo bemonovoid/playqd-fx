@@ -1,0 +1,37 @@
+.no-highlight-cell:selected,
+
+.table-row-cell:selected .no-highlight-cell {
+    -fx-background-color: -fx-control-inner-background; /* Or transparent */
+    -fx-text-fill: -fx-text-inner-color; /* Keeps text readable */
+}
+
+.table-row-cell:filled .no-highlight-cell {
+    -fx-background: -fx-control-inner-background ;
+    -fx-background-color: -fx-table-cell-border-color, -fx-background ;
+    -fx-background-insets: 0, 0 0 1 0 ;
+    -fx-table-cell-border-color: derive(-fx-color, 5%);
+}
+
+/* Remove the outer container border */
+.borderless-table {
+    -fx-background-insets: 0;
+    -fx-background-color: transparent;
+    -fx-padding: 0;
+}
+
+/* Remove internal cell borders (grid lines) */
+.borderless-table .table-cell {
+    -fx-border-color: transparent;
+}
+
+/* Remove header borders and background */
+.borderless-table .column-header,
+.borderless-table .column-header-background {
+    -fx-background-color: transparent;
+    -fx-border-color: transparent;
+}
+
+/* Remove the focus ring specifically for this table */
+.borderless-table:focused {
+    -fx-background-insets: 0;
+}
