@@ -1,6 +1,7 @@
 package io.playqd.player;
 
 import io.playqd.data.Track;
+import io.playqd.utils.PlayqdApis;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import uk.co.caprica.vlcj.factory.MediaPlayerFactory;
@@ -91,7 +92,7 @@ public class PlayerEngine {
     }
 
     private static void submitPlay(Track track) {
-        MEDIA_PLAYER.media().play("http://gkos-srv:8017/api/v1/tracks/" + track.uuid() + "/file");
+        MEDIA_PLAYER.media().play(PlayqdApis.baseUrl() + "/tracks/" + track.uuid() + "/file");
     }
 
 }

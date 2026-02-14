@@ -6,6 +6,7 @@ import io.playqd.data.Track;
 import io.playqd.player.FetchMode;
 import io.playqd.player.LoopMode;
 import io.playqd.player.PlayerEngine;
+import io.playqd.utils.PlayqdApis;
 import io.playqd.utils.TimeUtils;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
@@ -145,7 +146,7 @@ public class PlayerToolbarController {
     }
 
     private void updateArtwork(Track track) {
-        artworkImageView.setImage(new Image("http://gkos-srv:8017/api/v1/artworks/albums/" + track.album().id()));
+        artworkImageView.setImage(new Image(PlayqdApis.baseUrl() + "/artworks/albums/" + track.album().id()));
     }
 
     private void updateHeaderAndFooter(Track track) {

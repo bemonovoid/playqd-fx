@@ -1,5 +1,6 @@
 package io.playqd.controller.music;
 
+import io.playqd.utils.PlayqdApis;
 import javafx.geometry.Pos;
 import javafx.scene.control.TableCell;
 import javafx.scene.control.TableColumn;
@@ -35,7 +36,7 @@ public class AlbumArtworkTableViewCellFactory
                     if (trackTableRow.albumHeader()) {
                         var albumId = trackTableRow.track().album().id();
                         var artworkImageView =
-                                new ImageView(new Image("http://gkos-srv:8017/api/v1/artworks/albums/" + albumId));
+                                new ImageView(new Image(PlayqdApis.baseUrl() + "/artworks/albums/" + albumId));
                         artworkImageView.setFitWidth(50);
                         artworkImageView.setFitHeight(50);
 

@@ -7,28 +7,28 @@
            xmlns:fx="http://javafx.com/fxml"
            fx:id="musicSplitPane"
            fx:controller="io.playqd.controller.music.MusicSplitPaneController"
-           dividerPositions="0.2, 0.8">
+           dividerPositions="0.2, 0.5">
 
     <VBox VBox.vgrow="ALWAYS">
         <ToolBar>
             <ComboBox promptText="tool bar"/>
         </ToolBar>
 
-        <ListView fx:id="artistsListView" VBox.vgrow="ALWAYS">
+        <ListView fx:id="artistsListView" VBox.vgrow="ALWAYS"/>
 
-        </ListView>
+    </VBox>
 
+    <VBox>
+        <ToolBar>
+            <Label text="artist albums list view toolbar"/>
+        </ToolBar>
+        <ListView fx:id="albumsListView" VBox.vgrow="ALWAYS"/>
     </VBox>
 
     <VBox>
         <ToolBar>
             <ComboBox promptText="tool bar"/>
         </ToolBar>
-        <GridView fx:id="albumsGridView"
-                  cellHeight="120"
-                  cellWidth="120"
-                  horizontalCellSpacing="10"
-                  verticalCellSpacing="10"/>
 
         <TableView fx:id="tracksTableView" VBox.vgrow="ALWAYS">
             <columns>
