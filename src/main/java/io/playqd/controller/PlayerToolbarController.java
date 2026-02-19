@@ -6,6 +6,7 @@ import io.playqd.data.Track;
 import io.playqd.player.FetchMode;
 import io.playqd.player.LoopMode;
 import io.playqd.player.PlayerEngine;
+import io.playqd.utils.ImageHelper;
 import io.playqd.utils.PlayqdApis;
 import io.playqd.utils.TimeUtils;
 import javafx.application.Platform;
@@ -146,7 +147,13 @@ public class PlayerToolbarController {
     }
 
     private void updateArtwork(Track track) {
-        artworkImageView.setImage(new Image(PlayqdApis.baseUrl() + "/artworks/albums/" + track.album().id()));
+        ImageHelper.loadImageWithFallback(
+                artworkImageView,
+                80,
+                80,
+                PlayqdApis.albumArtwork(track.uuid()),
+                "/img/no-album-art-2.png"
+        );
     }
 
     private void updateHeaderAndFooter(Track track) {
@@ -155,7 +162,7 @@ public class PlayerToolbarController {
     }
 
     private void updateSliderTitle(Track track) {
-        sliderTitle.setText(track.artist().name() + " - " + track.title());
+        sliderTitle.setText(track.artistName() + " - " + track.title());
     }
 
     private void updateSliderFooter(Track track) {

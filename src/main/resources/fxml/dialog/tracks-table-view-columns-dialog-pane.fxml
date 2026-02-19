@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.ButtonType?>
+<?import javafx.scene.control.DialogPane?>
+<?import javafx.scene.layout.VBox?>
+<?import org.controlsfx.control.ListSelectionView?>
+<fx:root xmlns="http://javafx.com/javafx"
+         xmlns:fx="http://javafx.com/fxml"
+         type="javafx.scene.control.DialogPane"
+         prefWidth="500"
+         prefHeight="425"
+         fx:id="dialogPane"
+         fx:controller="io.playqd.dialog.tracks.TracksTableViewColumnsDialogController">
+
+    <content>
+        <VBox>
+            <ListSelectionView fx:id="columnSelectionView" VBox.vgrow="ALWAYS"/>
+        </VBox>
+    </content>
+
+    <ButtonType text="_Close" buttonData="CANCEL_CLOSE"/>
+    <ButtonType fx:id="okBtnType" text="_Ok" buttonData="OK_DONE"/>
+
+</fx:root>

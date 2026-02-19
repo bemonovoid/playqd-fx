@@ -1,10 +1,14 @@
 package io.playqd.player;
 
-import io.playqd.data.Track;
+import io.playqd.data.Album;
 
 public interface AlbumListViewActionListener {
 
-    default void onAlbumDoubleClicked(Track.Album album) {
+    default void onAllArtistAlbumsClicked(String artistId) {
+
+    }
+
+    default void onAlbumDoubleClicked(Album album) {
 
     }
 }

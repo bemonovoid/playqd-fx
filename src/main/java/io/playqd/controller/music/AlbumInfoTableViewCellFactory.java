@@ -35,9 +35,9 @@ public class AlbumInfoTableViewCellFactory
                     var trackTableRow = getTableRow().getItem();
 
                     if (trackTableRow.albumHeader()) {
-                        var albName = trackTableRow.track().album().name();
-                        var albDate = trackTableRow.track().album().releaseDate();
-                        var albGenreDate = trackTableRow.track().album().genre();
+                        var albName = trackTableRow.track().albumName();
+                        var albDate = trackTableRow.track().releaseDate();
+                        var albGenreDate = trackTableRow.track().genre();
 
                         var albumInfoVBox = new VBox(new Label(albName), new Label(albDate), new Label(albGenreDate));
                         albumInfoVBox.setSpacing(2);

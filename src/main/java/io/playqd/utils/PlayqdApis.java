@@ -8,4 +8,8 @@ public class PlayqdApis {
         return AppConfig.getProperties().apiBaseUrl().get();
     }
 
+    public static String albumArtwork(String albumId) {
+        return baseUrl() + "/albums/" + albumId + "/artwork";
+    }
+
 }

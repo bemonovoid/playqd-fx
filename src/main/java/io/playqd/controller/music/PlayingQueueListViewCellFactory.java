@@ -35,7 +35,7 @@ public class PlayingQueueListViewCellFactory implements Callback<ListView<Queued
 
                     var trackTitle = new Label(queuedTrack.track().title());
 
-                    var artistName = new Label(queuedTrack.track().artist().name());
+                    var artistName = new Label(queuedTrack.track().artistName());
                     artistName.setDisable(true);
                     artistName.setStyle("-fx-font-size: 10px;");
                     artistName.setOpacity(0.6);

@@ -7,8 +7,8 @@ public final class TimeUtils {
     public static String durationToTimeFormat(Duration duration) {
         var hours = duration.toHours();
         if (hours > 0) {
-            return String.format("%s:%s",
-                    (hours * 60) + duration.toMinutesPart(), unitPartToTimeFormat(duration.toSecondsPart()));
+            return String.format("%s:%s:%s",
+                    hours, duration.toMinutesPart(), unitPartToTimeFormat(duration.toSecondsPart()));
         }
         var durationInMinutes = duration.toMinutes();
         if (durationInMinutes > 0) {

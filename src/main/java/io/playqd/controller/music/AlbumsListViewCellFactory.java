@@ -1,78 +1,104 @@
 package io.playqd.controller.music;
 
-import io.playqd.data.Track;
+import io.playqd.data.Album;
 import io.playqd.event.MouseEventHelper;
-import io.playqd.player.AlbumListViewActionListener;
+import io.playqd.utils.FakeIds;
 import io.playqd.utils.ImageHelper;
 import io.playqd.utils.PlayqdApis;
+import io.playqd.utils.TimeUtils;
 import javafx.geometry.Insets;
+import javafx.geometry.Orientation;
 import javafx.geometry.Pos;
-import javafx.scene.control.Label;
-import javafx.scene.control.ListCell;
-import javafx.scene.control.ListView;
-import javafx.scene.control.Tooltip;
-import javafx.scene.image.Image;
+import javafx.scene.control.*;
 import javafx.scene.image.ImageView;
+import javafx.scene.input.MouseButton;
+import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.HBox;
-import javafx.scene.layout.Pane;
-import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
 import javafx.util.Callback;
+import org.controlsfx.control.HyperlinkLabel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.UUID;
+import java.time.Duration;
 
-public class AlbumsListViewCellFactory implements Callback<ListView<Track.Album>, ListCell<Track.Album>> {
+public class AlbumsListViewCellFactory implements Callback<ListView<Album>, ListCell<Album>> {
 
     private static final Logger LOG = LoggerFactory.getLogger(AlbumsListViewCellFactory.class);
 
-    private final AlbumListViewActionListener albumActionListener;
+    private final AlbumsListViewCellFactoryListener cellFactoryListener;
 
-    AlbumsListViewCellFactory(AlbumListViewActionListener albumActionListener) {
-        this.albumActionListener = albumActionListener;
-    }
-
-    static void main() {
-        var uuid = UUID.nameUUIDFromBytes("Caspian".getBytes()).toString();
-        var uuid2 = UUID.nameUUIDFromBytes("Anathema".getBytes()).toString();
-        System.out.println(uuid);
+    AlbumsListViewCellFactory(AlbumsListViewCellFactoryListener cellFactoryListener) {
+        this.cellFactoryListener = cellFactoryListener;
     }
 
     @Override
-    public ListCell<Track.Album> call(ListView<Track.Album> albumGridView) {
+    public ListCell<Album> call(ListView<Album> albumGridView) {
 
         return new ListCell<>() {
 
             @Override
-            protected void updateItem(Track.Album album, boolean empty) {
-
-                setOnMouseClicked(event -> {
-                    if (MouseEventHelper.primaryButtonDoubleClicked(event)) {
-                        albumActionListener.onAlbumDoubleClicked(album);
-                    }
-                });
-
+            protected void updateItem(Album album, boolean empty) {
                 super.updateItem(album, empty);
 
                 if (empty || album == null) {
                     setGraphic(null);
                 } else {
+
+                    addEventFilter(MouseEvent.ANY, e -> {
+                        if (e.getButton() == MouseButton.SECONDARY) {
+                            e.consume();
+                        }
+                    });
+
+                    setOnMouseClicked(event -> {
+                        if (MouseEventHelper.primaryButtonDoubleClicked(event)) {
+                            cellFactoryListener.onAlbumDoubleClicked(album);
+                        } else if (MouseEventHelper.secondaryButtonSingleClicked(event)) {
+
+                        }
+                    });
+
+                    if (album.name().equals(FakeIds.ALL_ARTIST_ALBUMS)) {
+
+                        var artistNameLabel = new HyperlinkLabel("[" + album.artistName() + "]");
+                        artistNameLabel.setStyle("-fx-font-size: 13px;-fx-font-weight: bold");
+                        artistNameLabel.setOnAction(_ -> cellFactoryListener.onAllArtistAlbumsClicked(album.id()));
+                        var vBoxContainer = new VBox();
+
+                        vBoxContainer.setSpacing(3);
+                        vBoxContainer.getChildren().addAll(artistNameLabel, new Separator(Orientation.HORIZONTAL));
+                        setGraphic(vBoxContainer);
+                        return;
+                    }
+
                     var imageView = new ImageView();
 
                     ImageHelper.loadImageWithFallback(
                             imageView,
                             80,
                             80,
-                            PlayqdApis.baseUrl() + "/artworks/albums/" + album.id(),
-                            "/img/album-artwork-not-found.png");
+                            PlayqdApis.albumArtwork(album.id()),
+                            "/img/no-album-art-2.png");
 
                     var vBox = new VBox();
                     vBox.setAlignment(Pos.TOP_LEFT);
 
                     var albNameLabel = new Label(album.name());
                     albNameLabel.setTooltip(new Tooltip(album.name()));
-                    albNameLabel.setStyle("-fx-font-size: 16px;");
+                    albNameLabel.setStyle("-fx-font-size: 15px;-fx-font-weight: medium");
+
+                    var albTracksCountLabel = new Label(
+                            album.tracksCount() + (album.tracksCount() > 1 ? " tracks" : " track"));
+                    albTracksCountLabel.setDisable(true);
+                    albTracksCountLabel.setStyle("-fx-font-size: 10px;");
+                    albTracksCountLabel.setOpacity(0.6);
+
+                    var albLengthLabel = new Label(
+                            TimeUtils.durationToTimeFormat(Duration.ofSeconds(album.lengthInSeconds())));
+                    albLengthLabel.setDisable(true);
+                    albLengthLabel.setStyle("-fx-font-size: 10px;");
+                    albLengthLabel.setOpacity(0.6);
 
                     var albDate = new Label(album.releaseDate());
                     albDate.setDisable(true);
@@ -84,15 +110,15 @@ public class AlbumsListViewCellFactory implements Callback<ListView<Track.Album>
                     albGenre.setStyle("-fx-font-size: 10px;");
                     albGenre.setOpacity(0.6);
 
-                    var pane = new Pane();
-                    VBox.setVgrow(pane, Priority.ALWAYS);
+//                    var pane = new Pane();
+//                    VBox.setVgrow(pane, Priority.ALWAYS);
 
-                    vBox.getChildren().addAll(albNameLabel, pane, albDate, albGenre);
+                    vBox.getChildren().addAll(albNameLabel, albTracksCountLabel, albLengthLabel, albDate, albGenre);
 
                     var hBox = new HBox();
                     hBox.setSpacing(10);
                     hBox.setAlignment(Pos.CENTER_LEFT);
-                    hBox.setPadding(new Insets(10, 0, 10, 0)); // creates spacing between TableView rows
+                    hBox.setPadding(new Insets(10, 0, 10, 0)); // creates spacing between ListView rows
 
                     hBox.getChildren().addAll(imageView, vBox);
 
@@ -101,4 +127,5 @@ public class AlbumsListViewCellFactory implements Callback<ListView<Track.Album>
             }
         };
     }
+
 }

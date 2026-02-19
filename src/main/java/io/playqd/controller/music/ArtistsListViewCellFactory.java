@@ -11,7 +11,6 @@ import javafx.util.Callback;
 
 public class ArtistsListViewCellFactory implements Callback<ListView<Artist>, ListCell<Artist>> {
 
-
     @Override
     public ListCell<Artist> call(ListView<Artist> artistListView) {
         return new ListCell<>() {
@@ -29,11 +28,18 @@ public class ArtistsListViewCellFactory implements Callback<ListView<Artist>, Li
                     image.setFitHeight(25);
                     image.setFitWidth(25);
 
+                    var countText = artist.albumsCount() > 1 ? " albums" : " album";
+                    var countTextLabel = new Label(artist.albumsCount() + countText);
+                    countTextLabel.setDisable(true);
+                    countTextLabel.setStyle("-fx-font-size: 10px;");
+
+                    var artistNameLabel = new Label(artist.name());
+                    artistNameLabel.setStyle("-fx-font-size: 14px;");
+
                     var vBox = new VBox();
-                    vBox.getChildren().addAll(new Label(artist.name()), new Label(artist.albumsCount() + " albums"));
+                    vBox.getChildren().addAll(artistNameLabel, countTextLabel);
 
                     hBox.getChildren().addAll(image, vBox);
-
 
                     setGraphic(hBox);
                 } else {

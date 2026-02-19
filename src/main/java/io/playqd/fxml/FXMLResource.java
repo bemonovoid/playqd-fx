@@ -4,10 +4,13 @@ public enum FXMLResource {
 
     APPLICATION("/fxml/application.fxml"),
 
-    ARTISTS_TAB("/fxml/artists-tab.fxml"),
-    ALBUMS_TAB("/fxml/albums-tab.fxml"),
-    GENRES_TAB("/fxml/genres-tab.fxml"),
-    TRACKS_TAB("/fxml/tracks-tab.fxml");
+    ARTISTS_CONTAINER("/fxml/artists-container.fxml"),
+
+    TRACKS_CONTAINER("/fxml/tracks-container.fxml"),
+
+    DIALOG_INVALIDATE_CACHES("/fxml/dialog/invalidate-caches.fxml"),
+
+    DIALOG_TRACKS_TABLE_VIEW_COLUMNS("/fxml/dialog/tracks-table-view-columns-dialog-pane.fxml");
 
     private final String path;
 

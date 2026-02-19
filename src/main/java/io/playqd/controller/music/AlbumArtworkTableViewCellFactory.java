@@ -34,9 +34,9 @@ public class AlbumArtworkTableViewCellFactory
                     var trackTableRow = getTableRow().getItem();
 
                     if (trackTableRow.albumHeader()) {
-                        var albumId = trackTableRow.track().album().id();
+                        var albumId = trackTableRow.track().uuid();
                         var artworkImageView =
-                                new ImageView(new Image(PlayqdApis.baseUrl() + "/artworks/albums/" + albumId));
+                                new ImageView(new Image(PlayqdApis.albumArtwork(albumId)));
                         artworkImageView.setFitWidth(50);
                         artworkImageView.setFitHeight(50);
 

@@ -10,14 +10,18 @@ public final class ImageHelper {
                                              double requestedHeight,
                                              String url,
                                              String fallbackUrl) {
-        var image = new Image(url, requestedWidth, requestedHeight, true, true, true);
-
+        var image = (Image) null;
+        try {
+            image = new Image(url, requestedWidth, requestedHeight, true, true, true);
+        } catch (IllegalArgumentException e) {
+            imageView.setImage(new Image(fallbackUrl, requestedWidth, requestedHeight, true, true, true));
+            return;
+        }
         image.errorProperty().addListener((_, _, hasError) -> {
             if (hasError) {
                 imageView.setImage(new Image(fallbackUrl, requestedWidth, requestedHeight, true, true, true));
             }
         });
-
         imageView.setImage(image);
     }
 }

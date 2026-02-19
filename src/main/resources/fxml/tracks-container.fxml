@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import de.jensd.fx.glyphs.fontawesome.FontAwesomeIconView?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<fx:root xmlns:fx="http://javafx.com/fxml/1"
+         type="javafx.scene.layout.VBox"
+         VBox.vgrow="ALWAYS"
+         fx:id="tracksContainer">
+
+    <ToolBar>
+
+        <Pane HBox.hgrow="ALWAYS"/>
+        <MenuButton fx:id="sortTracksMenuBtn" focusTraversable="false"
+                    style="-fx-font-size: 10" accessibleRole="BUTTON">
+            <graphic>
+                <FontAwesomeIconView glyphName="SORT_AMOUNT_DESC" glyphSize="10"/>
+            </graphic>
+        </MenuButton>
+
+    </ToolBar>
+
+    <TableView fx:id="tracksTableView" VBox.vgrow="ALWAYS">
+
+        <columns>
+            <TableColumn fx:id="titleCol" text="Title"/>
+            <TableColumn fx:id="timeCol" text="Time" maxWidth="70" style="-fx-alignment: CENTER-RIGHT"/>
+            <TableColumn fx:id="artistCol" text="Artist" visible="false"/>
+            <TableColumn fx:id="albumCol" text="Album" visible="false"/>
+            <TableColumn fx:id="extensionCol" text="Format" visible="false"/>
+            <TableColumn fx:id="sizeCol" text="Size" visible="false"/>
+            <TableColumn fx:id="lastPlayedDateCol" text="Last played" visible="false"/>
+            <TableColumn fx:id="playCountCol" text="Played" visible="false"/>
+            <TableColumn fx:id="addedDateCol" text="Added played" visible="false"/>
+            <TableColumn fx:id="genreCol" text="Genre" visible="false"/>
+            <TableColumn fx:id="filenameCol" text="File name" visible="false"/>
+            <TableColumn fx:id="mimeTypeCol" text="Mime type" visible="false"/>
+            <TableColumn fx:id="bitRateCol" text="Bit rate" visible="false"/>
+            <TableColumn fx:id="sampleRateCol" text="Sample rate" visible="false"/>
+            <TableColumn fx:id="bitsPerSampleCol" text="bps" visible="false"/>
+            <TableColumn fx:id="ratingCol" text="Rating" visible="false"/>
+            <TableColumn fx:id="trackNumberCol" text="#" maxWidth="40" visible="false"/>
+        </columns>
+    </TableView>
+    <HBox>
+        <Label text="total time"/>
+    </HBox>
+
+</fx:root>

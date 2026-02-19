@@ -1,110 +1,126 @@
 package io.playqd.controller.music;
 
-import io.playqd.client.GetArtistsRequest;
 import io.playqd.client.PageRequest;
 import io.playqd.client.PlayqdClientProvider;
+import io.playqd.controller.view.ArtistsContainer;
+import io.playqd.controller.view.TracksContainer;
+import io.playqd.data.Album;
 import io.playqd.data.Artist;
 import io.playqd.data.Track;
-import io.playqd.event.MouseEventHelper;
-import io.playqd.player.AlbumListViewActionListener;
-import io.playqd.player.PlayRequest;
-import io.playqd.player.PlayerEngine;
-import javafx.beans.property.SimpleStringProperty;
+import io.playqd.utils.FakeIds;
+import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.fxml.FXML;
 import javafx.scene.control.ListView;
-import javafx.scene.control.TableColumn;
-import javafx.scene.control.TableRow;
-import javafx.scene.control.TableView;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 import java.util.stream.Collectors;
 
 public class MusicSplitPaneController {
 
     @FXML
-    private ListView<Artist> artistsListView;
+    private ArtistsContainer artistsContainer;
 
     @FXML
-    private ListView<Track.Album> albumsListView;
+    private ListView<Album> albumsListView;
 
     @FXML
-    private TableView<Track> tracksTableView;
-
-    @FXML
-    private TableColumn<Track, String> trackNumberCol, titleCol, timeCol;
+    private TracksContainer tracksContainer;
 
     @FXML
     private void initialize() {
-
-        tracksTableView.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY_LAST_COLUMN);
-        tracksTableView.setRowFactory(_ -> {
-            var row = new TableRow<Track>();
-            row.setOnMouseClicked(e -> {
-                if (!row.isEmpty() && MouseEventHelper.primaryButtonDoubleClicked(e)) {
-                    PlayerEngine.enqueueAndPlay(new PlayRequest(tracksTableView.getItems(), row.getIndex()));
-                }
-            });
-            return row;
-        });
-        artistsListView.setCellFactory(new ArtistsListViewCellFactory());
-
-        var artists = PlayqdClientProvider.get().getArtists(GetArtistsRequest.createDefault(), PageRequest.defaultPage());
-
-        var allArtistsArtist = new Artist("all-artists", "All Artists", artists.content().size(), -1);
-
-        var result = new ArrayList<Artist>(artists.content().size() + 1);
-        result.add(allArtistsArtist);
-        result.addAll(artists.content());
-
-        artistsListView.setItems(FXCollections.observableArrayList(result));
-
-
-        artistsListView.getSelectionModel().selectedItemProperty().addListener((_, _, selectedArtist) -> {
-            albumsListView.setCellFactory(new AlbumsListViewCellFactory(new AlbumsListViewActionListenerImpl()));
-            var tracks = PlayqdClientProvider.get().getTracksByArtistId(selectedArtist.id());
-
-            var albumTracks = tracks.content().stream().collect(Collectors.groupingBy(Track::album));
-            albumsListView.setItems(FXCollections.observableArrayList(new ArrayList<>(albumTracks.keySet())));
-
-            tracksTableView.setItems(FXCollections.observableList(tracks.content()));
-            tracksTableView.setUserData(tracks.content());
-        });
-
-        albumsListView.getSelectionModel().selectedItemProperty().addListener((_, _, selectedAlbum) -> {
-            tracksTableView.setItems(FXCollections.observableList(getAlbumTracks(selectedAlbum)));
-        });
-
-
-        trackNumberCol.setCellValueFactory(c -> new SimpleStringProperty(c.getValue().number()));
-        titleCol.setCellValueFactory(c -> new SimpleStringProperty(c.getValue().title()));
-        timeCol.setCellValueFactory(c -> new SimpleStringProperty(c.getValue().length().readable()));
+        new TracksTableViewController(this).initialize();
+        new AlbumsListController(this).initialize();
+        new ArtistContainerManager(this).initialize();
     }
 
-    private List<Track> getAlbumTracks(Track.Album album) {
+    void showAllAlbums() {
+        Platform.runLater(() -> {
+            var albums = PlayqdClientProvider.get().getAlbums();
+            var albumsGroupedByArtist = albums.stream().collect(Collectors.groupingBy(Album::artistName));
+            var albumsListViewItems = new ArrayList<Album>(albums.size() + albumsGroupedByArtist.size());
+            albumsGroupedByArtist.entrySet().stream()
+                    .sorted(Map.Entry.comparingByKey())
+                    .forEach(entry -> {
+                        var headerAlbum = createFakeArtistAlbumsAlbum(entry.getValue().getFirst());
+                        albumsListViewItems.add(headerAlbum);
+                        albumsListViewItems.addAll(entry.getValue());
+                    });
+            albumsListView.setUserData(Collections.unmodifiableList(albumsListViewItems));
+            albumsListView.setItems(FXCollections.observableArrayList(albumsListViewItems));
+        });
+    }
 
-        @SuppressWarnings("unchecked")
-        var artistTracks = (List<Track>) tracksTableView.getUserData();
+    void showArtistAlbums(Artist selectedArtist) {
+        Platform.runLater(() -> {
+            var albums = PlayqdClientProvider.get().getAlbumsByArtistId(selectedArtist.id());
+            var albumsListViewItems = new ArrayList<Album>(albums.size() + 1);
+            var headerAlbum = createFakeArtistAlbumsAlbum(albums.getFirst());
+            albumsListViewItems.add(headerAlbum);
+            albumsListViewItems.addAll(albums);
+            albumsListView.setItems(FXCollections.observableArrayList(albumsListViewItems));
+            tracksContainer.getTracksTableView().setItems(FXCollections.observableList(getArtistTracks(selectedArtist.id())));
+        });
+    }
 
-        return artistTracks.stream()
-                .filter(track -> track.album().id().equals(album.id()))
+    void showAllTracks() {
+        Platform.runLater(() -> {
+            var allTracks = getAllTracks();
+            tracksContainer.getTracksTableView().setUserData(Collections.unmodifiableList(allTracks));
+            tracksContainer.getTracksTableView().setItems(FXCollections.observableList(allTracks));
+        });
+    }
+
+    List<Track> getAllTracks() {
+        return new ArrayList<>(PlayqdClientProvider.get().getAllTracks(PageRequest.unpaged()).content());
+    }
+
+    List<Track> getArtistTracks(String artistId) {
+        return PlayqdClientProvider.get().getTracksByArtistId(artistId).stream()
+                .sorted(Comparator.comparing(Track::title))
+                .collect(Collectors.toCollection(ArrayList::new));
+    }
+
+    List<Track> getAlbumTracks(Album album) {
+
+        var albumTracks = PlayqdClientProvider.get().getTracksByAlbumId(album.id());
+
+        return albumTracks.stream()
                 .sorted((t1, t2) -> {
                     try {
+                        if (t1.number() == null || t2.number() == null) {
+                            return 0;
+                        }
                         return Integer.compare(Integer.parseInt(t1.number()), Integer.parseInt(t2.number()));
                     } catch (NumberFormatException e) {
                         return t1.number().compareTo(t2.number());
                     }
                 })
-                .toList();
+                .collect(Collectors.toCollection(ArrayList::new));
     }
 
-    private class AlbumsListViewActionListenerImpl implements AlbumListViewActionListener {
+    void clearAlbumsList() {
+        albumsListView.getItems().clear();
+    }
 
-        @Override
-        public void onAlbumDoubleClicked(Track.Album album) {
-            PlayerEngine.enqueueAndPlay(new PlayRequest(tracksTableView.getItems()));
-        }
+    ArtistsContainer getArtistsContainer() {
+        return artistsContainer;
+    }
 
+    ListView<Album> getAlbumsListView() {
+        return albumsListView;
+    }
+
+    TracksContainer getTracksContainer() {
+        return tracksContainer;
+    }
+
+    Album getSelectedAlbum() {
+        return getAlbumsListView().getSelectionModel().getSelectedItem();
+    }
+
+    static Album createFakeArtistAlbumsAlbum(Album artistAlbum) {
+        return new Album(
+                artistAlbum.id(), FakeIds.ALL_ARTIST_ALBUMS, "", "", artistAlbum.artistName(), false, null, 0, 0);
     }
 }
