@@ -29,8 +29,19 @@ public class PlayingQueue {
     }
 
     public void enqueue(List<Track> tracks) {
+        enqueue(tracks, QueuePosition.END);
+    }
+
+    public void enqueue(List<Track> tracks, int position) {
+
+    }
+
+    public void enqueue(List<Track> tracks, QueuePosition position) {
         var queuedTracks = tracks.stream().map(QueuedTrack::new).toList();
-        queue.addAll(queuedTracks);
+        switch (position) {
+            case END -> queue.addAll(queuedTracks);
+            case START -> queue.addAll(0, queuedTracks);
+        }
     }
 
     public Optional<Track> get(int position) {

@@ -2,6 +2,7 @@ package io.playqd.controller;
 
 import de.jensd.fx.glyphs.fontawesome.FontAwesomeIcon;
 import de.jensd.fx.glyphs.fontawesome.FontAwesomeIconView;
+import io.playqd.client.PlayqdClientProvider;
 import io.playqd.data.Track;
 import io.playqd.player.FetchMode;
 import io.playqd.player.LoopMode;
@@ -12,7 +13,6 @@ import io.playqd.utils.TimeUtils;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
-import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.util.Duration;
 import org.slf4j.Logger;
@@ -31,13 +31,13 @@ public class PlayerToolbarController {
     private ImageView artworkImageView;
 
     @FXML
-    private Label sliderTitle, sliderFooterRight, timeElapsedLabel, trackTimeLabel;
+    private Label sliderTitle, timeElapsedLabel, trackTimeLabel;
 
     @FXML
     private Button playBtn, playNextBtn, volumeBtn;
 
     @FXML
-    private ToggleButton repeatBtn, shuffleBtn;
+    private ToggleButton favoriteBtn, repeatBtn, shuffleBtn;
 
     @FXML
     private Slider slider, volumeSlider;
@@ -68,6 +68,20 @@ public class PlayerToolbarController {
     }
 
     private void initButtonEventHandlers() {
+        favoriteBtn.selectedProperty().addListener((_, _, selected) -> {
+            if (selected) {
+                PlayerEngine.PLAYING_QUEUE.current().ifPresent(track -> {
+                    PlayqdClientProvider.get().addToFavorites(track.uuid());
+                    favoriteBtn.setGraphic(new FontAwesomeIconView(FontAwesomeIcon.STAR));
+                    favoriteBtn.getStyleClass().add("favorite-icon");
+                });
+            } else {
+                PlayerEngine.PLAYING_QUEUE.current().ifPresent(track -> {
+                    favoriteBtn.setGraphic(new FontAwesomeIconView(FontAwesomeIcon.STAR_ALT));
+                    favoriteBtn.getStyleClass().remove("favorite-icon");
+                });
+            }
+        });
         repeatBtn.selectedProperty().addListener((_, _, selected) -> {
             if (selected) {
                 repeatBtn.getStyleClass().add("repeat-icon");
@@ -94,7 +108,7 @@ public class PlayerToolbarController {
                     ((FontAwesomeIconView) playBtn.getGraphic()).setIcon(FontAwesomeIcon.PAUSE);
                     track.ifPresent(t -> {
                         updateArtwork(t);
-                        updateHeaderAndFooter(t);
+                        updateSliderTitle(t);
                         updateTrackTime(t);
                         updateControlButtons();
                     });
@@ -156,21 +170,8 @@ public class PlayerToolbarController {
         );
     }
 
-    private void updateHeaderAndFooter(Track track) {
-        updateSliderTitle(track);
-        updateSliderFooter(track);
-    }
-
     private void updateSliderTitle(Track track) {
         sliderTitle.setText(track.artistName() + " - " + track.title());
-    }
-
-    private void updateSliderFooter(Track track) {
-        sliderFooterRight.setText(
-                track.audioFormat().bitsPerSample() + " bits | " +
-                        track.audioFormat().bitRate() + " kbps | " +
-                        track.audioFormat().sampleRate() + " kHz, " +
-                        track.fileAttributes().extension() + " (" + track.audioFormat().mimeType() + ")");
     }
 
     private void updateTrackTime(Track track) {
@@ -185,6 +186,13 @@ public class PlayerToolbarController {
 
     private void updateControlButtons() {
         playNextBtn.setDisable(!PlayerEngine.PLAYING_QUEUE.hasNext());
+    }
+
+    private void updateFunctionButtons(Track t) {
+        if (t.rating().value() > 0) {
+            favoriteBtn.setGraphic(new FontAwesomeIconView(FontAwesomeIcon.STAR));
+            favoriteBtn.getStyleClass().add("favorite-icon");
+        }
     }
 
     private void handleTrackStopped() {

@@ -1,9 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import javafx.scene.control.Button?>
-<?import javafx.scene.control.SplitPane?>
-<?import javafx.scene.control.ToolBar?>
-<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.control.*?>
 <?import javafx.scene.layout.VBox?>
 <VBox xmlns="http://javafx.com/javafx/24"
       xmlns:fx="http://javafx.com/fxml"
@@ -12,26 +9,26 @@
 
     <fx:include source="application-menu-bar.fxml" fx:id="applicationMenuBar"/>
 
-    <BorderPane fx:id="rootBorderPane" VBox.vgrow="ALWAYS">
+    <VBox VBox.vgrow="ALWAYS">
+        <ToolBar>
+            <fx:define>
+                <ToggleGroup fx:id="viewToggleGroup"/>
+            </fx:define>
+            <ToggleButton fx:id="libraryViewButton" text="Music" toggleGroup="$viewToggleGroup"/>
+            <ToggleButton fx:id="tracksViewButton" text="Tracks" toggleGroup="$viewToggleGroup"/>
+            <ToggleButton text="Playlists" toggleGroup="$viewToggleGroup" disable="true"/>
+        </ToolBar>
 
-        <top>
-            <ToolBar>
-                <Button text="Music"/>
-                <Button text="Playlits"/>
-            </ToolBar>
-        </top>
-
-        <center>
-            <SplitPane dividerPositions="0.75, 0.25">
+        <SplitPane fx:id="rootSplitPane" dividerPositions="0.85" VBox.vgrow="ALWAYS">
+            <fx:define>
                 <fx:include source="music-split-pane.fxml" fx:id="musicSplitPane"/>
-                <fx:include source="player-queue.fxml" fx:id="playerQueue"/>
-            </SplitPane>
-        </center>
+                <fx:include source="tracks-explorer-splot-pane.fxml" fx:id="tracksExplorerSplitPane"/>
+            </fx:define>
+            <fx:include source="player-queue.fxml" fx:id="playerQueue"/>
+        </SplitPane>
 
-        <bottom>
-            <fx:include source="player-toolbar.fxml" fx:id="playerToolbar"/>
-        </bottom>
+        <fx:include source="player-toolbar.fxml" fx:id="playerToolbar"/>
 
-    </BorderPane>
+    </VBox>
 
 </VBox>

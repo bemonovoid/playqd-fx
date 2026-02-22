@@ -23,6 +23,7 @@ public class Application extends javafx.application.Application {
     @Override
     public void start(Stage primaryStage) throws Exception {
 //        PlatformApi.setHostServices(getHostServices());
+        primaryStage.setMaximized(true);
         startInStage(primaryStage);
     }
 
@@ -34,7 +35,7 @@ public class Application extends javafx.application.Application {
         var fxmlLoader = FXMLLoaderUtils.resourceLoader(FXMLResource.APPLICATION);
 
         var scene = new Scene(fxmlLoader.load(), 1600, 1000);
-        scene.getStylesheets().addAll("css/glyphs.css", "css/tables.css");
+        scene.getStylesheets().addAll("css/glyphs.css", "css/tables.css", "css/music-library.css");
 
         stage.setTitle("playqd-fx");
         stage.setScene(scene);

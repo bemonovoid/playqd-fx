@@ -1,25 +1,73 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import io.playqd.controller.view.ArtistsContainer?>
+<?import de.jensd.fx.glyphs.fontawesome.FontAwesomeIconView?>
+<?import io.playqd.controller.view.TracksContainer?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
-<?import io.playqd.controller.view.TracksContainer?>
+<?import javafx.geometry.Insets?>
 <SplitPane xmlns="http://javafx.com/javafx"
            xmlns:fx="http://javafx.com/fxml"
            fx:id="musicSplitPane"
-           fx:controller="io.playqd.controller.music.MusicSplitPaneController"
-           dividerPositions="0.2, 0.5">
+           fx:controller="io.playqd.controller.music.MusicLibraryController"
+           dividerPositions="0.2, 0.4">
 
-    <ArtistsContainer fx:id="artistsContainer"/>
+    <VBox VBox.vgrow="ALWAYS">
+
+        <ToolBar>
+
+            <Label fx:id="artistsSearchLabel" visible="false">
+                <graphic>
+                    <FontAwesomeIconView glyphName="SEARCH" glyphSize="12"/>
+                </graphic>
+            </Label>
+
+            <Pane HBox.hgrow="ALWAYS"/>
+
+            <MenuButton fx:id="sortArtistsMenuBtn" focusTraversable="false"
+                        style="-fx-font-size: 10" accessibleRole="BUTTON">
+                <graphic>
+                    <FontAwesomeIconView glyphName="SORT_AMOUNT_DESC" glyphSize="10"/>
+                </graphic>
+            </MenuButton>
+
+        </ToolBar>
+
+        <ListView fx:id="artistsListView" VBox.vgrow="ALWAYS"/>
+
+        <HBox>
+            <padding>
+                <Insets right="20"/>
+            </padding>
+            <Pane HBox.hgrow="ALWAYS"/>
+            <Label fx:id="artistsInfoLabel"/>
+        </HBox>
+
+    </VBox>
 
     <VBox>
+
         <ToolBar>
+            <Label fx:id="albumsSearchLabel" visible="false">
+                <graphic>
+                    <FontAwesomeIconView glyphName="SEARCH" glyphSize="12"/>
+                </graphic>
+            </Label>
+
+            <Pane HBox.hgrow="ALWAYS"/>
+
             <Label text="artist albums list view toolbar"/>
         </ToolBar>
+
         <ListView fx:id="albumsListView" VBox.vgrow="ALWAYS"/>
+
         <HBox>
-            <Label text="album total time"/>
+            <padding>
+                <Insets right="20"/>
+            </padding>
+            <Pane HBox.hgrow="ALWAYS"/>
+            <Label fx:id="albumsInfoLabel"/>
         </HBox>
+
     </VBox>
 
     <TracksContainer fx:id="tracksContainer"/>

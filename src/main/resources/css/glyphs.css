@@ -8,6 +8,10 @@
     /*-glyph-size: 14px;*/
 }
 
+.favorite-icon {
+    -icons-color: #2ec1e3;
+}
+
 .repeat-icon {
     -icons-color: #00d000;
 }

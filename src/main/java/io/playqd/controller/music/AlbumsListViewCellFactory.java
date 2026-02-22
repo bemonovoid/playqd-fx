@@ -86,7 +86,7 @@ public class AlbumsListViewCellFactory implements Callback<ListView<Album>, List
 
                     var albNameLabel = new Label(album.name());
                     albNameLabel.setTooltip(new Tooltip(album.name()));
-                    albNameLabel.setStyle("-fx-font-size: 15px;-fx-font-weight: medium");
+                    albNameLabel.setStyle("-fx-font-size: 15px;-fx-font-weight: 500"); // FontWeight.MEDIUM
 
                     var albTracksCountLabel = new Label(
                             album.tracksCount() + (album.tracksCount() > 1 ? " tracks" : " track"));
@@ -110,9 +110,6 @@ public class AlbumsListViewCellFactory implements Callback<ListView<Album>, List
                     albGenre.setStyle("-fx-font-size: 10px;");
                     albGenre.setOpacity(0.6);
 
-//                    var pane = new Pane();
-//                    VBox.setVgrow(pane, Priority.ALWAYS);
-
                     vBox.getChildren().addAll(albNameLabel, albTracksCountLabel, albLengthLabel, albDate, albGenre);
 
                     var hBox = new HBox();
@@ -123,6 +120,11 @@ public class AlbumsListViewCellFactory implements Callback<ListView<Album>, List
                     hBox.getChildren().addAll(imageView, vBox);
 
                     setGraphic(hBox);
+
+                    // Removes horizontal scroll.
+                    // The horizontal scrollbar appears because the cells are wider than the list.
+                    // To fix the root cause, bind the preferred width of the cells to the width of the ListView
+                    prefWidthProperty().bind(getListView().widthProperty().subtract(20));
                 }
             }
         };

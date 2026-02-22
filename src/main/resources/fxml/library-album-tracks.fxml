@@ -9,7 +9,7 @@
          xmlns:fx="http://javafx.com/fxml"
          type="javafx.scene.layout.VBox"
          VBox.vgrow="ALWAYS"
-         fx:id="tracksContainer">
+         fx:id="tracksContainera">
 
     <ToolBar>
 

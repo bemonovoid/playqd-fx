@@ -4,7 +4,7 @@ public enum FXMLResource {
 
     APPLICATION("/fxml/application.fxml"),
 
-    ARTISTS_CONTAINER("/fxml/artists-container.fxml"),
+    TRACKS_TABLE_VIEW("/fxml/tracks-table-view.fxml"),
 
     TRACKS_CONTAINER("/fxml/tracks-container.fxml"),
 

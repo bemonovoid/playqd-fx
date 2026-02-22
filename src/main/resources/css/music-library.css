@@ -1,0 +1,34 @@
+.artists-list-view {
+    -fx-background-color: transparent;
+}
+
+.artists-list-view .scroll-bar {
+    -fx-background-color: transparent;
+    -fx-background-insets: 0;
+    -fx-padding: 0;
+}
+
+.artists-list-view .list-cell {
+    -fx-background-color: transparent; /* Or your background color */
+    /*-fx-border-color: transparent;*/
+    -fx-background-insets: 0;
+}
+
+.artists-list-view .list-cell:filled:selected, .list-cell:filled:hover {
+    -fx-background-color: rgba(204, 204, 69, 0.63);
+}
+
+.track-info-toolbar {
+    /*-fx-padding: 1px;*/
+    /*-fx-spacing: 2px;*/
+    -fx-min-height: 20px;
+    -fx-pref-height: 20px;
+    /*-fx-background-color: #f4f4f4;*/
+    /*-fx-border-color: #cccccc;*/
+    /*-fx-border-width: 0 0 1 0; !* Border only on the bottom *!*/
+}
+
+.track-info-toolbar .button {
+    /*-fx-padding: 1px 4px;*/
+    /*-fx-background-radius: 3px;*/
+}

@@ -2,21 +2,31 @@ package io.playqd.controller.view;
 
 import de.jensd.fx.glyphs.fontawesome.FontAwesomeIcon;
 import de.jensd.fx.glyphs.fontawesome.utils.FontAwesomeIconFactory;
-import io.playqd.data.Artist;
+import io.playqd.controller.music.TrackTimeTableCellFactory;
 import io.playqd.data.Track;
 import io.playqd.fxml.FXMLLoaderUtils;
 import io.playqd.fxml.FXMLResource;
+import io.playqd.utils.TimeUtils;
+import javafx.application.Platform;
+import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import javafx.scene.layout.VBox;
 
+import java.time.Duration;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Comparator;
+import java.util.List;
+import java.util.function.Supplier;
 
 public class TracksContainer extends VBox {
+
+    @FXML
+    private Label tracksSearchLabel;
 
     @FXML
     private MenuButton sortTracksMenuBtn;
@@ -25,9 +35,14 @@ public class TracksContainer extends VBox {
     private TableView<Track> tracksTableView;
 
     @FXML
-    private TableColumn<Track, String> trackNumberCol, titleCol, timeCol, artistCol, albumCol, filenameCol, sizeCol,
+    public TableColumn<Track, String> trackNumberCol, titleCol, artistCol, albumCol, filenameCol, sizeCol,
             genreCol, extensionCol, bitRateCol, sampleRateCol, bitsPerSampleCol, ratingCol, mimeTypeCol,
             playCountCol, lastPlayedDateCol, addedDateCol;
+    @FXML
+    private TableColumn<Track, Integer> timeCol;
+
+    @FXML
+    private Label tracksInfoLabel;
 
     public TracksContainer() {
         var resourceLoader = FXMLLoaderUtils.resourceLoader(FXMLResource.TRACKS_CONTAINER);
@@ -40,18 +55,59 @@ public class TracksContainer extends VBox {
     public void initialize() {
         initTrackTableViewColumns();
         initSortTracksMenuButton();
+
+        tracksTableView.getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
+
+        tracksInfoLabel.setDisable(true);
+        tracksInfoLabel.setStyle("-fx-font-size: 11px;");
+        tracksInfoLabel.setOpacity(0.6);
+
+        tracksTableView.itemsProperty().addListener((_, _, newItems) -> {
+            if (newItems == null || newItems.isEmpty()) {
+                tracksInfoLabel.setText("");
+            } else {
+                var totalSize = (long) 0;
+                var totalLength = (long) 0;
+                for (Track track : newItems) {
+                    totalSize += track.fileAttributes().size();
+                    totalLength += track.length().seconds();
+                }
+                var files = "" + newItems.size() + (newItems.size() > 1 ? " files" : " file");
+                var sizeFormatted = org.apache.commons.io.FileUtils.byteCountToDisplaySize(totalSize);
+                var lengthFormatted = TimeUtils.durationToTimeFormat(Duration.ofSeconds(totalLength));
+                tracksInfoLabel.setText(String.format("%s, %s, %s", files, sizeFormatted, lengthFormatted));
+            }
+        });
+    }
+
+    public void showTracks(Supplier<List<Track>> tracksProvider) {
+        showTracks(tracksProvider, null);
+    }
+
+    public void showTracks(Supplier<List<Track>> tracksProvider, Comparator<Track> comparator) {
+        Platform.runLater(() -> {
+            var allTracks = tracksProvider.get();
+            if (comparator != null) {
+                allTracks.sort(comparator);
+            }
+            tracksTableView.setUserData(Collections.unmodifiableList(allTracks));
+            tracksTableView.setItems(FXCollections.observableList(allTracks));
+        });
     }
 
     private void initTrackTableViewColumns() {
         trackNumberCol.setCellValueFactory(c -> new SimpleStringProperty(c.getValue().number()));
         titleCol.setCellValueFactory(c -> new SimpleStringProperty(c.getValue().title()));
-        timeCol.setCellValueFactory(c ->
-                new SimpleStringProperty(adjustTrackDisplayLength(c.getValue().length().readable())));
+
+        timeCol.setCellValueFactory(c -> new SimpleObjectProperty<>(c.getValue().length().seconds()));
+        timeCol.setCellFactory(new TrackTimeTableCellFactory());
+        timeCol.setComparator(Integer::compareTo);
+
         artistCol.setCellValueFactory(c -> new SimpleStringProperty(c.getValue().artistName()));
         albumCol.setCellValueFactory(c -> new SimpleStringProperty(c.getValue().albumName()));
         genreCol.setCellValueFactory(c -> new SimpleStringProperty(c.getValue().genre()));
         filenameCol.setCellValueFactory(c -> new SimpleStringProperty(c.getValue().fileAttributes().name()));
-        sizeCol.setCellValueFactory(c -> new SimpleStringProperty(c.getValue().fileAttributes().size()));
+        sizeCol.setCellValueFactory(c -> new SimpleStringProperty(c.getValue().fileAttributes().readableSize()));
         extensionCol.setCellValueFactory(c -> new SimpleStringProperty(c.getValue().fileAttributes().extension()));
         mimeTypeCol.setCellValueFactory(c -> new SimpleStringProperty(c.getValue().audioFormat().mimeType()));
         bitRateCol.setCellValueFactory(c -> new SimpleStringProperty(c.getValue().audioFormat().bitRate()));
@@ -110,6 +166,10 @@ public class TracksContainer extends VBox {
 
     public TableView<Track> getTracksTableView() {
         return tracksTableView;
+    }
+
+    public Label getTracksSearchLabel() {
+        return tracksSearchLabel;
     }
 
     private void sort(Comparator<Track> comparator, boolean reversed) {

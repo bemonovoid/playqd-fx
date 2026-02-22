@@ -3,7 +3,8 @@ package io.playqd.controller.music;
 import io.playqd.data.Album;
 import io.playqd.utils.FakeIds;
 import javafx.collections.FXCollections;
-import javafx.scene.control.ListView;
+import javafx.fxml.FXML;
+import javafx.scene.control.Label;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -12,42 +13,46 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.function.Consumer;
 
-final class AlbumsListController extends SearchableView {
+public class MusicLibraryAlbumsController extends MusicLibraryArtistsController {
 
-    private static final Logger LOG = LoggerFactory.getLogger(AlbumsListController.class);
+    private static final Logger LOG = LoggerFactory.getLogger(MusicLibraryAlbumsController.class);
 
-    private final MusicSplitPaneController musicViewController;
-    private final ListView<Album> albumsListView;
+    private final Searchable searchable = new SearchTextController();
 
-    AlbumsListController(MusicSplitPaneController musicViewController) {
-        this.musicViewController = musicViewController;
-        this.albumsListView = musicViewController.getAlbumsListView();
-    }
+    @FXML
+    private Label albumsSearchLabel;
 
-    void initialize() {
-        super.initialize(albumsListView, onSearchTextInputChanged(), onSearchTextInputCleared());
+    @FXML
+    private Label albumsInfoLabel;
+
+    protected void initializeInternal() {
+        super.initializeInternal();
+        searchable.initialize(albumsListView, onSearchTextInputChanged(), onSearchTextInputCleared());
         albumsListView.getSelectionModel().selectedItemProperty().addListener((_, oldAlbum, selectedAlbum) -> {
             if (oldAlbum != null && selectedAlbum == null) {
-                musicViewController.getTracksContainer().clearTracksTable();
+                getTracksContainer().clearTracksTable();
             }
             if (selectedAlbum != null) { // is null when some album is selected but next selection is artist list view
-                musicViewController.getTracksContainer().getTracksTableView().setItems(
-                        FXCollections.observableList(musicViewController.getAlbumTracks(selectedAlbum)));
+                getTracksContainer().getTracksTableView().setItems(
+                        FXCollections.observableList(getAlbumTracks(selectedAlbum)));
             }
         });
+        initAlbumsInfoLabelListener();
     }
 
-    @Override
-    public Consumer<String> onSearchTextInputChanged() {
+    private Consumer<String> onSearchTextInputChanged() {
         return newInput -> {
             albumsListView.getSelectionModel().clearSelection();
             if (newInput.isEmpty()) {
+                albumsSearchLabel.setText("");
+                albumsSearchLabel.setVisible(false);
                 return;
             }
             @SuppressWarnings("unchecked")
             var itemsStream = ((List<Album>) albumsListView.getUserData()).stream()
+                    .filter(album -> !album.name().equals(FakeIds.ALL_ARTIST_ALBUMS))
                     .filter(album -> album.name().toLowerCase().contains(newInput));
-            var selectedArtist = musicViewController.getArtistsContainer().getSelectedArtist();
+            var selectedArtist = getSelectedArtist();
             if (!FakeIds.ALL_ARTIST.equals(selectedArtist.id())) {
                 itemsStream = itemsStream.filter(album -> selectedArtist.name().equals(album.artistName()));
             }
@@ -56,15 +61,18 @@ final class AlbumsListController extends SearchableView {
             items.sort(Comparator.comparing(a -> a.name().toLowerCase()));
             albumsListView.setItems(FXCollections.observableArrayList(items));
             albumsListView.getSelectionModel().selectFirst();
+            if (!albumsSearchLabel.isVisible()) {
+                albumsSearchLabel.setVisible(true);
+            }
+            albumsSearchLabel.setText(newInput);
         };
     }
 
-    @Override
-    public Runnable onSearchTextInputCleared() {
+    private Runnable onSearchTextInputCleared() {
         return () -> {
             @SuppressWarnings("unchecked")
             var sourceItems = (List<Album>) albumsListView.getUserData();
-            var selectedArtist = musicViewController.getArtistsContainer().getSelectedArtist();
+            var selectedArtist = getSelectedArtist();
             if (!FakeIds.ALL_ARTIST.equals(selectedArtist.id())) {
                 sourceItems = sourceItems.stream()
                         .filter(album -> selectedArtist.name().equals(album.artistName()))
@@ -73,5 +81,19 @@ final class AlbumsListController extends SearchableView {
             albumsListView.setItems(FXCollections.observableArrayList(sourceItems));
             albumsListView.getSelectionModel().selectFirst();
         };
+    }
+
+    private void initAlbumsInfoLabelListener() {
+        albumsInfoLabel.setDisable(true);
+        albumsInfoLabel.setStyle("-fx-font-size: 11px;");
+        albumsInfoLabel.setOpacity(0.6);
+        albumsListView.itemsProperty().addListener((_, _, newItems) -> {
+            if (newItems == null || newItems.isEmpty()) {
+                albumsInfoLabel.setText("");
+            } else {
+                var albumsText = newItems.size() > 1 ? "albums" : "album";
+                albumsInfoLabel.setText(newItems.size() + " " + albumsText);
+            }
+        });
     }
 }

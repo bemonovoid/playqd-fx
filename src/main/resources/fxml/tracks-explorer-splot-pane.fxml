@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import io.playqd.controller.view.TracksTableView?>
+<?import javafx.scene.text.Text?>
+<SplitPane xmlns="http://javafx.com/javafx"
+           xmlns:fx="http://javafx.com/fxml"
+           fx:id="tracksExplorerSplitPane"
+           fx:controller="io.playqd.controller.trackexplorer.TracksExplorerViewController"
+           dividerPositions="0.15">
+
+
+    <VBox VBox.vgrow="ALWAYS">
+
+        <ToolBar>
+            <MenuButton text="Tracks explorer" style="-fx-background-color: transparent;"/>
+        </ToolBar>
+
+        <ListView fx:id="listView" VBox.vgrow="ALWAYS"/>
+
+        <HBox>
+            <padding>
+                <Insets right="20"/>
+            </padding>
+            <Pane HBox.hgrow="ALWAYS"/>
+
+        </HBox>
+
+    </VBox>
+
+    <VBox>
+
+        <ToolBar>
+            <Text text="Tracks: All/Favorites/..."/>
+        </ToolBar>
+
+        <TracksTableView fx:id="tracksTableView" VBox.vgrow="ALWAYS"/>
+
+        <HBox>
+            <padding>
+                <Insets top="2" bottom="2" left="5" right="20"/>
+            </padding>
+            <Label fx:id="tracksSelectedLabel" opacity="0.6" style="-fx-font-size: 11px;" disable="true"/>
+            <Pane HBox.hgrow="ALWAYS"/>
+            <Label fx:id="tracksInfoLabel" disable="true" opacity="0.6" style="-fx-font-size: 11px;"/>
+        </HBox>
+    </VBox>
+
+</SplitPane>

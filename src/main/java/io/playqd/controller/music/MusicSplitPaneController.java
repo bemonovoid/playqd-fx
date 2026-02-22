@@ -1,8 +1,6 @@
 package io.playqd.controller.music;
 
-import io.playqd.client.PageRequest;
 import io.playqd.client.PlayqdClientProvider;
-import io.playqd.controller.view.ArtistsContainer;
 import io.playqd.controller.view.TracksContainer;
 import io.playqd.data.Album;
 import io.playqd.data.Artist;
@@ -12,26 +10,30 @@ import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.fxml.FXML;
 import javafx.scene.control.ListView;
+import javafx.scene.control.TableView;
 
 import java.util.*;
 import java.util.stream.Collectors;
 
-public class MusicSplitPaneController {
+public abstract class MusicSplitPaneController {
 
     @FXML
-    private ArtistsContainer artistsContainer;
+    protected ListView<Artist> artistsListView;
 
     @FXML
-    private ListView<Album> albumsListView;
+    protected ListView<Album> albumsListView;
 
     @FXML
-    private TracksContainer tracksContainer;
+    protected TracksContainer tracksContainer;
 
-    @FXML
+    protected void initializeInternal() {
+
+    }
+
     private void initialize() {
-        new TracksTableViewController(this).initialize();
-        new AlbumsListController(this).initialize();
-        new ArtistContainerManager(this).initialize();
+//        new TracksTableViewController(this).initialize();
+//        new AlbumsListController(this).initialize();
+//        new ArtistContainerManager(this).initialize();
     }
 
     void showAllAlbums() {
@@ -63,18 +65,6 @@ public class MusicSplitPaneController {
         });
     }
 
-    void showAllTracks() {
-        Platform.runLater(() -> {
-            var allTracks = getAllTracks();
-            tracksContainer.getTracksTableView().setUserData(Collections.unmodifiableList(allTracks));
-            tracksContainer.getTracksTableView().setItems(FXCollections.observableList(allTracks));
-        });
-    }
-
-    List<Track> getAllTracks() {
-        return new ArrayList<>(PlayqdClientProvider.get().getAllTracks(PageRequest.unpaged()).content());
-    }
-
     List<Track> getArtistTracks(String artistId) {
         return PlayqdClientProvider.get().getTracksByArtistId(artistId).stream()
                 .sorted(Comparator.comparing(Track::title))
@@ -103,19 +93,23 @@ public class MusicSplitPaneController {
         albumsListView.getItems().clear();
     }
 
-    ArtistsContainer getArtistsContainer() {
-        return artistsContainer;
+    protected final Artist getSelectedArtist() {
+        return artistsListView.getSelectionModel().getSelectedItem();
     }
 
-    ListView<Album> getAlbumsListView() {
+    protected final ListView<Album> getAlbumsListView() {
         return albumsListView;
     }
 
-    TracksContainer getTracksContainer() {
+    protected final TracksContainer getTracksContainer() {
         return tracksContainer;
     }
 
-    Album getSelectedAlbum() {
+    protected final TableView<Track> getTracksTableView() {
+        return getTracksContainer().getTracksTableView();
+    }
+
+    protected final Album getSelectedAlbum() {
         return getAlbumsListView().getSelectionModel().getSelectedItem();
     }
 

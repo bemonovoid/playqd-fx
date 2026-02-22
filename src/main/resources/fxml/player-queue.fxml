@@ -2,11 +2,47 @@
 
 <?import javafx.scene.control.ListView?>
 <?import javafx.scene.layout.VBox?>
-<VBox xmlns="http://javafx.com/javafx"
-      xmlns:fx="http://javafx.com/fxml"
-      fx:id="playerQueue"
-      fx:controller="io.playqd.player.PlayerQueueController">
+<?import javafx.scene.control.SplitPane?>
+<?import javafx.scene.control.TitledPane?>
+<?import javafx.scene.layout.Pane?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.layout.StackPane?>
+<?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.Group?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.control.ToolBar?>
+<?import javafx.scene.control.MenuButton?>
+<?import javafx.scene.control.Label?>
+<SplitPane xmlns="http://javafx.com/javafx"
+           xmlns:fx="http://javafx.com/fxml"
+           dividerPositions="0.6"
+           orientation="VERTICAL"
+           fx:id="playerQueue"
+           fx:controller="io.playqd.player.PlayerQueueController">
 
     <ListView fx:id="queueListView" VBox.vgrow="ALWAYS"/>
 
-</VBox>
+    <VBox>
+        <ToolBar fx:id="trackInfoToolBar">
+            <MenuButton text="Track information" style="-fx-background-color: transparent;">
+            </MenuButton>
+        </ToolBar>
+        <Label fx:id="tiTrackTitle">Track title</Label>
+        <Label fx:id="tiArtistName">Artist name</Label>
+        <Label fx:id="tiAlbumName">Album name</Label>
+        <Label fx:id="tiAudioInfo">Audio info</Label>
+        <Label fx:id="tiFilePath">File path</Label>
+
+        <!-- minHeight="80" keeps bottom container visible on split pane divider reposition -->
+        <ScrollPane fx:id="artworkScrollPane" hbarPolicy="NEVER" minHeight="80"
+                    style="-fx-background-color: transparent;-fx-background-insets: 0;-fx-padding: 0;">
+            <StackPane fx:id="artworkStackPane">
+                <ImageView fx:id="artworkImageView" preserveRatio="true"/>
+            </StackPane>
+        </ScrollPane>
+
+    </VBox>
+
+</SplitPane>

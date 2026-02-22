@@ -5,6 +5,7 @@ import javafx.collections.FXCollections;
 import javafx.scene.Node;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
+import org.apache.commons.lang3.CharUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -12,16 +13,17 @@ import java.util.Objects;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
-abstract class SearchableView implements Searchable {
+public final class SearchTextController implements Searchable {
 
-    private static final Logger LOG = LoggerFactory.getLogger(SearchableView.class);
+    private static final Logger LOG = LoggerFactory.getLogger(SearchTextController.class);
 
     private final SimpleListProperty<Character> searchTextInput =
             new SimpleListProperty<>(FXCollections.observableArrayList());
 
     private Runnable onCleared;
 
-    void initialize(Node keyEventNode, Consumer<String> resultConsumer, Runnable onCleared) {
+    @Override
+    public void initialize(Node keyEventNode, Consumer<String> resultConsumer, Runnable onCleared) {
         this.onCleared = onCleared;
         searchTextInput.addListener((_, _, newInput) -> {
             if (newInput.isEmpty()) {
@@ -54,6 +56,9 @@ abstract class SearchableView implements Searchable {
     }
 
     private void clearSearchTextInput() {
+        if (searchTextInput.isEmpty()) {
+            return;
+        }
         searchTextInput.clear();
         LOG.info("Search input text was cleared.");
         onCleared.run();
@@ -64,6 +69,7 @@ abstract class SearchableView implements Searchable {
             return false;
         }
         var keyCode = keyEvent.getCode();
-        return keyCode.isDigitKey() || keyCode.isLetterKey() || KeyCode.SPACE == keyCode;
+        return keyCode.isDigitKey() || keyCode.isLetterKey() || KeyCode.SPACE == keyCode ||
+                CharUtils.isAsciiPrintable((char) keyCode.getCode());
     }
 }

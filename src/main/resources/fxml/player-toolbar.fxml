@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import de.jensd.fx.glyphs.fontawesome.FontAwesomeIconView?>
+<?import de.jensd.fx.glyphs.fontawesome.*?>
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.control.*?>
-<?import javafx.scene.layout.*?>
 <?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.*?>
 <ToolBar xmlns="http://javafx.com/javafx"
          xmlns:fx="http://javafx.com/fxml"
          fx:controller="io.playqd.controller.PlayerToolbarController">
@@ -36,9 +36,7 @@
             <Label fx:id="sliderTitle" text="Playing queue is empty"/>
             <Slider max="1" fx:id="slider" HBox.hgrow="ALWAYS"/>
             <HBox >
-                <Label fx:id="sliderFooterLeft"/>
                 <Pane HBox.hgrow="ALWAYS"/>
-                <Label fx:id="sliderFooterRight"/>
             </HBox>
         </VBox>
         <VBox alignment="CENTER">
@@ -55,6 +53,11 @@
 
     <HBox alignment="CENTER">
         <Separator orientation="VERTICAL"/>
+        <ToggleButton fx:id="favoriteBtn" focusTraversable="false" style="-fx-background-color: transparent;" minWidth="40">
+            <graphic>
+                <FontAwesomeIconView glyphName="STAR_ALT"/>
+            </graphic>
+        </ToggleButton>
         <ToggleButton fx:id="shuffleBtn" focusTraversable="false" style="-fx-background-color: transparent;" minWidth="40">
             <graphic>
                 <FontAwesomeIconView glyphName="RANDOM"/>
