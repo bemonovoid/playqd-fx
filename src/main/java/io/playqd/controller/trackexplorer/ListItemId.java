@@ -6,6 +6,8 @@ public enum ListItemId {
 
     FAVORITES,
 
-    PLAYED
+    PLAYED,
+
+    CUE;
 
 }

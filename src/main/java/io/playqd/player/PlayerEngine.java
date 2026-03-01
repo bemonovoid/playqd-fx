@@ -92,7 +92,21 @@ public class PlayerEngine {
     }
 
     private static void submitPlay(Track track) {
-        MEDIA_PLAYER.media().play(PlayqdApis.baseUrl() + "/tracks/" + track.uuid() + "/file");
+        var trackId = track.id();
+        var options = new String[]{};
+        if (track.cueInfo().parentId() != null) {
+            trackId = track.cueInfo().parentId();
+            options = buildRangeOptions(track);
+        }
+        MEDIA_PLAYER.media().play(PlayqdApis.baseUrl() + "/tracks/" + trackId + "/file", options);
+    }
+
+    private static String[] buildRangeOptions(Track track) {
+        var startTime = track.cueInfo().startTimeInSeconds();
+        var endTime = track.cueInfo().startTimeInSeconds() + track.length().seconds();
+        var startTimeOption = ":start-time=" + startTime;
+        var stopTimeOption = ":stop-time=" + endTime;
+        return new String[]{ startTimeOption, stopTimeOption };
     }
 
 }

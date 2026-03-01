@@ -39,7 +39,10 @@ public class TracksExplorerViewController {
             if (ListItemId.ALL == selectedItem.id()) {
                 tracksTableView.showTracks(TracksService::getAllTracks);
             } else if (ListItemId.FAVORITES == selectedItem.id()) {
-                tracksTableView.showTracks(TracksService::getAllFavorites, TrackComparators.byFavoriteAddedDateDesc());
+
+                tracksTableView.showTracks(TracksService::getFavorites, TrackComparators.byFavoriteAddedDateDesc());
+            } else if (ListItemId.CUE == selectedItem.id()) {
+                tracksTableView.showTracks(TracksService::getCueTracks);
             }
         });
         listView.getSelectionModel().select(0);
@@ -49,6 +52,7 @@ public class TracksExplorerViewController {
         listView.getItems().add(new ListItem(ListItemId.ALL, "All", 0));
         listView.getItems().add(new ListItem(ListItemId.FAVORITES, "Favorites", 0));
         listView.getItems().add(new ListItem(ListItemId.PLAYED, "Played", 0));
+        listView.getItems().add(new ListItem(ListItemId.CUE, "Cue tracks", 0));
     }
 
     private void setTracksVisibleColumns() {

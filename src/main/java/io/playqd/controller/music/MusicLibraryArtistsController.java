@@ -51,7 +51,7 @@ public class MusicLibraryArtistsController extends MusicSplitPaneController {
             if (selectedArtist != null) {
                 getAlbumsListView().setCellFactory(
                         new AlbumsListViewCellFactory(new AlbumsListViewCellFactoryListener(this)));
-                if (FakeIds.ALL_ARTIST.equals(selectedArtist.id())) {
+                if (FakeIds.ALL_ARTIST == selectedArtist.id()) {
                     showAllAlbums();
                     tracksContainer.showTracks(TracksService::getAllTracks);
                 } else {
@@ -132,7 +132,8 @@ public class MusicLibraryArtistsController extends MusicSplitPaneController {
             }
             @SuppressWarnings("unchecked")
             var items = new ArrayList<>((List<Artist>) artistsListView.getUserData()).stream()
-                    .filter(artist -> artist.name().toLowerCase().contains(newInput) && !FakeIds.ALL_ARTIST.equals(artist.id()))
+                    .filter(artist -> artist.name().toLowerCase().contains(newInput))
+                    .filter(artist -> FakeIds.ALL_ARTIST != artist.id())
                     .collect(Collectors.toCollection(ArrayList::new));
             LOG.info("Search by: '{}'. Found: {}", newInput, items.size());
             if (items.isEmpty()) {

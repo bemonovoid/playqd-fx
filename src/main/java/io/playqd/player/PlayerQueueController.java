@@ -82,7 +82,7 @@ public class PlayerQueueController {
     }
 
     private void updateTrackInfoView(Track track) {
-        var image = new Image(PlayqdApis.albumArtwork(track.uuid()));
+        var image = new Image(PlayqdApis.albumArtwork(track));
         artworkImageView.setImage(image);
 
         tiTrackTitle.setText(track.title());

@@ -50,10 +50,10 @@ public class MusicLibraryAlbumsController extends MusicLibraryArtistsController 
             }
             @SuppressWarnings("unchecked")
             var itemsStream = ((List<Album>) albumsListView.getUserData()).stream()
-                    .filter(album -> !album.name().equals(FakeIds.ALL_ARTIST_ALBUMS))
+                    .filter(album -> !album.name().equals(FakeIds.ALL_ARTIST_ALBUMS_NAME))
                     .filter(album -> album.name().toLowerCase().contains(newInput));
             var selectedArtist = getSelectedArtist();
-            if (!FakeIds.ALL_ARTIST.equals(selectedArtist.id())) {
+            if (FakeIds.ALL_ARTIST != selectedArtist.id()) {
                 itemsStream = itemsStream.filter(album -> selectedArtist.name().equals(album.artistName()));
             }
             var items = new ArrayList<>(itemsStream.toList());
@@ -73,7 +73,7 @@ public class MusicLibraryAlbumsController extends MusicLibraryArtistsController 
             @SuppressWarnings("unchecked")
             var sourceItems = (List<Album>) albumsListView.getUserData();
             var selectedArtist = getSelectedArtist();
-            if (!FakeIds.ALL_ARTIST.equals(selectedArtist.id())) {
+            if (FakeIds.ALL_ARTIST != selectedArtist.id()) {
                 sourceItems = sourceItems.stream()
                         .filter(album -> selectedArtist.name().equals(album.artistName()))
                         .toList();

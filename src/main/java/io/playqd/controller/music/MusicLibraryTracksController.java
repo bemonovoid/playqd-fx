@@ -78,7 +78,7 @@ public class MusicLibraryTracksController extends MusicLibraryAlbumsController {
             var itemsStream = ((List<Track>) getTracksTableView().getUserData()).stream()
                     .filter(track -> track.title().toLowerCase().contains(newInput));
             var selectedAlbum = getSelectedAlbum();
-            if (selectedAlbum != null && !FakeIds.ALL_ARTIST_ALBUMS.equals(selectedAlbum.id())) {
+            if (selectedAlbum != null && !FakeIds.ALL_ARTIST_ALBUMS_NAME.equals(selectedAlbum.name())) {
                 itemsStream = itemsStream
                         .filter(track ->
                                 track.artistName().equals(selectedAlbum.artistName()) &&
@@ -101,7 +101,7 @@ public class MusicLibraryTracksController extends MusicLibraryAlbumsController {
             @SuppressWarnings("unchecked")
             var sourceItems = (List<Track>) getTracksTableView().getUserData();
             var selectedAlbum = getSelectedAlbum();
-            if (selectedAlbum != null && !FakeIds.ALL_ARTIST_ALBUMS.equals(selectedAlbum.id())) {
+            if (selectedAlbum != null && !FakeIds.ALL_ARTIST_ALBUMS_NAME.equals(selectedAlbum.name())) {
                 sourceItems = sourceItems.stream()
                         .filter(track ->
                                 track.artistName().equals(selectedAlbum.artistName()) &&

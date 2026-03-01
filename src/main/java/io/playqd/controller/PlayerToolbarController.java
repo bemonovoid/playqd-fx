@@ -7,6 +7,7 @@ import io.playqd.data.Track;
 import io.playqd.player.FetchMode;
 import io.playqd.player.LoopMode;
 import io.playqd.player.PlayerEngine;
+import io.playqd.service.TracksService;
 import io.playqd.utils.ImageHelper;
 import io.playqd.utils.PlayqdApis;
 import io.playqd.utils.TimeUtils;
@@ -49,7 +50,15 @@ public class PlayerToolbarController {
         initButtonEventHandlers();
 
         slider.setOnMouseClicked(_ -> {
-            PlayerEngine.seek((float) slider.getValue());
+            PlayerEngine.PLAYING_QUEUE.current()
+                    .filter(cueTrack -> cueTrack.cueInfo().parentId() != null)
+                    .ifPresentOrElse(cueTrack -> {
+                        var parentTrack = TracksService.getTrackById(cueTrack.cueInfo().parentId());
+                        var seekCueTime = slider.getValue() * (cueTrack.length().seconds() * 1000);
+                        var seekParentTime = cueTrack.cueInfo().startTimeInSeconds() + seekCueTime;
+                        var seekPosition = seekParentTime / (parentTrack.length().seconds() * 1000);
+                        PlayerEngine.seek((float) seekPosition);
+                    }, () -> PlayerEngine.seek((float) slider.getValue()));
         });
     }
 
@@ -71,7 +80,7 @@ public class PlayerToolbarController {
         favoriteBtn.selectedProperty().addListener((_, _, selected) -> {
             if (selected) {
                 PlayerEngine.PLAYING_QUEUE.current().ifPresent(track -> {
-                    PlayqdClientProvider.get().addToFavorites(track.uuid());
+                    PlayqdClientProvider.get().addToFavorites(track.id());
                     favoriteBtn.setGraphic(new FontAwesomeIconView(FontAwesomeIcon.STAR));
                     favoriteBtn.getStyleClass().add("favorite-icon");
                 });
@@ -113,9 +122,12 @@ public class PlayerToolbarController {
                         updateControlButtons();
                     });
                 }));
-        PlayerEngine.eventConsumerRegistry().addStoppedConsumer(() -> Platform.runLater(this::handleTrackStopped));
-        PlayerEngine.eventConsumerRegistry().addFinishedConsumer(() -> Platform.runLater(this::handleTrackFinished));
-        PlayerEngine.eventConsumerRegistry().addPositionChangedConsumer(newPosition -> slider.setValue(newPosition));
+        PlayerEngine.eventConsumerRegistry().addStoppedConsumer(
+                () -> Platform.runLater(this::handleTrackStopped));
+        PlayerEngine.eventConsumerRegistry().addFinishedConsumer(
+                () -> Platform.runLater(this::handleTrackFinished));
+        PlayerEngine.eventConsumerRegistry().addPositionChangedConsumer(
+                this::updateSliderPosition);
         PlayerEngine.eventConsumerRegistry()
                 .addPausedConsumer(() -> ((FontAwesomeIconView) playBtn.getGraphic()).setIcon(FontAwesomeIcon.PLAY));
         PlayerEngine.eventConsumerRegistry()
@@ -165,9 +177,15 @@ public class PlayerToolbarController {
                 artworkImageView,
                 80,
                 80,
-                PlayqdApis.albumArtwork(track.uuid()),
+                PlayqdApis.albumArtwork(track),
                 "/img/no-album-art-2.png"
         );
+    }
+
+    private void updateSliderPosition(double newValue) {
+        PlayerEngine.PLAYING_QUEUE.current()
+                .filter(track -> track.cueInfo().parentId() == null)
+                .ifPresent(_ -> slider.setValue(newValue));
     }
 
     private void updateSliderTitle(Track track) {
@@ -180,6 +198,16 @@ public class PlayerToolbarController {
 
     private void updateTrackPlayingTime(long newTime) {
         if (newTime > 1000) {
+            PlayerEngine.PLAYING_QUEUE.current()
+                    .filter(track -> track.cueInfo().parentId() != null)
+                    .ifPresent(track -> {
+                        // the 'newTime' is relative to parent track
+                        var newCueTimeInMillis = newTime - (((long) track.cueInfo().startTimeInSeconds()) * 1000);
+                        var progress = (double) newCueTimeInMillis / (track.length().seconds() * 1000);
+                        slider.setValue(progress);
+                        timeElapsedLabel.setText(
+                                TimeUtils.durationToTimeFormat(java.time.Duration.ofMillis(newCueTimeInMillis)));
+                    });
             timeElapsedLabel.setText(TimeUtils.durationToTimeFormat(java.time.Duration.ofMillis(newTime)));
         }
     }

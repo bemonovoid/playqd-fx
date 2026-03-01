@@ -13,7 +13,7 @@ public class AlbumsListViewCellFactoryListener {
         this.musicSplitPaneController = musicSplitPaneController;
     }
 
-    public void onAllArtistAlbumsClicked(String artistId) {
+    public void onAllArtistAlbumsClicked(long artistId) {
         musicSplitPaneController.getTracksContainer().getTracksTableView().setItems(
                 FXCollections.observableArrayList(musicSplitPaneController.getArtistTracks(artistId)));
     }

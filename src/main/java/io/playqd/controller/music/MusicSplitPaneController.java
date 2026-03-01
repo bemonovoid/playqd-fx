@@ -65,8 +65,8 @@ public abstract class MusicSplitPaneController {
         });
     }
 
-    List<Track> getArtistTracks(String artistId) {
-        return PlayqdClientProvider.get().getTracksByArtistId(artistId).stream()
+    List<Track> getArtistTracks(long trackId) {
+        return PlayqdClientProvider.get().getTracksByArtistId(trackId).stream()
                 .sorted(Comparator.comparing(Track::title))
                 .collect(Collectors.toCollection(ArrayList::new));
     }
@@ -115,6 +115,6 @@ public abstract class MusicSplitPaneController {
 
     static Album createFakeArtistAlbumsAlbum(Album artistAlbum) {
         return new Album(
-                artistAlbum.id(), FakeIds.ALL_ARTIST_ALBUMS, "", "", artistAlbum.artistName(), false, null, 0, 0);
+                artistAlbum.id(), FakeIds.ALL_ARTIST_ALBUMS_NAME, "", "", artistAlbum.artistName(), null, 0, 0);
     }
 }

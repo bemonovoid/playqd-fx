@@ -59,7 +59,7 @@ public class AlbumsListViewCellFactory implements Callback<ListView<Album>, List
                         }
                     });
 
-                    if (album.name().equals(FakeIds.ALL_ARTIST_ALBUMS)) {
+                    if (FakeIds.ALL_ARTIST_ALBUMS_NAME.equals(album.name())) {
 
                         var artistNameLabel = new HyperlinkLabel("[" + album.artistName() + "]");
                         artistNameLabel.setStyle("-fx-font-size: 13px;-fx-font-weight: bold");
