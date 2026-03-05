@@ -30,9 +30,9 @@
         <TableColumn fx:id="genreCol" text="Genre" contextMenu="$columnContextMenu" visible="false"/>
         <TableColumn fx:id="filenameCol" text="File name" contextMenu="$columnContextMenu" visible="false"/>
         <TableColumn fx:id="mimeTypeCol" text="Mime type" contextMenu="$columnContextMenu" visible="false"/>
+        <TableColumn fx:id="bitsPerSampleCol" text="Bps" contextMenu="$columnContextMenu" visible="false"/>
         <TableColumn fx:id="bitRateCol" text="Bit rate" contextMenu="$columnContextMenu" visible="false"/>
         <TableColumn fx:id="sampleRateCol" text="Sample rate" contextMenu="$columnContextMenu" visible="false"/>
-        <TableColumn fx:id="bitsPerSampleCol" text="bps" contextMenu="$columnContextMenu" visible="false"/>
         <TableColumn fx:id="trackNumberCol" text="#" contextMenu="$columnContextMenu" visible="false"/>
         <TableColumn fx:id="playCountCol" text="Played" contextMenu="$columnContextMenu" visible="false"/>
         <TableColumn fx:id="ratingCol" text="Rating" contextMenu="$columnContextMenu" visible="false"/>

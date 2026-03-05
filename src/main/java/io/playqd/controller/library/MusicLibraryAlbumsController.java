@@ -1,7 +1,8 @@
-package io.playqd.controller.music;
+package io.playqd.controller.library;
 
 import io.playqd.data.Album;
 import io.playqd.utils.FakeIds;
+import io.playqd.utils.Numbers;
 import javafx.collections.FXCollections;
 import javafx.fxml.FXML;
 import javafx.scene.control.Label;
@@ -30,11 +31,10 @@ public class MusicLibraryAlbumsController extends MusicLibraryArtistsController 
         searchable.initialize(albumsListView, onSearchTextInputChanged(), onSearchTextInputCleared());
         albumsListView.getSelectionModel().selectedItemProperty().addListener((_, oldAlbum, selectedAlbum) -> {
             if (oldAlbum != null && selectedAlbum == null) {
-                getTracksContainer().clearTracksTable();
+                tracksView().clear();
             }
             if (selectedAlbum != null) { // is null when some album is selected but next selection is artist list view
-                getTracksContainer().getTracksTableView().setItems(
-                        FXCollections.observableList(getAlbumTracks(selectedAlbum)));
+                tracksView().tracksTableView().showTracks(() -> getAlbumTracks(selectedAlbum));
             }
         });
         initAlbumsInfoLabelListener();
@@ -92,7 +92,7 @@ public class MusicLibraryAlbumsController extends MusicLibraryArtistsController 
                 albumsInfoLabel.setText("");
             } else {
                 var albumsText = newItems.size() > 1 ? "albums" : "album";
-                albumsInfoLabel.setText(newItems.size() + " " + albumsText);
+                albumsInfoLabel.setText(Numbers.format(newItems.size()) + " " + albumsText);
             }
         });
     }

@@ -1,4 +1,4 @@
-package io.playqd.controller.music;
+package io.playqd.controller.library;
 
 import javafx.beans.property.SimpleListProperty;
 import javafx.collections.FXCollections;
@@ -69,6 +69,9 @@ public final class SearchTextController implements Searchable {
             return false;
         }
         var keyCode = keyEvent.getCode();
+        if (keyCode.isArrowKey()) {
+            return false;
+        }
         return keyCode.isDigitKey() || keyCode.isLetterKey() || KeyCode.SPACE == keyCode ||
                 CharUtils.isAsciiPrintable((char) keyCode.getCode());
     }

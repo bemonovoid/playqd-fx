@@ -1,9 +1,8 @@
-package io.playqd.controller.music;
+package io.playqd.controller.library;
 
 import io.playqd.data.Album;
 import io.playqd.player.PlayRequest;
 import io.playqd.player.PlayerEngine;
-import javafx.collections.FXCollections;
 
 public class AlbumsListViewCellFactoryListener {
 
@@ -14,11 +13,11 @@ public class AlbumsListViewCellFactoryListener {
     }
 
     public void onAllArtistAlbumsClicked(long artistId) {
-        musicSplitPaneController.getTracksContainer().getTracksTableView().setItems(
-                FXCollections.observableArrayList(musicSplitPaneController.getArtistTracks(artistId)));
+        musicSplitPaneController.tracksView().tracksTableView()
+                .showTracks(() -> musicSplitPaneController.getArtistTracks(artistId));
     }
 
     public void onAlbumDoubleClicked(Album album) {
-        PlayerEngine.enqueueAndPlay(new PlayRequest(musicSplitPaneController.getTracksContainer().getTracksTableView().getItems()));
+        PlayerEngine.enqueueAndPlay(new PlayRequest(musicSplitPaneController.tracksView().tracksTableView().getItems()));
     }
 }

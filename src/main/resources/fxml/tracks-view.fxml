@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import io.playqd.controller.view.TracksTableFooter?>
+<?import io.playqd.controller.view.TracksTableHeader?>
+<?import io.playqd.controller.view.TracksTableView?>
+<?import javafx.scene.layout.VBox?>
+<fx:root xmlns="http://javafx.com/javafx"
+         xmlns:fx="http://javafx.com/fxml"
+         type="javafx.scene.layout.VBox"
+         fx:id="tracksView">
+
+    <TracksTableHeader fx:id="tracksTableHeader"/>
+
+    <TracksTableView fx:id="tracksTableView" VBox.vgrow="ALWAYS"/>
+
+    <TracksTableFooter fx:id="tracksTableFooter"/>
+
+</fx:root>

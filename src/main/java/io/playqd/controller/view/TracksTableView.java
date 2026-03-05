@@ -1,6 +1,5 @@
 package io.playqd.controller.view;
 
-import io.playqd.controller.music.TrackTimeTableCellFactory;
 import io.playqd.data.Track;
 import io.playqd.dialog.tracks.TracksTableViewColumnsDialog;
 import io.playqd.event.MouseEventHelper;
@@ -8,10 +7,12 @@ import io.playqd.fxml.FXMLLoaderUtils;
 import io.playqd.fxml.FXMLResource;
 import io.playqd.player.PlayRequest;
 import io.playqd.player.PlayerEngine;
+import io.playqd.utils.Numbers;
 import io.playqd.utils.TimeUtils;
 import javafx.application.Platform;
 import javafx.beans.property.*;
 import javafx.collections.FXCollections;
+import javafx.collections.ListChangeListener;
 import javafx.fxml.FXML;
 import javafx.scene.control.SelectionMode;
 import javafx.scene.control.TableColumn;
@@ -29,15 +30,16 @@ import java.util.function.Supplier;
 
 public class TracksTableView extends TableView<Track> {
 
+    private final StringProperty selectedTracksInfoProperty = new SimpleStringProperty("");
     private final StringProperty tracksInfoProperty = new SimpleStringProperty("");
     private final ObjectProperty<TrackSelectedRow> rowDoubleClickedProperty = new SimpleObjectProperty<>();
 
     @FXML
     public TableColumn<Track, String> trackNumberCol, titleCol, artistCol, albumCol, filenameCol, sizeCol,
-            genreCol, extensionCol, bitRateCol, sampleRateCol, bitsPerSampleCol, ratingCol, mimeTypeCol,
+            genreCol, extensionCol, ratingCol, mimeTypeCol,
             playCountCol, lastPlayedDateCol, addedDateCol;
     @FXML
-    private TableColumn<Track, Integer> timeCol;
+    public TableColumn<Track, Integer> timeCol, sampleRateCol, bitRateCol, bitsPerSampleCol;
 
     public TracksTableView() {
         var resourceLoader = FXMLLoaderUtils.resourceLoader(FXMLResource.TRACKS_TABLE_VIEW);
@@ -52,6 +54,7 @@ public class TracksTableView extends TableView<Track> {
         initColumnComparators();
         intiColumnCellFactories();
         initColumnCellValueFactories();
+        initSelectedItemsChangedListener();
         initItemsChangedListener();
         initKeyEventListeners();
         initRowFactories();
@@ -59,33 +62,45 @@ public class TracksTableView extends TableView<Track> {
 
     private void initTableProperties() {
         getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
-        setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY_ALL_COLUMNS);
+        setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY_FLEX_LAST_COLUMN);
     }
 
     private void initColumnComparators() {
         timeCol.setComparator(Integer::compareTo);
+        sampleRateCol.setComparator(Integer::compareTo);
     }
 
     private void intiColumnCellFactories() {
+        bitRateCol.setCellFactory(new NumberFormatTableCellFactory(t -> t.audioFormat().bitRate()));
+        sampleRateCol.setCellFactory(new NumberFormatTableCellFactory(t -> t.audioFormat().sampleRate()));
         timeCol.setCellFactory(new TrackTimeTableCellFactory());
     }
 
     private void initColumnCellValueFactories() {
+        // SimpleObjectProperty
+        timeCol.setCellValueFactory(c -> new SimpleObjectProperty<>(c.getValue().length().seconds()));
+        bitRateCol.setCellValueFactory(c -> new SimpleObjectProperty<>(c.getValue().audioFormat().bitRate()));
+        sampleRateCol.setCellValueFactory(c -> new SimpleObjectProperty<>(c.getValue().audioFormat().sampleRate()));
+        bitsPerSampleCol.setCellValueFactory(c -> new SimpleObjectProperty<>(c.getValue().audioFormat().bitsPerSample()));
+        // SimpleStringProperty
         trackNumberCol.setCellValueFactory(c -> new SimpleStringProperty(c.getValue().number()));
         titleCol.setCellValueFactory(c -> new SimpleStringProperty(c.getValue().title()));
-        timeCol.setCellValueFactory(c -> new SimpleObjectProperty<>(c.getValue().length().seconds()));
         artistCol.setCellValueFactory(c -> new SimpleStringProperty(c.getValue().artistName()));
         albumCol.setCellValueFactory(c -> new SimpleStringProperty(c.getValue().albumName()));
         genreCol.setCellValueFactory(c -> new SimpleStringProperty(c.getValue().genre()));
         filenameCol.setCellValueFactory(c -> new SimpleStringProperty(c.getValue().fileAttributes().name()));
-        sizeCol.setCellValueFactory(c -> new SimpleStringProperty(c.getValue().fileAttributes().readableSize()));
         extensionCol.setCellValueFactory(c -> new SimpleStringProperty(c.getValue().fileAttributes().extension()));
         mimeTypeCol.setCellValueFactory(c -> new SimpleStringProperty(c.getValue().audioFormat().mimeType()));
-        bitRateCol.setCellValueFactory(c -> new SimpleStringProperty(c.getValue().audioFormat().bitRate()));
-        sampleRateCol.setCellValueFactory(c -> new SimpleStringProperty(c.getValue().audioFormat().sampleRate()));
-        bitsPerSampleCol.setCellValueFactory(c -> new SimpleStringProperty("" + c.getValue().audioFormat().bitsPerSample()));
         ratingCol.setCellValueFactory(c -> new SimpleStringProperty("" + c.getValue().rating().value()));
         playCountCol.setCellValueFactory(c -> new SimpleStringProperty("" + c.getValue().playback().count()));
+
+        sizeCol.setCellValueFactory(c -> {
+            var displaySize = c.getValue().fileAttributes().readableSize();
+            if (c.getValue().fileAttributes().size() == 0) {
+                displaySize = "";
+            }
+            return new SimpleStringProperty(displaySize);
+        });
         lastPlayedDateCol.setCellValueFactory(c -> {
             if (c.getValue().playback().lastPlayedDate() != null) {
                 var date = c.getValue().playback().lastPlayedDate();
@@ -102,23 +117,43 @@ public class TracksTableView extends TableView<Track> {
         });
     }
 
+    private void initSelectedItemsChangedListener() {
+        getSelectionModel().getSelectedItems().addListener((ListChangeListener<Track>) changed ->
+                updateSelectedTracksInfoProperty(changed == null ? Collections.emptyList() : changed.getList()));
+    }
+
     private void initItemsChangedListener() {
         itemsProperty().addListener((_, _, newItems) -> {
-            if (newItems == null || newItems.isEmpty()) {
-                tracksInfoProperty.set("");
-            } else {
-                var totalSize = (long) 0;
-                var totalLength = (long) 0;
-                for (Track track : newItems) {
-                    totalSize += track.fileAttributes().size();
-                    totalLength += track.length().seconds();
-                }
-                var files = "" + newItems.size() + (newItems.size() > 1 ? " files" : " file");
-                var sizeFormatted = org.apache.commons.io.FileUtils.byteCountToDisplaySize(totalSize);
-                var lengthFormatted = TimeUtils.durationToTimeFormat(Duration.ofSeconds(totalLength));
-                tracksInfoProperty.set(String.format("%s, %s, %s", files, sizeFormatted, lengthFormatted));
-            }
+            updateTracksInfoProperty(newItems);
         });
+    }
+
+    private void updateSelectedTracksInfoProperty(List<? extends Track> changed) {
+        var selected = changed == null ? 0 : changed.size();
+        var time = "";
+        if (selected > 0) {
+            var totalSeconds = changed.stream().mapToInt(t -> t.length().seconds()).sum();
+            time = TimeUtils.durationToTimeFormat(Duration.ofSeconds(totalSeconds));
+        }
+        var text = String.format("Selected: %s, time: %s", selected, time);
+        selectedTracksInfoProperty.set(text);
+    }
+
+    private void updateTracksInfoProperty(List<Track> newTracks) {
+        if (newTracks == null || newTracks.isEmpty()) {
+            tracksInfoProperty.set("");
+        } else {
+            var totalSize = (long) 0;
+            var totalLength = (long) 0;
+            for (var track : newTracks) {
+                totalSize += track.fileAttributes().size();
+                totalLength += track.length().seconds();
+            }
+            var files = Numbers.format(newTracks.size()) + (newTracks.size() > 1 ? " files" : " file");
+            var sizeFormatted = org.apache.commons.io.FileUtils.byteCountToDisplaySize(totalSize);
+            var lengthFormatted = TimeUtils.durationToTimeFormat(Duration.ofSeconds(totalLength));
+            tracksInfoProperty.set(String.format("%s, %s, %s", files, sizeFormatted, lengthFormatted));
+        }
     }
 
     private void initKeyEventListeners() {
@@ -173,6 +208,10 @@ public class TracksTableView extends TableView<Track> {
             setUserData(Collections.unmodifiableList(allTracks));
             setItems(FXCollections.observableList(allTracks));
         });
+    }
+
+    public ReadOnlyStringProperty selectedTracksInfoProperty() {
+        return selectedTracksInfoProperty;
     }
 
     public ReadOnlyStringProperty tracksInfoProperty() {

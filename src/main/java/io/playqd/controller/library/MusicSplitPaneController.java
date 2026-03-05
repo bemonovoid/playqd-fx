@@ -1,16 +1,15 @@
-package io.playqd.controller.music;
+package io.playqd.controller.library;
 
-import io.playqd.client.PlayqdClientProvider;
-import io.playqd.controller.view.TracksContainer;
+import io.playqd.controller.view.TracksView;
 import io.playqd.data.Album;
 import io.playqd.data.Artist;
 import io.playqd.data.Track;
+import io.playqd.service.MusicLibrary;
 import io.playqd.utils.FakeIds;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.fxml.FXML;
 import javafx.scene.control.ListView;
-import javafx.scene.control.TableView;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -24,21 +23,15 @@ public abstract class MusicSplitPaneController {
     protected ListView<Album> albumsListView;
 
     @FXML
-    protected TracksContainer tracksContainer;
+    protected TracksView tracksView;
 
     protected void initializeInternal() {
 
     }
 
-    private void initialize() {
-//        new TracksTableViewController(this).initialize();
-//        new AlbumsListController(this).initialize();
-//        new ArtistContainerManager(this).initialize();
-    }
-
     void showAllAlbums() {
         Platform.runLater(() -> {
-            var albums = PlayqdClientProvider.get().getAlbums();
+            var albums = MusicLibrary.getAllAlbums();
             var albumsGroupedByArtist = albums.stream().collect(Collectors.groupingBy(Album::artistName));
             var albumsListViewItems = new ArrayList<Album>(albums.size() + albumsGroupedByArtist.size());
             albumsGroupedByArtist.entrySet().stream()
@@ -55,25 +48,25 @@ public abstract class MusicSplitPaneController {
 
     void showArtistAlbums(Artist selectedArtist) {
         Platform.runLater(() -> {
-            var albums = PlayqdClientProvider.get().getAlbumsByArtistId(selectedArtist.id());
+            var albums = MusicLibrary.getArtistAlbums(selectedArtist.id());
             var albumsListViewItems = new ArrayList<Album>(albums.size() + 1);
             var headerAlbum = createFakeArtistAlbumsAlbum(albums.getFirst());
             albumsListViewItems.add(headerAlbum);
             albumsListViewItems.addAll(albums);
             albumsListView.setItems(FXCollections.observableArrayList(albumsListViewItems));
-            tracksContainer.getTracksTableView().setItems(FXCollections.observableList(getArtistTracks(selectedArtist.id())));
+            tracksView.tracksTableView().showTracks(() -> getArtistTracks(selectedArtist.id()));
         });
     }
 
     List<Track> getArtistTracks(long trackId) {
-        return PlayqdClientProvider.get().getTracksByArtistId(trackId).stream()
+        return MusicLibrary.getArtistTracks(trackId).stream()
                 .sorted(Comparator.comparing(Track::title))
                 .collect(Collectors.toCollection(ArrayList::new));
     }
 
     List<Track> getAlbumTracks(Album album) {
 
-        var albumTracks = PlayqdClientProvider.get().getTracksByAlbumId(album.id());
+        var albumTracks = MusicLibrary.getAlbumTracks(album.id());
 
         return albumTracks.stream()
                 .sorted((t1, t2) -> {
@@ -101,12 +94,8 @@ public abstract class MusicSplitPaneController {
         return albumsListView;
     }
 
-    protected final TracksContainer getTracksContainer() {
-        return tracksContainer;
-    }
-
-    protected final TableView<Track> getTracksTableView() {
-        return getTracksContainer().getTracksTableView();
+    protected final TracksView tracksView() {
+        return tracksView;
     }
 
     protected final Album getSelectedAlbum() {

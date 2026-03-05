@@ -1,8 +1,6 @@
 package io.playqd.utils;
 
 import io.playqd.config.AppConfig;
-import io.playqd.data.Track;
-import io.playqd.service.TracksService;
 
 public class PlayqdApis {
 
@@ -10,16 +8,18 @@ public class PlayqdApis {
         return AppConfig.getProperties().apiBaseUrl().get();
     }
 
-    public static String albumArtwork(long audioFileId) {
-        return albumArtwork(TracksService.getTrackById(audioFileId));
+    public static String albumArtwork(long trackId) {
+        return albumArtwork(trackId, -1);
     }
 
-    public static String albumArtwork(Track track) {
-        var audioFileId = track.id();
-        if (track.cueInfo().parentId() != null) {
-            audioFileId = track.cueInfo().parentId();
+    public static String albumArtwork(long trackId, int size) {
+        var url = baseUrl() + "/tracks/" + trackId + "/artwork";
+
+        if (size > 0) {
+            url = url + "?" + size;
         }
-        return baseUrl() + "/albums/" + audioFileId + "/artwork";
+
+        return url;
     }
 
 }

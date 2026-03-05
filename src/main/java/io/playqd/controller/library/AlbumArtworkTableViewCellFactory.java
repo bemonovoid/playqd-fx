@@ -1,11 +1,10 @@
-package io.playqd.controller.music;
+package io.playqd.controller.library;
 
-import io.playqd.utils.PlayqdApis;
+import io.playqd.utils.ArtworkImageSetter;
 import javafx.geometry.Pos;
 import javafx.scene.control.TableCell;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.cell.TextFieldTableCell;
-import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.HBox;
 import javafx.util.Callback;
@@ -34,10 +33,10 @@ public class AlbumArtworkTableViewCellFactory
                     var trackTableRow = getTableRow().getItem();
 
                     if (trackTableRow.albumHeader()) {
-                        var artworkImageView =
-                                new ImageView(new Image(PlayqdApis.albumArtwork(trackTableRow.track())));
-                        artworkImageView.setFitWidth(50);
-                        artworkImageView.setFitHeight(50);
+                        var artworkImageView = new ImageView();
+                        ArtworkImageSetter.set(trackTableRow.track(), 50, artworkImageView);
+//                        artworkImageView.setFitWidth(50);
+//                        artworkImageView.setFitHeight(50);
 
                         var hBox = new HBox(artworkImageView);
 

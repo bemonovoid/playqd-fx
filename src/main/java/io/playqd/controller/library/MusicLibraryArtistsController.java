@@ -1,11 +1,10 @@
-package io.playqd.controller.music;
+package io.playqd.controller.library;
 
-import de.jensd.fx.glyphs.fontawesome.FontAwesomeIcon;
-import de.jensd.fx.glyphs.fontawesome.utils.FontAwesomeIconFactory;
-import io.playqd.client.PlayqdClientProvider;
 import io.playqd.data.Artist;
-import io.playqd.service.TracksService;
+import io.playqd.service.MusicLibrary;
 import io.playqd.utils.FakeIds;
+import io.playqd.utils.Numbers;
+import io.playqd.utils.SortDirection;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.fxml.FXML;
@@ -33,11 +32,17 @@ public class MusicLibraryArtistsController extends MusicSplitPaneController {
     private MenuButton sortArtistsMenuBtn;
 
     @FXML
+    private ToggleGroup sortArtistsByToggleGroup, sortArtistsDirectionToggleGroup;
+
+    @FXML
+    private MenuItem sortArtistsByName, sortArtistsByAlbCount, sortArtistsByTracksCount, sortArtistsAsc, sortArtistsDesc;
+
+    @FXML
     private Label artistsInfoLabel;
 
     protected void initializeInternal() {
         super.initializeInternal();
-        initSortMenuButton();
+        initToggleGroupsListeners();
 
         artistsListView.getStyleClass().add("artists-list-view");
 
@@ -46,14 +51,14 @@ public class MusicLibraryArtistsController extends MusicSplitPaneController {
         artistsListView.getSelectionModel().selectedItemProperty().addListener((_, oldArtist, selectedArtist) -> {
             if (oldArtist != null && selectedArtist == null) {
                 clearAlbumsList();
-                getTracksContainer().clearTracksTable();
+                tracksView().clear();
             }
             if (selectedArtist != null) {
                 getAlbumsListView().setCellFactory(
                         new AlbumsListViewCellFactory(new AlbumsListViewCellFactoryListener(this)));
                 if (FakeIds.ALL_ARTIST == selectedArtist.id()) {
                     showAllAlbums();
-                    tracksContainer.showTracks(TracksService::getAllTracks);
+                    tracksView().tracksTableView().showTracks(MusicLibrary::getAllTracksExcludingCueParent);
                 } else {
                     showArtistAlbums(selectedArtist);
                 }
@@ -65,33 +70,34 @@ public class MusicLibraryArtistsController extends MusicSplitPaneController {
         showAllArtists();
     }
 
-    private void initSortMenuButton() {
-        sortArtistsMenuBtn.getStyleClass().setAll("button");
-        var byNameAscMenuItem = new CustomMenuItem(FontAwesomeIconFactory.get().createIconLabel(
-                FontAwesomeIcon.SORT_ALPHA_ASC, "Name ascending", "10px", "12px", ContentDisplay.LEFT));
-        var byNameDescMenuItem = new CustomMenuItem(FontAwesomeIconFactory.get().createIconLabel(
-                FontAwesomeIcon.SORT_ALPHA_DESC, "Name descending", "10px", "12px", ContentDisplay.LEFT));
-        var byAlbumCountAscMenuItem = new CustomMenuItem(FontAwesomeIconFactory.get().createIconLabel(
-                FontAwesomeIcon.SORT_AMOUNT_ASC, "Albums count ascending", "10px", "12px", ContentDisplay.LEFT));
-        var byAlbumCountDescMenuItem = new CustomMenuItem(FontAwesomeIconFactory.get().createIconLabel(
-                FontAwesomeIcon.SORT_AMOUNT_DESC, "Albums count descending", "10px", "12px", ContentDisplay.LEFT));
-        var byTracksCountAscMenuItem = new CustomMenuItem(FontAwesomeIconFactory.get().createIconLabel(
-                FontAwesomeIcon.SORT_AMOUNT_ASC, "Tracks count ascending", "10px", "12px", ContentDisplay.LEFT));
-        var byTracksCountDescMenuItem = new CustomMenuItem(FontAwesomeIconFactory.get().createIconLabel(
-                FontAwesomeIcon.SORT_AMOUNT_DESC, "Tracks count descending", "10px", "12px", ContentDisplay.LEFT));
+    private void initToggleGroupsListeners() {
+        sortArtistsByToggleGroup.selectedToggleProperty().addListener((_, _, newToggle) ->
+                sortArtists(newToggle, getSelectedSortDirection()));
+        sortArtistsDirectionToggleGroup.selectedToggleProperty().addListener((_, _, newToggle) ->
+                sortArtists(sortArtistsByToggleGroup.getSelectedToggle(), resolveSortDirectionFromToggle(newToggle)));
+    }
 
-        byNameAscMenuItem.setOnAction(_ -> sort(Comparator.comparing(Artist::name), false));
-        byNameDescMenuItem.setOnAction(_ -> sort(Comparator.comparing(Artist::name), true));
+    private SortDirection getSelectedSortDirection() {
+        var selectedToggle = sortArtistsDirectionToggleGroup.getSelectedToggle();
+        return resolveSortDirectionFromToggle(selectedToggle);
+    }
 
-        byAlbumCountAscMenuItem.setOnAction(_ -> sort(Comparator.comparing(Artist::albumsCount), false));
-        byAlbumCountDescMenuItem.setOnAction(_ -> sort(Comparator.comparing(Artist::albumsCount), true));
+    private SortDirection resolveSortDirectionFromToggle(Toggle toggle) {
+        if (toggle == null || toggle == sortArtistsAsc) {
+            return SortDirection.ASC;
+        }
+        return SortDirection.DESC;
+    }
 
-        byTracksCountAscMenuItem.setOnAction(_ -> sort(Comparator.comparing(Artist::tracksCount), false));
-        byTracksCountDescMenuItem.setOnAction(_ -> sort(Comparator.comparing(Artist::tracksCount), true));
-
-        sortArtistsMenuBtn.getItems().addAll(byNameAscMenuItem, byNameDescMenuItem, new SeparatorMenuItem(),
-                byAlbumCountAscMenuItem, byAlbumCountDescMenuItem, new SeparatorMenuItem(),
-                byTracksCountAscMenuItem, byTracksCountDescMenuItem);
+    private void sortArtists(Toggle sortBy, SortDirection sortDirection) {
+        var sortByToggle = sortBy == null ? sortArtistsByName : sortBy;
+        if (sortByToggle == sortArtistsByName) {
+            sort(Comparator.comparing(Artist::name), sortDirection);
+        } else if (sortByToggle == sortArtistsByAlbCount) {
+            sort(Comparator.comparing(Artist::albumsCount), sortDirection);
+        } else if (sortByToggle == sortArtistsByTracksCount) {
+            sort(Comparator.comparing(Artist::tracksCount), sortDirection);
+        }
     }
 
     private void initArtistsInfoLabelListener() {
@@ -103,15 +109,15 @@ public class MusicLibraryArtistsController extends MusicSplitPaneController {
                 artistsInfoLabel.setText("");
             } else {
                 var artistsText = newItems.size() > 1 ? "artists" : "artist";
-                artistsInfoLabel.setText(newItems.size() + " " + artistsText);
+                artistsInfoLabel.setText(Numbers.format(newItems.size()) + " " + artistsText);
             }
         });
     }
 
-    private void sort(Comparator<Artist> comparator, boolean reversed) {
+    private void sort(Comparator<Artist> comparator, SortDirection sortDirection) {
         var allArtistsItem = artistsListView.getItems().getFirst();
         var artistItems = artistsListView.getItems().subList(1, artistsListView.getItems().size());
-        if (reversed) {
+        if (SortDirection.DESC == sortDirection) {
             artistItems.sort(comparator.reversed());
         } else {
             artistItems.sort(comparator);
@@ -162,7 +168,7 @@ public class MusicLibraryArtistsController extends MusicSplitPaneController {
     private void showAllArtists() {
         Platform.runLater(() -> {
             artistsListView.setCellFactory(new ArtistsListViewCellFactory());
-            var artists = PlayqdClientProvider.get().getArtists().stream()
+            var artists = MusicLibrary.getArtists().stream()
                     .sorted(Comparator.comparing(Artist::name))
                     .toList();
 

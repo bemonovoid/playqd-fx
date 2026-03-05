@@ -4,9 +4,10 @@ public enum FXMLResource {
 
     APPLICATION("/fxml/application.fxml"),
 
+    TRACKS_VIEW("/fxml/tracks-view.fxml"),
+    TRACKS_TABLE_HEADER("/fxml/tracks-table-header.fxml"),
     TRACKS_TABLE_VIEW("/fxml/tracks-table-view.fxml"),
-
-    TRACKS_CONTAINER("/fxml/tracks-container.fxml"),
+    TRACKS_TABLE_FOOTER("/fxml/tracks-table-footer.fxml"),
 
     DIALOG_INVALIDATE_CACHES("/fxml/dialog/invalidate-caches.fxml"),
 

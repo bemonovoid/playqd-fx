@@ -2,19 +2,23 @@ package io.playqd.controller;
 
 import de.jensd.fx.glyphs.fontawesome.FontAwesomeIcon;
 import de.jensd.fx.glyphs.fontawesome.FontAwesomeIconView;
-import io.playqd.client.PlayqdClientProvider;
 import io.playqd.data.Track;
+import io.playqd.event.MouseEventHelper;
 import io.playqd.player.FetchMode;
 import io.playqd.player.LoopMode;
 import io.playqd.player.PlayerEngine;
-import io.playqd.service.TracksService;
-import io.playqd.utils.ImageHelper;
-import io.playqd.utils.PlayqdApis;
+import io.playqd.service.MusicLibrary;
+import io.playqd.utils.ArtworkImageSetter;
 import io.playqd.utils.TimeUtils;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
+import javafx.geometry.Insets;
+import javafx.geometry.Pos;
+import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.image.ImageView;
+import javafx.scene.layout.VBox;
+import javafx.stage.Stage;
 import javafx.util.Duration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -45,6 +49,7 @@ public class PlayerToolbarController {
 
     @FXML
     private void initialize() {
+        initArtworkImageListeners();
         initPlayerEventConsumers();
         initVolumeChangedListeners();
         initButtonEventHandlers();
@@ -53,7 +58,7 @@ public class PlayerToolbarController {
             PlayerEngine.PLAYING_QUEUE.current()
                     .filter(cueTrack -> cueTrack.cueInfo().parentId() != null)
                     .ifPresentOrElse(cueTrack -> {
-                        var parentTrack = TracksService.getTrackById(cueTrack.cueInfo().parentId());
+                        var parentTrack = MusicLibrary.getTrackById(cueTrack.cueInfo().parentId());
                         var seekCueTime = slider.getValue() * (cueTrack.length().seconds() * 1000);
                         var seekParentTime = cueTrack.cueInfo().startTimeInSeconds() + seekCueTime;
                         var seekPosition = seekParentTime / (parentTrack.length().seconds() * 1000);
@@ -80,12 +85,13 @@ public class PlayerToolbarController {
         favoriteBtn.selectedProperty().addListener((_, _, selected) -> {
             if (selected) {
                 PlayerEngine.PLAYING_QUEUE.current().ifPresent(track -> {
-                    PlayqdClientProvider.get().addToFavorites(track.id());
+                    MusicLibrary.addToFavorites(track.id());
                     favoriteBtn.setGraphic(new FontAwesomeIconView(FontAwesomeIcon.STAR));
                     favoriteBtn.getStyleClass().add("favorite-icon");
                 });
             } else {
                 PlayerEngine.PLAYING_QUEUE.current().ifPresent(track -> {
+                    MusicLibrary.removeFromFavorites(track.id());
                     favoriteBtn.setGraphic(new FontAwesomeIconView(FontAwesomeIcon.STAR_ALT));
                     favoriteBtn.getStyleClass().remove("favorite-icon");
                 });
@@ -172,14 +178,19 @@ public class PlayerToolbarController {
         });
     }
 
+    private void initArtworkImageListeners() {
+        artworkImageView.setOnMouseClicked(mouseEvent -> {
+            if (MouseEventHelper.primaryButtonDoubleClicked(mouseEvent)) {
+                if (ArtworkImageSetter.isNotFoundImageUrl(artworkImageView.getImage().getUrl())) {
+                    return;
+                }
+                showFullSizeImageInPopup();
+            }
+        });
+    }
+
     private void updateArtwork(Track track) {
-        ImageHelper.loadImageWithFallback(
-                artworkImageView,
-                80,
-                80,
-                PlayqdApis.albumArtwork(track),
-                "/img/no-album-art-2.png"
-        );
+        ArtworkImageSetter.set(track, 80, artworkImageView);
     }
 
     private void updateSliderPosition(double newValue) {
@@ -200,15 +211,15 @@ public class PlayerToolbarController {
         if (newTime > 1000) {
             PlayerEngine.PLAYING_QUEUE.current()
                     .filter(track -> track.cueInfo().parentId() != null)
-                    .ifPresent(track -> {
+                    .ifPresentOrElse(track -> {
                         // the 'newTime' is relative to parent track
                         var newCueTimeInMillis = newTime - (((long) track.cueInfo().startTimeInSeconds()) * 1000);
                         var progress = (double) newCueTimeInMillis / (track.length().seconds() * 1000);
                         slider.setValue(progress);
                         timeElapsedLabel.setText(
                                 TimeUtils.durationToTimeFormat(java.time.Duration.ofMillis(newCueTimeInMillis)));
-                    });
-            timeElapsedLabel.setText(TimeUtils.durationToTimeFormat(java.time.Duration.ofMillis(newTime)));
+                    }, () -> timeElapsedLabel.setText(
+                            TimeUtils.durationToTimeFormat(java.time.Duration.ofMillis(newTime))));
         }
     }
 
@@ -232,5 +243,33 @@ public class PlayerToolbarController {
     private void handleTrackFinished() {
         handleTrackStopped();
         PlayerEngine.playNext();
+    }
+
+    private void showFullSizeImageInPopup() {
+        PlayerEngine.PLAYING_QUEUE.current().ifPresent(track -> {
+            var popupStage = new Stage();
+            popupStage.setTitle(track.artistName() + " - "  + track.albumName());
+
+            var window = artworkImageView.getScene().getWindow();
+            var size = window.getHeight() - 300;
+
+            var imageView = new ImageView();
+            imageView.setSmooth(true);
+            imageView.setPreserveRatio(true);
+            ArtworkImageSetter.set(track, (int) size, imageView);
+
+            var vBox = new VBox(imageView);
+            vBox.setAlignment(Pos.CENTER);
+
+            vBox.setPadding(new Insets(10, 10, 10, 10));
+
+
+            var scene = new Scene(vBox);
+
+            popupStage.setScene(scene);
+            popupStage.setAlwaysOnTop(true);
+            popupStage.setResizable(false);
+            popupStage.show();
+        });
     }
 }

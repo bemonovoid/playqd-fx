@@ -1,4 +1,4 @@
-package io.playqd.controller.music;
+package io.playqd.controller.library;
 
 import javafx.fxml.FXML;
 

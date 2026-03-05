@@ -1,10 +1,9 @@
-package io.playqd.controller.music;
+package io.playqd.controller.library;
 
 import io.playqd.data.Album;
 import io.playqd.event.MouseEventHelper;
+import io.playqd.utils.ArtworkImageSetter;
 import io.playqd.utils.FakeIds;
-import io.playqd.utils.ImageHelper;
-import io.playqd.utils.PlayqdApis;
 import io.playqd.utils.TimeUtils;
 import javafx.geometry.Insets;
 import javafx.geometry.Orientation;
@@ -73,13 +72,7 @@ public class AlbumsListViewCellFactory implements Callback<ListView<Album>, List
                     }
 
                     var imageView = new ImageView();
-
-                    ImageHelper.loadImageWithFallback(
-                            imageView,
-                            80,
-                            80,
-                            PlayqdApis.albumArtwork(album.id()),
-                            "/img/no-album-art-2.png");
+                    ArtworkImageSetter.set(album.id(), 80, imageView);
 
                     var vBox = new VBox();
                     vBox.setAlignment(Pos.TOP_LEFT);

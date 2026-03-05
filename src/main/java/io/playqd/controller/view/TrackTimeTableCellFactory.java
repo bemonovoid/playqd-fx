@@ -1,4 +1,4 @@
-package io.playqd.controller.music;
+package io.playqd.controller.view;
 
 import io.playqd.data.Track;
 import io.playqd.utils.TimeUtils;
@@ -9,8 +9,7 @@ import javafx.util.Callback;
 
 import java.time.Duration;
 
-public class TrackTimeTableCellFactory implements
-        Callback<TableColumn<Track, Integer>, TableCell<Track, Integer>> {
+class TrackTimeTableCellFactory implements Callback<TableColumn<Track, Integer>, TableCell<Track, Integer>> {
 
     @Override
     public TableCell<Track, Integer> call(TableColumn<Track, Integer> param) {

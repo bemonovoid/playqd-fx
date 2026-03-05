@@ -1,18 +1,15 @@
 package io.playqd.controller.trackexplorer;
 
+import io.playqd.controller.view.TracksTableFooter;
 import io.playqd.controller.view.TracksTableView;
+import io.playqd.controller.view.TracksView;
 import io.playqd.data.Track;
 import io.playqd.player.PlayRequest;
 import io.playqd.player.PlayerEngine;
+import io.playqd.service.MusicLibrary;
 import io.playqd.service.TrackComparators;
-import io.playqd.service.TracksService;
-import io.playqd.utils.TimeUtils;
-import javafx.collections.ListChangeListener;
 import javafx.fxml.FXML;
-import javafx.scene.control.Label;
 import javafx.scene.control.ListView;
-
-import java.time.Duration;
 
 public class TracksExplorerViewController {
 
@@ -20,15 +17,16 @@ public class TracksExplorerViewController {
     private ListView<ListItem> listView;
 
     @FXML
-    private TracksTableView tracksTableView;
+    private TracksView tracksView;
 
-    @FXML
-    private Label tracksSelectedLabel, tracksInfoLabel;
+    private TracksTableView tracksTableView;
+    private TracksTableFooter tracksTableFooter;
 
     @FXML
     private void initialize() {
+        tracksTableView = tracksView.tracksTableView();
+        tracksTableFooter = tracksView.tracksTableFooter();
         setTracksVisibleColumns();
-        setTracksInfoLabel();
         initTracksTableViewEventHandlers();
         listView.setCellFactory(new TracksExplorerListViewCellFactory());
         populateListView();
@@ -37,22 +35,23 @@ public class TracksExplorerViewController {
                 return;
             }
             if (ListItemId.ALL == selectedItem.id()) {
-                tracksTableView.showTracks(TracksService::getAllTracks);
+                tracksTableView.showTracks(MusicLibrary::getAllTracks);
             } else if (ListItemId.FAVORITES == selectedItem.id()) {
 
-                tracksTableView.showTracks(TracksService::getFavorites, TrackComparators.byFavoriteAddedDateDesc());
+                tracksTableView.showTracks(MusicLibrary::getFavoriteTracks, TrackComparators.byFavoriteAddedDateDesc());
             } else if (ListItemId.CUE == selectedItem.id()) {
-                tracksTableView.showTracks(TracksService::getCueTracks);
+                tracksTableView.showTracks(MusicLibrary::getCueTracks);
             }
         });
         listView.getSelectionModel().select(0);
     }
 
     private void populateListView() {
-        listView.getItems().add(new ListItem(ListItemId.ALL, "All", 0));
-        listView.getItems().add(new ListItem(ListItemId.FAVORITES, "Favorites", 0));
-        listView.getItems().add(new ListItem(ListItemId.PLAYED, "Played", 0));
-        listView.getItems().add(new ListItem(ListItemId.CUE, "Cue tracks", 0));
+        var counts = getCounts();
+        listView.getItems().add(new ListItem(ListItemId.ALL, "All", counts.allTracks()));
+        listView.getItems().add(new ListItem(ListItemId.FAVORITES, "Favorites", counts.favorites()));
+        listView.getItems().add(new ListItem(ListItemId.PLAYED, "Played", counts.played()));
+        listView.getItems().add(new ListItem(ListItemId.CUE, "Cue tracks", counts.cues()));
     }
 
     private void setTracksVisibleColumns() {
@@ -62,27 +61,35 @@ public class TracksExplorerViewController {
         tracksTableView.sizeCol.setVisible(true);
         tracksTableView.ratingCol.setVisible(true);
         tracksTableView.playCountCol.setVisible(true);
-    }
-
-    private void setTracksInfoLabel() {
-        tracksInfoLabel.textProperty().bind(tracksTableView.tracksInfoProperty());
+        tracksTableView.bitsPerSampleCol.setVisible(true);
+        tracksTableView.bitRateCol.setVisible(true);
+        tracksTableView.sampleRateCol.setVisible(true);
     }
 
     private void initTracksTableViewEventHandlers() {
-        tracksTableView.getSelectionModel().getSelectedItems().addListener((ListChangeListener<Track>) changed -> {
-            var selected = changed != null ? changed.getList().size() : 0;
-            var time = "";
-            if (selected > 0) {
-                var totalSeconds = changed.getList().stream().mapToInt(t -> t.length().seconds()).sum();
-                time = TimeUtils.durationToTimeFormat(Duration.ofSeconds(totalSeconds));
-            }
-            var text = String.format("Selected: %s, time: %s", selected, time);
-            tracksSelectedLabel.setText(text);
-        });
         tracksTableView.rowDoubleClickedProperty().addListener((_, _, row) -> {
             if (row != null) {
                 PlayerEngine.enqueueAndPlay(new PlayRequest(row.track()));
             }
         });
+    }
+
+    private static Counts getCounts() {
+        var tracks = MusicLibrary.getAllTracksExcludingCueParent();
+        var favorites = 0;
+        var cues = 0;
+        for (Track track : tracks) {
+            if (track.rating() != null && track.rating().value() > 0) {
+                favorites++;
+            }
+            if (track.cueInfo().parentId() != null) {
+                cues++;
+            }
+        }
+        return new Counts(tracks.size(), favorites, 0, cues);
+    }
+
+    private record Counts(int allTracks, int favorites, int played, int cues) {
+
     }
 }

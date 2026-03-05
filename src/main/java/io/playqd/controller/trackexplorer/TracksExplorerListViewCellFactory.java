@@ -1,5 +1,6 @@
 package io.playqd.controller.trackexplorer;
 
+import io.playqd.utils.Numbers;
 import javafx.scene.control.Label;
 import javafx.scene.control.ListCell;
 import javafx.scene.control.ListView;
@@ -7,6 +8,8 @@ import javafx.scene.image.ImageView;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.util.Callback;
+
+import java.text.NumberFormat;
 
 public class TracksExplorerListViewCellFactory implements Callback<ListView<ListItem>, ListCell<ListItem>> {
 
@@ -29,8 +32,8 @@ public class TracksExplorerListViewCellFactory implements Callback<ListView<List
                     image.setFitHeight(25);
                     image.setFitWidth(25);
 
-                    var countText = listItem.count() > 1 ? " tracks" : " track";
-                    var countTextLabel = new Label(listItem.count() + countText);
+                    var countText = listItem.count() == 1 ? " track" : " tracks";
+                    var countTextLabel = new Label(Numbers.format(listItem.count()) + countText);
                     countTextLabel.setDisable(true);
                     countTextLabel.setStyle("-fx-font-size: 10px;");
 

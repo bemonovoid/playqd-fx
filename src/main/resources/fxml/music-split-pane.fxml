@@ -1,19 +1,40 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <?import de.jensd.fx.glyphs.fontawesome.FontAwesomeIconView?>
-<?import io.playqd.controller.view.TracksContainer?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 <?import javafx.geometry.Insets?>
+<?import io.playqd.controller.view.TracksView?>
 <SplitPane xmlns="http://javafx.com/javafx"
            xmlns:fx="http://javafx.com/fxml"
            fx:id="musicSplitPane"
-           fx:controller="io.playqd.controller.music.MusicLibraryController"
+           fx:controller="io.playqd.controller.library.MusicLibraryController"
            dividerPositions="0.2, 0.4">
 
     <VBox VBox.vgrow="ALWAYS">
 
         <ToolBar>
+
+            <MenuButton text="Artists" fx:id="sortArtistsMenuBtn" style="-fx-background-color: transparent;">
+                <fx:define>
+                    <ToggleGroup fx:id="sortArtistsByToggleGroup"/>
+                    <ToggleGroup fx:id="sortArtistsDirectionToggleGroup"/>
+                </fx:define>
+                <items>
+                    <Menu text="Sort by">
+                        <graphic>
+                            <FontAwesomeIconView glyphName="SORT_AMOUNT_DESC"/>
+                        </graphic>
+                        <RadioMenuItem fx:id="sortArtistsByName" toggleGroup="$sortArtistsByToggleGroup" text="Name" selected="true"/>
+                        <SeparatorMenuItem/>
+                        <RadioMenuItem fx:id="sortArtistsByAlbCount" toggleGroup="$sortArtistsByToggleGroup" text="Albums count"/>
+                        <RadioMenuItem fx:id="sortArtistsByTracksCount" toggleGroup="$sortArtistsByToggleGroup" text="Tracks count"/>
+                        <SeparatorMenuItem/>
+                        <RadioMenuItem fx:id="sortArtistsAsc" toggleGroup="$sortArtistsDirectionToggleGroup" text="Sort Ascending" selected="true"/>
+                        <RadioMenuItem fx:id="sortArtistsDesc" toggleGroup="$sortArtistsDirectionToggleGroup" text="Sort Descending"/>
+                    </Menu>
+                </items>
+            </MenuButton>
 
             <Label fx:id="artistsSearchLabel" visible="false">
                 <graphic>
@@ -21,25 +42,16 @@
                 </graphic>
             </Label>
 
-            <Pane HBox.hgrow="ALWAYS"/>
-
-            <MenuButton fx:id="sortArtistsMenuBtn" focusTraversable="false"
-                        style="-fx-font-size: 10" accessibleRole="BUTTON">
-                <graphic>
-                    <FontAwesomeIconView glyphName="SORT_AMOUNT_DESC" glyphSize="10"/>
-                </graphic>
-            </MenuButton>
-
         </ToolBar>
 
         <ListView fx:id="artistsListView" VBox.vgrow="ALWAYS"/>
 
         <HBox>
             <padding>
-                <Insets right="20"/>
+                <Insets top="2" bottom="2" left="5" right="20"/>
             </padding>
             <Pane HBox.hgrow="ALWAYS"/>
-            <Label fx:id="artistsInfoLabel"/>
+            <Label fx:id="artistsInfoLabel" opacity="0.6" style="-fx-font-size: 11px;"/>
         </HBox>
 
     </VBox>
@@ -47,29 +59,28 @@
     <VBox>
 
         <ToolBar>
+            <MenuButton text="Albums" style="-fx-background-color: transparent;"/>
+
             <Label fx:id="albumsSearchLabel" visible="false">
                 <graphic>
                     <FontAwesomeIconView glyphName="SEARCH" glyphSize="12"/>
                 </graphic>
             </Label>
 
-            <Pane HBox.hgrow="ALWAYS"/>
-
-            <Label text="artist albums list view toolbar"/>
         </ToolBar>
 
         <ListView fx:id="albumsListView" VBox.vgrow="ALWAYS"/>
 
         <HBox>
             <padding>
-                <Insets right="20"/>
+                <Insets top="2" bottom="2" left="5" right="20"/>
             </padding>
             <Pane HBox.hgrow="ALWAYS"/>
-            <Label fx:id="albumsInfoLabel"/>
+            <Label fx:id="albumsInfoLabel" disable="true" opacity="0.6" style="-fx-font-size: 11px;"/>
         </HBox>
 
     </VBox>
 
-    <TracksContainer fx:id="tracksContainer"/>
+    <TracksView fx:id="tracksView"/>
 
 </SplitPane>
