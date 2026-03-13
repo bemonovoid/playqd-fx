@@ -5,6 +5,9 @@
 <?import javafx.scene.layout.HBox?>
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.layout.Pane?>
+<?import javafx.scene.layout.GridPane?>
+<?import javafx.scene.layout.ColumnConstraints?>
+<?import javafx.collections.FXCollections?>
 <SplitPane xmlns="http://javafx.com/javafx"
            xmlns:fx="http://javafx.com/fxml"
            dividerPositions="0.75"
@@ -32,15 +35,27 @@
     </VBox>
 
     <VBox>
-        <ToolBar fx:id="trackInfoToolBar">
-            <MenuButton text="Track information" style="-fx-background-color: transparent;">
-            </MenuButton>
-        </ToolBar>
-        <Label fx:id="tiTrackTitle">Track title</Label>
-        <Label fx:id="tiArtistName">Artist name</Label>
-        <Label fx:id="tiAlbumName">Album name</Label>
-        <Label fx:id="tiAudioInfo">Audio info</Label>
-        <Label fx:id="tiFilePath">File path</Label>
+
+     <VBox style="-fx-background-color: #f4f4f4;">
+         <padding>
+             <Insets topRightBottomLeft="5"/>
+         </padding>
+
+         <VBox spacing="3">
+             <Label fx:id="trackNameLabel" style="-fx-font-weight: BOLD; -fx-font-size: 13"/>
+             <Label fx:id="artistNameLabel" style="-fx-font-size: 10"/>
+             <VBox spacing="2">
+                 <Label fx:id="albumNameLabel" style="-fx-font-weight: SEMI_BOLD; -fx-font-size: 13"/>
+                 <Label fx:id="albumInfoLabel" style="-fx-font-weight: LIGHT; -fx-font-size: 11"/>
+                  <padding>
+                      <Insets bottom="5"/>
+                  </padding>
+             </VBox>
+             <Label fx:id="fileInfoLabel" style="-fx-font-size: 11"/>
+             <Label fx:id="fileLocationLabel" style="-fx-font-size: 11" wrapText="true"/>
+         </VBox>
+
+     </VBox>
 
     </VBox>
 

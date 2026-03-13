@@ -1,12 +1,16 @@
 package io.playqd.controller.view;
 
+import io.playqd.controller.playlists.PlaylistDialog;
+import io.playqd.controller.view.menuitem.TrackContextMenuConfigurer;
+import io.playqd.data.PlaylistWithTrackIds;
 import io.playqd.data.Track;
 import io.playqd.dialog.tracks.TracksTableViewColumnsDialog;
 import io.playqd.event.MouseEventHelper;
 import io.playqd.fxml.FXMLLoaderUtils;
 import io.playqd.fxml.FXMLResource;
 import io.playqd.player.PlayRequest;
-import io.playqd.player.PlayerEngine;
+import io.playqd.player.Player;
+import io.playqd.service.MusicLibrary;
 import io.playqd.utils.Numbers;
 import io.playqd.utils.TimeUtils;
 import javafx.application.Platform;
@@ -14,11 +18,10 @@ import javafx.beans.property.*;
 import javafx.collections.FXCollections;
 import javafx.collections.ListChangeListener;
 import javafx.fxml.FXML;
-import javafx.scene.control.SelectionMode;
-import javafx.scene.control.TableColumn;
-import javafx.scene.control.TableRow;
-import javafx.scene.control.TableView;
+import javafx.scene.control.*;
 import javafx.scene.input.KeyCode;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.time.Duration;
 import java.time.format.DateTimeFormatter;
@@ -30,9 +33,12 @@ import java.util.function.Supplier;
 
 public class TracksTableView extends TableView<Track> {
 
+    private static final Logger LOG = LoggerFactory.getLogger(TracksTableView.class);
+
     private final StringProperty selectedTracksInfoProperty = new SimpleStringProperty("");
     private final StringProperty tracksInfoProperty = new SimpleStringProperty("");
     private final ObjectProperty<TrackSelectedRow> rowDoubleClickedProperty = new SimpleObjectProperty<>();
+    private Supplier<TrackContextMenuConfigurer> trackContextMenuConfigurerFactory;
 
     @FXML
     public TableColumn<Track, String> trackNumberCol, titleCol, artistCol, albumCol, filenameCol, sizeCol,
@@ -40,6 +46,9 @@ public class TracksTableView extends TableView<Track> {
             playCountCol, lastPlayedDateCol, addedDateCol;
     @FXML
     public TableColumn<Track, Integer> timeCol, sampleRateCol, bitRateCol, bitsPerSampleCol;
+
+    @FXML
+    public Menu addToPlaylistMenu;
 
     public TracksTableView() {
         var resourceLoader = FXMLLoaderUtils.resourceLoader(FXMLResource.TRACKS_TABLE_VIEW);
@@ -123,9 +132,7 @@ public class TracksTableView extends TableView<Track> {
     }
 
     private void initItemsChangedListener() {
-        itemsProperty().addListener((_, _, newItems) -> {
-            updateTracksInfoProperty(newItems);
-        });
+        itemsProperty().addListener((_, _, newItems) -> updateTracksInfoProperty(newItems));
     }
 
     private void updateSelectedTracksInfoProperty(List<? extends Track> changed) {
@@ -164,7 +171,7 @@ public class TracksTableView extends TableView<Track> {
                     if (KeyCode.ENTER == keyCode) {
                         var items = getSelectionModel().getSelectedItems();
                         if (!items.isEmpty()) {
-                            PlayerEngine.PLAYING_QUEUE.enqueue(Collections.unmodifiableList(items));
+                            Player.PLAYING_QUEUE.enqueue(Collections.unmodifiableList(items));
                         }
                     }
                 }
@@ -172,7 +179,7 @@ public class TracksTableView extends TableView<Track> {
                 if (KeyCode.ENTER == keyCode) {
                     var items = getSelectionModel().getSelectedItems();
                     if (!items.isEmpty()) {
-                        PlayerEngine.enqueueAndPlay(new PlayRequest(Collections.unmodifiableList(items)));
+                        Player.enqueueAndPlay(new PlayRequest(Collections.unmodifiableList(items)));
                     }
                 }
             }
@@ -183,12 +190,30 @@ public class TracksTableView extends TableView<Track> {
         setRowFactory(_ -> {
             var row = new TableRow<Track>();
             row.setOnMouseClicked(e -> {
-                if (!row.isEmpty() && MouseEventHelper.primaryButtonDoubleClicked(e)) {
-                    rowDoubleClickedProperty.set(new TrackSelectedRow(row.getIndex(), row.getItem()));
+                if (!row.isEmpty()) {
+                    if (MouseEventHelper.primaryButtonDoubleClicked(e)) {
+                        rowDoubleClickedProperty.set(new TrackSelectedRow(row.getIndex(), row.getItem()));
+                    } else if (MouseEventHelper.secondaryButtonSingleClicked(e)) {
+                        if (row.getContextMenu() == null) {
+                            var contextMenu = new TrackRowContextMenu(getTrackContextMenuConfigurer());
+                            contextMenu.setOnHidden(_ -> row.setContextMenu(null)); // to reset a state
+                            row.setContextMenu(contextMenu);
+                            contextMenu.show(row, e.getScreenX(), e.getScreenY());
+                        }
+                    }
                 }
             });
             return row;
         });
+    }
+
+    public void setTrackContextMenuConfigurerFactory(Supplier<TrackContextMenuConfigurer> factory) {
+        if (this.trackContextMenuConfigurerFactory != null) {
+            LOG.warn("'trackContextMenuConfigurerFactory' was already set.");
+        } else {
+            this.trackContextMenuConfigurerFactory = factory;
+            LOG.info("'trackContextMenuConfigurerFactory' was set.");
+        }
     }
 
     public void clearTracksTable() {
@@ -222,6 +247,10 @@ public class TracksTableView extends TableView<Track> {
         return rowDoubleClickedProperty;
     }
 
+    public List<Track> getSelectedTracks() {
+        return getSelectionModel().getSelectedItems();
+    }
+
     @FXML
     private void configureColumns() {
         var availableColumns = new ArrayList<String>();
@@ -236,5 +265,32 @@ public class TracksTableView extends TableView<Track> {
         });
         new TracksTableViewColumnsDialog(availableColumns, visibleColumns).afterShowAndWait(selectedColumns ->
                 getColumns().forEach(col -> col.setVisible(selectedColumns.contains(col.getText()))));
+    }
+
+    private List<MenuItem> createAddToPlaylistMenuItems() {
+        return MusicLibrary.getPlaylists().stream()
+                .sorted(Comparator.comparing(PlaylistWithTrackIds::name))
+                .map(p -> {
+                    var menuItem = new MenuItem(p.name());
+                    menuItem.setOnAction(_ -> addSelectedTracksToPlaylist(p.id()));
+                    return menuItem;
+                })
+                .toList();
+    }
+
+    private void addSelectedTracksToPlaylist(long playlistId) {
+        var trackIds = getSelectionModel().getSelectedItems().stream().map(Track::id).toList();
+        MusicLibrary.addTracksToPlaylist(playlistId, trackIds);
+    }
+
+    private TrackContextMenuConfigurer getTrackContextMenuConfigurer() {
+        var configurer = (TrackContextMenuConfigurer) null;
+        if (trackContextMenuConfigurerFactory != null) {
+            configurer = trackContextMenuConfigurerFactory.get();
+        }
+        if (configurer == null) {
+            configurer = new TrackContextMenuConfigurer();
+        }
+        return configurer;
     }
 }

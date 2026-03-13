@@ -14,14 +14,14 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
-public class PlayingQueue {
+public class PlayerQueue {
 
-    private static final Logger LOG = LoggerFactory.getLogger(PlayingQueue.class);
+    private static final Logger LOG = LoggerFactory.getLogger(PlayerQueue.class);
 
+    private LoopMode loopMode = LoopMode.OFF;
+    private FetchMode fetchMode = FetchMode.ORDINAL;
     private final AtomicInteger currentPosition = new AtomicInteger();
     private final ObservableList<QueuedTrack> queue = FXCollections.observableArrayList();
-    private FetchMode fetchMode = FetchMode.ORDINAL;
-    private LoopMode loopMode = LoopMode.NONE;
 
     public void clear() {
         queue.clear();
@@ -42,6 +42,7 @@ public class PlayingQueue {
             case END -> queue.addAll(queuedTracks);
             case START -> queue.addAll(0, queuedTracks);
         }
+        LOG.info("Enqueued {} tracks.", tracks.size());
     }
 
     public Optional<Track> get(int position) {
@@ -63,7 +64,7 @@ public class PlayingQueue {
         if (isEmpty()) {
             return false;
         }
-        if (LoopMode.NONE != loopMode) {
+        if (LoopMode.OFF != loopMode) {
             return true;
         }
         if (FetchMode.ORDINAL == fetchMode && currentPosition.get() == queue.size() - 1) {
@@ -78,7 +79,11 @@ public class PlayingQueue {
         }
 
         if (LoopMode.SINGLE == loopMode) {
-            return current();
+            var next = current();
+            next.ifPresent(track ->
+                    LOG.info("Found next: '{} - {}'. Position: {}, fetch mode: {}. loop mode: {}.",
+                            track.artistName(), track.title(), currentPosition.get(), fetchMode, loopMode));
+            return next;
         }
 
         var next = Optional.<QueuedTrack>empty();
@@ -93,7 +98,12 @@ public class PlayingQueue {
             next = currentQueued();
         }
 
-        next.ifPresent(queuedTrack -> queuedTrack.setVisited(true));
+        next.ifPresent(queuedTrack -> {
+            queuedTrack.setVisited(true);
+            LOG.info("Found next: '{} - {}'. Position: {}, fetch mode: {}. loop mode: {}.",
+                    queuedTrack.track().artistName(), queuedTrack.track().title(),
+                    currentPosition.get(), fetchMode, loopMode);
+        });
 
         return next.map(QueuedTrack::track);
     }

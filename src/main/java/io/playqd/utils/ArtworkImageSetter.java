@@ -54,4 +54,25 @@ public final class ArtworkImageSetter {
             }
         });
     }
+
+    public static Image getImage(Track track) {
+        return getImage(track, -1);
+    }
+
+    private static Image getImage(Track track, int size) {
+        var trackId = track.cueInfo().parentId() != null ? track.cueInfo().parentId() : track.id();
+        var cacheKey = trackId + "_" + size;
+        if (ARTWORK_CACHE.containsKey(cacheKey)) {
+            return ARTWORK_CACHE.get(cacheKey);
+        }
+        var url = PlayqdApis.albumArtwork(trackId, size);
+        var image = (Image) null;
+        try {
+            image = new Image(url, size, size, true, true, true);
+            ARTWORK_CACHE.put(cacheKey, image);
+            return image;
+        } catch (IllegalArgumentException e) {
+            return new Image(ARTWORK_NOT_FOUND_IMAGE_URL, size, size, true, true, true);
+        }
+    }
 }

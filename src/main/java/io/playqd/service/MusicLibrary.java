@@ -1,16 +1,24 @@
 package io.playqd.service;
 
 import io.playqd.client.PageRequest;
+import io.playqd.client.PlayqdClient;
 import io.playqd.client.PlayqdClientProvider;
 import io.playqd.data.Album;
 import io.playqd.data.Artist;
+import io.playqd.data.PlaylistWithTrackIds;
 import io.playqd.data.Track;
+import io.playqd.data.request.MovePlaylistTracksRequest;
+import io.playqd.data.request.UpdatePlaylistRequest;
+import javafx.beans.property.ReadOnlyObjectProperty;
+import javafx.beans.property.SimpleObjectProperty;
+import javafx.collections.FXCollections;
+import javafx.collections.MapChangeListener;
+import javafx.collections.ObservableMap;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
+import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -19,7 +27,20 @@ public final class MusicLibrary {
 
     private static final Logger LOG = LoggerFactory.getLogger(MusicLibrary.class);
 
+    private static final SimpleObjectProperty<Track> UPDATED_TRACK_PROPERTY = new SimpleObjectProperty<>();
+
+    private static final ObservableMap<Long, PlaylistWithTrackIds> PLAYLIST_CACHE =
+            FXCollections.observableMap(new HashMap<>());
     private static Map<Long, Track> TRACKS_CACHE;
+
+    public static ReadOnlyObjectProperty<Track> updatedTrackProperty() {
+        return UPDATED_TRACK_PROPERTY;
+    }
+
+    public static void onPlaylistsModified(Consumer<List<PlaylistWithTrackIds>> callback) {
+        PLAYLIST_CACHE.addListener((MapChangeListener<? super Long, ? super PlaylistWithTrackIds>) _ ->
+                callback.accept(new ArrayList<>(PLAYLIST_CACHE.values())));
+    }
 
     public static void refresh() {
         LOG.info("Refreshing library cache ...");
@@ -64,6 +85,13 @@ public final class MusicLibrary {
         return TRACKS_CACHE.computeIfAbsent(id, MusicLibrary::getTrackFromServer);
     }
 
+    public static List<Track> getTracksById(List<Long> ids) {
+        var trackIds = new HashSet<>(ids);
+        return getAllTracksStreamExcludingCueParent()
+                .filter(t -> trackIds.contains(t.id()))
+                .toList();
+    }
+
     public static List<Track> getAllTracks() {
         return new ArrayList<>(getTracksFromCache().values());
     }
@@ -91,6 +119,15 @@ public final class MusicLibrary {
                 .toList());
     }
 
+    public static List<Track> getPlayedTracks() {
+        return getAllTracksStreamExcludingCueParent()
+                .filter(t -> Objects.nonNull(t.playback()))
+                .filter(t -> t.playback().count() > 0)
+                .sorted(Comparator.comparing(t -> t.playback().lastPlayedDate()))
+                .toList()
+                .reversed();
+    }
+
     public static List<Track> getCueTracks() {
         return new ArrayList<>(getTracksFromCache().values().stream()
                 .filter(t -> t.cueInfo().parentId() != null)
@@ -105,13 +142,75 @@ public final class MusicLibrary {
     }
 
     public static void addToFavorites(long trackId) {
-        PlayqdClientProvider.get().addToFavorites(trackId);
-        TRACKS_CACHE.put(trackId, getTrackFromServer(trackId));
+        var trackUpdated = playqdClient().addToFavorites(trackId);
+        updateTrackInCache(trackUpdated);
     }
 
     public static void removeFromFavorites(long trackId) {
-        PlayqdClientProvider.get().removeFromFavorites(trackId);
-        TRACKS_CACHE.put(trackId, getTrackFromServer(trackId));
+        var trackUpdated = playqdClient().removeFromFavorites(trackId);
+        updateTrackInCache(trackUpdated);
+    }
+
+    public static void markAsPlayed(long trackId) {
+        var trackUpdated = playqdClient().markAsPlayed(trackId);
+        updateTrackInCache(trackUpdated);
+    }
+
+    public static List<PlaylistWithTrackIds> getPlaylists() {
+        if (PLAYLIST_CACHE.isEmpty()) {
+            PLAYLIST_CACHE.putAll(playqdClient().getPlaylists().stream()
+                    .collect(Collectors.toMap(PlaylistWithTrackIds::id, p -> p)));
+        }
+        return new ArrayList<>(PLAYLIST_CACHE.values());
+    }
+
+    public static PlaylistWithTrackIds createPlaylist(String name) {
+        return createPlaylist(name, List.of());
+    }
+
+    public static PlaylistWithTrackIds createPlaylist(String name, List<Long> trackIds) {
+        var playlist = playqdClient().createPlaylist(name, trackIds);
+        PLAYLIST_CACHE.put(playlist.id(), playlist);
+        return playlist;
+    }
+
+    public static PlaylistWithTrackIds addTracksToPlaylist(long id, List<Long> trackIds) {
+        var playlist = playqdClient().addTracksToPlaylist(id, trackIds);
+        PLAYLIST_CACHE.put(playlist.id(), playlist);
+        return playlist;
+    }
+
+    public static void movePlaylistTracks(long fromPlaylistId, long toPlaylistId, List<Long> trackIds) {
+        playqdClient().movePlaylistAudioTracks(new MovePlaylistTracksRequest(fromPlaylistId, toPlaylistId, trackIds));
+        PLAYLIST_CACHE.put(fromPlaylistId, playqdClient().getPlaylist(fromPlaylistId));
+        PLAYLIST_CACHE.put(toPlaylistId, playqdClient().getPlaylist(toPlaylistId));
+    }
+
+    public static PlaylistWithTrackIds removeTracksFromPlaylist(long id, List<Long> trackIds) {
+        var playlist = playqdClient().removeTracksFromPlaylist(id, trackIds);
+        PLAYLIST_CACHE.put(playlist.id(), playlist);
+        return playlist;
+    }
+
+    public static void deletePlaylist(long id) {
+        playqdClient().deletePlaylist(id);
+        PLAYLIST_CACHE.remove(id);
+    }
+
+    public static void deletePlaylists(List<Long> ids) {
+        playqdClient().deletePlaylists(ids);
+        ids.forEach(PLAYLIST_CACHE::remove);
+    }
+
+    public static PlaylistWithTrackIds updatePlaylist(long id, String newName) {
+        var updated = playqdClient().updatePlaylist(new UpdatePlaylistRequest(id, newName));
+        PLAYLIST_CACHE.put(updated.id(), updated);
+        return updated;
+    }
+
+    private static void updateTrackInCache(Track trackUpdated) {
+        TRACKS_CACHE.put(trackUpdated.id(), trackUpdated);
+        UPDATED_TRACK_PROPERTY.set(trackUpdated);
     }
 
     private static Map<Long, Track> getTracksFromCache() {
@@ -124,11 +223,11 @@ public final class MusicLibrary {
     }
 
     private static List<Track> getTracksFromServer() {
-        return new ArrayList<>(PlayqdClientProvider.get().getAllTracks(PageRequest.unpaged()).content());
+        return new ArrayList<>(playqdClient().getAllTracks(PageRequest.unpaged()).content());
     }
 
     private static Track getTrackFromServer(long id) {
-        return PlayqdClientProvider.get().getTrackById(id);
+        return playqdClient().getTrackById(id);
     }
 
     private static Album tracksToAlbum(List<Track> tracks) {
@@ -143,6 +242,10 @@ public final class MusicLibrary {
                 tracks.size(),
                 tracks.stream().mapToInt(t -> t.length().seconds()).sum()
         );
+    }
+
+    private static PlayqdClient playqdClient() {
+        return PlayqdClientProvider.get();
     }
 
     private MusicLibrary() {

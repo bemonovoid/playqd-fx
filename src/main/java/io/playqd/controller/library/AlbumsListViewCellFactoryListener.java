@@ -2,7 +2,7 @@ package io.playqd.controller.library;
 
 import io.playqd.data.Album;
 import io.playqd.player.PlayRequest;
-import io.playqd.player.PlayerEngine;
+import io.playqd.player.Player;
 
 public class AlbumsListViewCellFactoryListener {
 
@@ -18,6 +18,6 @@ public class AlbumsListViewCellFactoryListener {
     }
 
     public void onAlbumDoubleClicked(Album album) {
-        PlayerEngine.enqueueAndPlay(new PlayRequest(musicSplitPaneController.tracksView().tracksTableView().getItems()));
+        Player.enqueueAndPlay(new PlayRequest(musicSplitPaneController.tracksView().tracksTableView().getItems()));
     }
 }

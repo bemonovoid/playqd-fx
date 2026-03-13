@@ -5,7 +5,7 @@ import io.playqd.controller.view.TracksTableView;
 import io.playqd.controller.view.TracksView;
 import io.playqd.data.Track;
 import io.playqd.player.PlayRequest;
-import io.playqd.player.PlayerEngine;
+import io.playqd.player.Player;
 import io.playqd.service.MusicLibrary;
 import io.playqd.service.TrackComparators;
 import javafx.fxml.FXML;
@@ -37,8 +37,9 @@ public class TracksExplorerViewController {
             if (ListItemId.ALL == selectedItem.id()) {
                 tracksTableView.showTracks(MusicLibrary::getAllTracks);
             } else if (ListItemId.FAVORITES == selectedItem.id()) {
-
                 tracksTableView.showTracks(MusicLibrary::getFavoriteTracks, TrackComparators.byFavoriteAddedDateDesc());
+            } else if (ListItemId.PLAYED == selectedItem.id()) {
+                tracksTableView.showTracks(MusicLibrary::getPlayedTracks);
             } else if (ListItemId.CUE == selectedItem.id()) {
                 tracksTableView.showTracks(MusicLibrary::getCueTracks);
             }
@@ -69,7 +70,7 @@ public class TracksExplorerViewController {
     private void initTracksTableViewEventHandlers() {
         tracksTableView.rowDoubleClickedProperty().addListener((_, _, row) -> {
             if (row != null) {
-                PlayerEngine.enqueueAndPlay(new PlayRequest(row.track()));
+                Player.enqueueAndPlay(new PlayRequest(row.track()));
             }
         });
     }
@@ -77,16 +78,20 @@ public class TracksExplorerViewController {
     private static Counts getCounts() {
         var tracks = MusicLibrary.getAllTracksExcludingCueParent();
         var favorites = 0;
+        var played = 0;
         var cues = 0;
         for (Track track : tracks) {
             if (track.rating() != null && track.rating().value() > 0) {
                 favorites++;
             }
+            if (track.playback() != null && track.playback().count() > 0) {
+                played++;
+            }
             if (track.cueInfo().parentId() != null) {
                 cues++;
             }
         }
-        return new Counts(tracks.size(), favorites, 0, cues);
+        return new Counts(tracks.size(), favorites, played, cues);
     }
 
     private record Counts(int allTracks, int favorites, int played, int cues) {

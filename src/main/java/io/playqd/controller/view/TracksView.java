@@ -58,6 +58,10 @@ public class TracksView extends VBox {
         tracksTableView.showTracks(Collections::emptyList);
     }
 
+    public TracksTableHeader tracksTableHeader() {
+        return tracksTableHeader;
+    }
+
     public TracksTableView tracksTableView() {
         return tracksTableView;
     }

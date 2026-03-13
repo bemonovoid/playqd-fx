@@ -2,6 +2,8 @@
 
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.VBox?>
+<?import de.jensd.fx.glyphs.fontawesome.FontAwesomeIconView?>
+<?import javafx.geometry.Insets?>
 <VBox xmlns="http://javafx.com/javafx/24"
       xmlns:fx="http://javafx.com/fxml"
       fx:id="applicationVBox"
@@ -14,15 +16,28 @@
             <fx:define>
                 <ToggleGroup fx:id="viewToggleGroup"/>
             </fx:define>
-            <ToggleButton fx:id="libraryViewButton" text="Music" toggleGroup="$viewToggleGroup"/>
-            <ToggleButton fx:id="tracksViewButton" text="Tracks" toggleGroup="$viewToggleGroup"/>
-            <ToggleButton text="Playlists" toggleGroup="$viewToggleGroup" disable="true"/>
+            <ToggleButton fx:id="libraryViewButton" text="Music" toggleGroup="$viewToggleGroup">
+                <graphic>
+                    <FontAwesomeIconView glyphName="MUSIC"/>
+                </graphic>
+            </ToggleButton>
+            <ToggleButton fx:id="tracksViewButton" text="Tracks" toggleGroup="$viewToggleGroup">
+                <graphic>
+                    <FontAwesomeIconView glyphName="FILE_AUDIO_ALT"/>
+                </graphic>
+            </ToggleButton>
+            <ToggleButton fx:id="playlistsViewButton" text="Playlists" toggleGroup="$viewToggleGroup">
+                <graphic>
+                    <FontAwesomeIconView glyphName="HEADPHONES"/>
+                </graphic>
+            </ToggleButton>
         </ToolBar>
 
         <SplitPane fx:id="rootSplitPane" dividerPositions="0.85" VBox.vgrow="ALWAYS">
             <fx:define>
                 <fx:include source="music-split-pane.fxml" fx:id="musicSplitPane"/>
-                <fx:include source="tracks-explorer-splot-pane.fxml" fx:id="tracksExplorerSplitPane"/>
+                <fx:include source="tracks-explorer-split-pane.fxml" fx:id="tracksExplorerSplitPane"/>
+                <fx:include source="playlists-split-pane.fxml" fx:id="playlistsSplitPane"/>
             </fx:define>
             <fx:include source="player-queue.fxml" fx:id="playerQueue"/>
         </SplitPane>

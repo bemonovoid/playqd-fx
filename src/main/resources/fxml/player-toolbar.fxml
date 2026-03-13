@@ -20,7 +20,7 @@
     <HBox alignment="CENTER">
         <Button fx:id="playBtn" onAction="#play" style="-fx-background-color: transparent;" minWidth="40">
             <graphic>
-                <FontAwesomeIconView glyphName="PLAY" glyphSize="18"/>
+                <FontAwesomeIconView glyphName="PAUSE" glyphSize="18"/>
             </graphic>
         </Button>
 

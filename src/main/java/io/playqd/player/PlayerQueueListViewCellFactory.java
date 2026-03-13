@@ -1,8 +1,6 @@
-package io.playqd.controller.library;
+package io.playqd.player;
 
 import io.playqd.event.MouseEventHelper;
-import io.playqd.player.PlayerEngine;
-import io.playqd.player.QueuedTrack;
 import javafx.geometry.Pos;
 import javafx.scene.control.Label;
 import javafx.scene.control.ListCell;
@@ -15,9 +13,9 @@ import javafx.util.Callback;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class PlayingQueueListViewCellFactory implements Callback<ListView<QueuedTrack>, ListCell<QueuedTrack>> {
+class PlayerQueueListViewCellFactory implements Callback<ListView<QueuedTrack>, ListCell<QueuedTrack>> {
 
-    private static final Logger LOG = LoggerFactory.getLogger(PlayingQueueListViewCellFactory.class);
+    private static final Logger LOG = LoggerFactory.getLogger(PlayerQueueListViewCellFactory.class);
 
     @Override
     public ListCell<QueuedTrack> call(ListView<QueuedTrack> queuedTrackGridView) {
@@ -34,6 +32,7 @@ public class PlayingQueueListViewCellFactory implements Callback<ListView<Queued
                 } else {
 
                     var trackTitle = new Label(queuedTrack.track().title());
+//                    var trackTitleHbox = new HBox(trackTitle, createHiResBadge());
 
                     var artistName = new Label(queuedTrack.track().artistName());
                     artistName.setDisable(true);
@@ -57,7 +56,7 @@ public class PlayingQueueListViewCellFactory implements Callback<ListView<Queued
 
                     setOnMouseClicked(mouseEvent -> {
                         if (MouseEventHelper.primaryButtonDoubleClicked(mouseEvent)) {
-                            PlayerEngine.playFromQueue(getIndex());
+                            Player.playFromQueue(getIndex());
                         }
                     });
 
@@ -67,6 +66,23 @@ public class PlayingQueueListViewCellFactory implements Callback<ListView<Queued
 
             private void updateTime(QueuedTrack queuedTrack) {
 
+            }
+
+            private Label createHiResBadge() {
+                var hiResBadge = new Label("HI-RES");
+
+                // Styling the label to look like a badge
+                hiResBadge.setStyle(
+                        "-fx-background-color: #FFD700;" + // Gold background
+                                "-fx-text-fill: black;" +
+                                "-fx-font-size: 9px;" +
+                                "-fx-font-weight: bold;" +
+                                "-fx-padding: 2 5 2 5;" +
+                                "-fx-background-radius: 3;"
+                );
+
+//                hiResBadge.setVisible(false); // Hidden by default
+                return hiResBadge;
             }
         };
     }

@@ -4,7 +4,7 @@ public enum LoopMode {
 
     ALL,
 
-    NONE,
+    OFF,
 
     SINGLE;
 }

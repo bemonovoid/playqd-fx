@@ -1,15 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import javafx.geometry.Insets?>
-<?import javafx.scene.control.Label?>
-<?import javafx.scene.layout.HBox?>
-<?import javafx.scene.layout.Pane?>
-<?import javafx.scene.control.MenuButton?>
 <?import de.jensd.fx.glyphs.fontawesome.FontAwesomeIconView?>
-<?import javafx.scene.control.MenuItem?>
-<?import javafx.scene.control.Menu?>
-<?import javafx.scene.control.CheckMenuItem?>
-<?import javafx.scene.control.SeparatorMenuItem?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
 <fx:root xmlns="http://javafx.com/javafx"
          xmlns:fx="http://javafx.com/fxml"
          type="javafx.scene.control.ToolBar"
@@ -46,5 +39,13 @@
             <FontAwesomeIconView glyphName="SEARCH" glyphSize="12"/>
         </graphic>
     </Label>
+
+    <Region HBox.hgrow="ALWAYS"/>
+
+    <Label fx:id="titleLabel" style="-fx-font-weight: bold"/>
+
+    <Region HBox.hgrow="ALWAYS"/>
+
+    <HBox alignment="CENTER_LEFT" fx:id="detailsPane"/>
 
 </fx:root>
