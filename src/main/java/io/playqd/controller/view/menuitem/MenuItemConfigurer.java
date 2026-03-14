@@ -4,6 +4,7 @@ import io.playqd.data.Track;
 import javafx.scene.Node;
 import javafx.scene.control.MenuItem;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
@@ -11,9 +12,10 @@ import java.util.function.Supplier;
 public class MenuItemConfigurer {
 
     private final Supplier<Node> icon;
+    private final List<Consumer<List<Track>>> onActionConsumers = new ArrayList<>();
 
     private String text;
-    private Consumer<List<Track>> onAction;
+    private boolean disabled = false;
     private boolean excluded = false;
 
     public MenuItemConfigurer(String text) {
@@ -31,7 +33,7 @@ public class MenuItemConfigurer {
     public MenuItemConfigurer(String text, Supplier<Node> icon, Consumer<List<Track>> onAction) {
         this.text = text;
         this.icon = icon;
-        this.onAction = onAction;
+        this.onActionConsumers.add(onAction);
     }
 
     public String text() {
@@ -50,8 +52,12 @@ public class MenuItemConfigurer {
         this.text = text;
     }
 
-    public void setOnAction(Consumer<List<Track>> onAction) {
-        this.onAction = onAction;
+    public void addOnAction(Consumer<List<Track>> onAction) {
+        this.onActionConsumers.add(onAction);
+    }
+
+    public void setDisabled(boolean disabled) {
+        this.disabled = disabled;
     }
 
     public void setExcluded(boolean excluded) {
@@ -63,7 +69,8 @@ public class MenuItemConfigurer {
             return null;
         }
         var menuItem = new MenuItem(this.text, this.icon.get());
-        menuItem.setOnAction(_ -> onAction.accept(selectedTracks));
+        menuItem.setOnAction(_ -> onActionConsumers.forEach(c -> c.accept(selectedTracks)));
+        menuItem.setDisable(disabled);
         return menuItem;
     }
 }

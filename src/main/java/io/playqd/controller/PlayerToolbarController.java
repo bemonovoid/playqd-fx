@@ -88,33 +88,34 @@ public class PlayerToolbarController {
             if (selected) {
                 Player.PLAYING_QUEUE.current().ifPresent(track -> {
                     MusicLibrary.addToFavorites(track.id());
-                    favoriteBtn.setGraphic(new FontAwesomeIconView(FontAwesomeIcon.STAR));
-                    favoriteBtn.getStyleClass().add("favorite-icon");
                 });
             } else {
                 Player.PLAYING_QUEUE.current().ifPresent(track -> {
                     MusicLibrary.removeFromFavorites(track.id());
-                    favoriteBtn.setGraphic(new FontAwesomeIconView(FontAwesomeIcon.STAR_ALT));
-                    favoriteBtn.getStyleClass().remove("favorite-icon");
                 });
+            }
+            styleFavouriteButton(selected);
+        });
+        shuffleBtn.selectedProperty().addListener((_, _, selected) -> {
+            if (selected) {
+                Player.setPlaylistFetchMode(FetchMode.RANDOM);
+                var icon = new FontAwesomeIconView(FontAwesomeIcon.RANDOM);
+                icon.setStyle("-fx-fill: #00d000");
+                shuffleBtn.setGraphic(icon);
+            } else {
+                Player.setPlaylistFetchMode(FetchMode.ORDINAL);
+                shuffleBtn.setGraphic(new FontAwesomeIconView(FontAwesomeIcon.RANDOM));
             }
         });
         repeatBtn.selectedProperty().addListener((_, _, selected) -> {
             if (selected) {
-                repeatBtn.getStyleClass().add("repeat-icon");
                 Player.setPlaylistLoopMode(LoopMode.ALL);
+                var icon = new FontAwesomeIconView(FontAwesomeIcon.REPEAT);
+                icon.setStyle("-fx-fill: #00d000");
+                repeatBtn.setGraphic(icon);
             } else {
-                repeatBtn.getStyleClass().remove("repeat-icon");
                 Player.setPlaylistLoopMode(LoopMode.OFF);
-            }
-        });
-        shuffleBtn.selectedProperty().addListener((_, _, selected) -> {
-            if (selected) {
-                shuffleBtn.getStyleClass().add("shuffle-icon");
-                Player.setPlaylistFetchMode(FetchMode.RANDOM);
-            } else {
-                shuffleBtn.getStyleClass().remove("shuffle-icon");
-                Player.setPlaylistFetchMode(FetchMode.ORDINAL);
+                repeatBtn.setGraphic(new FontAwesomeIconView(FontAwesomeIcon.REPEAT));
             }
         });
     }
@@ -127,6 +128,7 @@ public class PlayerToolbarController {
                     updateSliderTitle(track);
                     updateTrackTime(track);
                     updateControlButtons();
+                    updateFunctionButtons(track);
                 }));
         Player.onStopped((stopped) -> {
             if (stopped) {
@@ -234,11 +236,8 @@ public class PlayerToolbarController {
         playNextBtn.setDisable(!Player.PLAYING_QUEUE.hasNext());
     }
 
-    private void updateFunctionButtons(Track t) {
-        if (t.rating().value() > 0) {
-            favoriteBtn.setGraphic(new FontAwesomeIconView(FontAwesomeIcon.STAR));
-            favoriteBtn.getStyleClass().add("favorite-icon");
-        }
+    private void updateFunctionButtons(Track track) {
+        styleFavouriteButton(track.rating().value() > 0);
     }
 
     private void handleTrackFinished(Track track) {
@@ -286,5 +285,15 @@ public class PlayerToolbarController {
                 popupStage.show();
             }
         });
+    }
+
+    private void styleFavouriteButton(boolean isFavorite) {
+        var icon = new FontAwesomeIconView(FontAwesomeIcon.STAR);
+        if (isFavorite) {
+            icon.setStyle("-fx-fill: #2ec1e3");
+        } else {
+            icon = new FontAwesomeIconView(FontAwesomeIcon.STAR_ALT);
+        }
+        favoriteBtn.setGraphic(icon);
     }
 }

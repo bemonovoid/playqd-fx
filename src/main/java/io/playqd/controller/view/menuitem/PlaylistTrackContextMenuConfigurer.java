@@ -41,7 +41,7 @@ public class PlaylistTrackContextMenuConfigurer extends TrackContextMenuConfigur
         playlistGroupConfigurer.moveToPlaylist().addMenuItemConfigurers(moveToPlaylistConfigurers);
 
         playlistGroupConfigurer.removeFromPlaylist().setExcluded(false);
-        playlistGroupConfigurer.removeFromPlaylist().setOnAction(
+        playlistGroupConfigurer.removeFromPlaylist().addOnAction(
                 onRemoveFromPlaylist(selectedPlaylist.id(), selectedPlaylistIndex));
 
         return super.configure(selectedTracks);

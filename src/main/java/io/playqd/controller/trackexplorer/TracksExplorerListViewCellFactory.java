@@ -9,8 +9,6 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.util.Callback;
 
-import java.text.NumberFormat;
-
 public class TracksExplorerListViewCellFactory implements Callback<ListView<ListItem>, ListCell<ListItem>> {
 
     @Override

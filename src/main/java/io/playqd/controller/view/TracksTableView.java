@@ -86,12 +86,12 @@ public class TracksTableView extends TableView<Track> {
     }
 
     private void initColumnCellValueFactories() {
-        // SimpleObjectProperty
+        // Object properties
         timeCol.setCellValueFactory(c -> new SimpleObjectProperty<>(c.getValue().length().seconds()));
         bitRateCol.setCellValueFactory(c -> new SimpleObjectProperty<>(c.getValue().audioFormat().bitRate()));
         sampleRateCol.setCellValueFactory(c -> new SimpleObjectProperty<>(c.getValue().audioFormat().sampleRate()));
         bitsPerSampleCol.setCellValueFactory(c -> new SimpleObjectProperty<>(c.getValue().audioFormat().bitsPerSample()));
-        // SimpleStringProperty
+        // String properties
         trackNumberCol.setCellValueFactory(c -> new SimpleStringProperty(c.getValue().number()));
         titleCol.setCellValueFactory(c -> new SimpleStringProperty(c.getValue().title()));
         artistCol.setCellValueFactory(c -> new SimpleStringProperty(c.getValue().artistName()));
@@ -132,6 +132,19 @@ public class TracksTableView extends TableView<Track> {
     }
 
     private void initItemsChangedListener() {
+//        MusicLibrary.updatedTrackProperty().addListener((_, _, updatedTrack) -> {
+//            var idx = getItems().stream().map(Track::id).toList().indexOf(updatedTrack.id());
+//            if (idx >= 0) {
+//                var select = false;
+//                if (getSelectedTrack() != null && getSelectedTrack().id() == updatedTrack.id()) {
+//                    select = true;
+//                }
+//                getItems().set(idx, updatedTrack);
+//                if (select) {
+//                    getSelectionModel().select(idx);
+//                }
+//            }
+//        });
         itemsProperty().addListener((_, _, newItems) -> updateTracksInfoProperty(newItems));
     }
 
@@ -245,6 +258,10 @@ public class TracksTableView extends TableView<Track> {
 
     public ReadOnlyObjectProperty<TrackSelectedRow> rowDoubleClickedProperty() {
         return rowDoubleClickedProperty;
+    }
+
+    public Track getSelectedTrack() {
+        return getSelectionModel().getSelectedItem();
     }
 
     public List<Track> getSelectedTracks() {

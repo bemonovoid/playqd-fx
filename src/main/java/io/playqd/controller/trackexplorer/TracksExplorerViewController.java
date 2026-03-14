@@ -1,6 +1,5 @@
 package io.playqd.controller.trackexplorer;
 
-import io.playqd.controller.view.TracksTableFooter;
 import io.playqd.controller.view.TracksTableView;
 import io.playqd.controller.view.TracksView;
 import io.playqd.data.Track;
@@ -11,6 +10,8 @@ import io.playqd.service.TrackComparators;
 import javafx.fxml.FXML;
 import javafx.scene.control.ListView;
 
+import java.util.List;
+
 public class TracksExplorerViewController {
 
     @FXML
@@ -20,16 +21,15 @@ public class TracksExplorerViewController {
     private TracksView tracksView;
 
     private TracksTableView tracksTableView;
-    private TracksTableFooter tracksTableFooter;
 
     @FXML
     private void initialize() {
         tracksTableView = tracksView.tracksTableView();
-        tracksTableFooter = tracksView.tracksTableFooter();
         setTracksVisibleColumns();
         initTracksTableViewEventHandlers();
         listView.setCellFactory(new TracksExplorerListViewCellFactory());
         populateListView();
+        setOnTrackUpdated();
         listView.getSelectionModel().selectedItemProperty().addListener((_, _, selectedItem) -> {
             if (selectedItem == null) {
                 return;
@@ -47,12 +47,24 @@ public class TracksExplorerViewController {
         listView.getSelectionModel().select(0);
     }
 
+    private void setOnTrackUpdated() {
+        MusicLibrary.updatedTrackProperty().addListener((_, _, updatedTrack) -> {
+            listView.getItems().setAll(getListItems());
+            tracksTableView.refresh();
+        });
+    }
+
     private void populateListView() {
+        listView.getItems().addAll(getListItems());
+    }
+
+    private List<ListItem> getListItems() {
         var counts = getCounts();
-        listView.getItems().add(new ListItem(ListItemId.ALL, "All", counts.allTracks()));
-        listView.getItems().add(new ListItem(ListItemId.FAVORITES, "Favorites", counts.favorites()));
-        listView.getItems().add(new ListItem(ListItemId.PLAYED, "Played", counts.played()));
-        listView.getItems().add(new ListItem(ListItemId.CUE, "Cue tracks", counts.cues()));
+        return List.of(
+                new ListItem(ListItemId.ALL, "All", counts.allTracks()),
+                new ListItem(ListItemId.FAVORITES, "Favorites", counts.favorites()),
+                new ListItem(ListItemId.PLAYED, "Played", counts.played()),
+                new ListItem(ListItemId.CUE, "Cue tracks", counts.cues()));
     }
 
     private void setTracksVisibleColumns() {
