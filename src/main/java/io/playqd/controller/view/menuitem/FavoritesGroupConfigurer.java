@@ -10,12 +10,10 @@ import java.util.stream.Stream;
 public record FavoritesGroupConfigurer(MenuItemConfigurer add, MenuItemConfigurer remove) implements GroupConfigurer{
 
     static FavoritesGroupConfigurer build() {
-        var add = new MenuItemConfigurer("Add to favorites", tracks -> tracks.stream()
-                .filter(t -> t.rating().value() <= 0)
-                .forEach(t -> MusicLibrary.addToFavorites(t.id())));
-        var remove = new MenuItemConfigurer("Remove from favorites", tracks -> tracks.stream()
-                .filter(t -> t.rating().value() > 0)
-                .forEach(t -> MusicLibrary.removeFromFavorites(t.id())));
+        var add = new MenuItemConfigurer("Add to favorites", tracks -> MusicLibrary.like(
+                tracks.stream().filter(t -> t.rating().value() <= 0).map(Track::id).toList()));
+        var remove = new MenuItemConfigurer("Remove from favorites", tracks -> MusicLibrary.unlike(
+                tracks.stream().filter(t -> t.rating().value() > 0).map(Track::id).toList()));
         return new FavoritesGroupConfigurer(add, remove);
     }
 

@@ -9,7 +9,7 @@ import java.util.List;
 public class TrackContextMenuConfigurer {
 
     protected final PlayGroupConfigurer playGroupConfigurer;
-    private final FavoritesGroupConfigurer favoritesGroupConfigurer;
+    protected final FavoritesGroupConfigurer favoritesGroupConfigurer;
     protected final PlaylistGroupConfigurer playlistGroupConfigurer;
 
     public TrackContextMenuConfigurer() {

@@ -9,6 +9,8 @@ import io.playqd.data.PlaylistWithTrackIds;
 import io.playqd.data.Track;
 import io.playqd.data.request.MovePlaylistTracksRequest;
 import io.playqd.data.request.UpdatePlaylistRequest;
+import io.playqd.event.TrackUpdateType;
+import io.playqd.event.TracksUpdateEvent;
 import javafx.beans.property.ReadOnlyObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.collections.FXCollections;
@@ -27,14 +29,14 @@ public final class MusicLibrary {
 
     private static final Logger LOG = LoggerFactory.getLogger(MusicLibrary.class);
 
-    private static final SimpleObjectProperty<Track> UPDATED_TRACK_PROPERTY = new SimpleObjectProperty<>();
+    private static final SimpleObjectProperty<TracksUpdateEvent> TRACKS_UPDATE_EVENT_PROPERTY = new SimpleObjectProperty<>();
 
     private static final ObservableMap<Long, PlaylistWithTrackIds> PLAYLIST_CACHE =
             FXCollections.observableMap(new HashMap<>());
     private static Map<Long, Track> TRACKS_CACHE;
 
-    public static ReadOnlyObjectProperty<Track> updatedTrackProperty() {
-        return UPDATED_TRACK_PROPERTY;
+    public static ReadOnlyObjectProperty<TracksUpdateEvent> tracksUpdateEventProperty() {
+        return TRACKS_UPDATE_EVENT_PROPERTY;
     }
 
     public static void onPlaylistsModified(Consumer<List<PlaylistWithTrackIds>> callback) {
@@ -120,12 +122,12 @@ public final class MusicLibrary {
     }
 
     public static List<Track> getPlayedTracks() {
-        return getAllTracksStreamExcludingCueParent()
+        return new ArrayList<>(getAllTracksStreamExcludingCueParent()
                 .filter(t -> Objects.nonNull(t.playback()))
                 .filter(t -> t.playback().count() > 0)
                 .sorted(Comparator.comparing(t -> t.playback().lastPlayedDate()))
                 .toList()
-                .reversed();
+                .reversed());
     }
 
     public static List<Track> getCueTracks() {
@@ -138,22 +140,25 @@ public final class MusicLibrary {
         return new ArrayList<>(getAllTracksStreamExcludingCueParent()
                 .filter(t -> t.rating() != null)
                 .filter(t -> t.rating().value() > 0)
+                .sorted(TrackComparators.byRatedDate())
                 .toList());
     }
 
-    public static void addToFavorites(long trackId) {
-        var trackUpdated = playqdClient().addToFavorites(trackId);
-        updateTrackInCache(trackUpdated);
+    public static void like(List<Long> trackIds) {
+        var tracksUpdated = playqdClient().like(trackIds);
+        updateTrackInCache(tracksUpdated);
+        updateTracksUpdateEventProperty(TrackUpdateType.LIKED, tracksUpdated);
     }
 
-    public static void removeFromFavorites(long trackId) {
-        var trackUpdated = playqdClient().removeFromFavorites(trackId);
-        updateTrackInCache(trackUpdated);
+    public static void unlike(List<Long> trackIds) {
+        var tracksUpdated = playqdClient().unLike(trackIds);
+        updateTrackInCache(tracksUpdated);
+        updateTracksUpdateEventProperty(TrackUpdateType.UNLIKED, tracksUpdated);
     }
 
     public static void markAsPlayed(long trackId) {
         var trackUpdated = playqdClient().markAsPlayed(trackId);
-        updateTrackInCache(trackUpdated);
+        updateTrackInCache(List.of(trackUpdated));
     }
 
     public static List<PlaylistWithTrackIds> getPlaylists() {
@@ -208,9 +213,12 @@ public final class MusicLibrary {
         return updated;
     }
 
-    private static void updateTrackInCache(Track trackUpdated) {
-        TRACKS_CACHE.put(trackUpdated.id(), trackUpdated);
-        UPDATED_TRACK_PROPERTY.set(trackUpdated);
+    private static void updateTrackInCache(List<Track> tracks) {
+        tracks.forEach(track -> TRACKS_CACHE.put(track.id(), track));
+    }
+
+    private static void updateTracksUpdateEventProperty(TrackUpdateType trackUpdateType, List<Track> tracks) {
+        TRACKS_UPDATE_EVENT_PROPERTY.set(new TracksUpdateEvent(trackUpdateType, tracks));
     }
 
     private static Map<Long, Track> getTracksFromCache() {

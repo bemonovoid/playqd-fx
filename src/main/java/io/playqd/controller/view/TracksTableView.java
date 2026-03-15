@@ -1,6 +1,5 @@
 package io.playqd.controller.view;
 
-import io.playqd.controller.playlists.PlaylistDialog;
 import io.playqd.controller.view.menuitem.TrackContextMenuConfigurer;
 import io.playqd.data.PlaylistWithTrackIds;
 import io.playqd.data.Track;
@@ -24,14 +23,15 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.time.Duration;
-import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
+import java.util.function.Function;
 import java.util.function.Supplier;
+import java.util.stream.Collectors;
 
-public class TracksTableView extends TableView<Track> {
+public class TracksTableView extends TableView<TrackModel> {
 
     private static final Logger LOG = LoggerFactory.getLogger(TracksTableView.class);
 
@@ -41,11 +41,10 @@ public class TracksTableView extends TableView<Track> {
     private Supplier<TrackContextMenuConfigurer> trackContextMenuConfigurerFactory;
 
     @FXML
-    public TableColumn<Track, String> trackNumberCol, titleCol, artistCol, albumCol, filenameCol, sizeCol,
-            genreCol, extensionCol, ratingCol, mimeTypeCol,
-            playCountCol, lastPlayedDateCol, addedDateCol;
+    public TableColumn<TrackModel, String> trackNumberCol, titleCol, artistCol, albumCol, filenameCol, sizeCol,
+            genreCol, extensionCol, mimeTypeCol, addedDateCol, lastPlayedDateCol, ratedDateCol;
     @FXML
-    public TableColumn<Track, Integer> timeCol, sampleRateCol, bitRateCol, bitsPerSampleCol;
+    public TableColumn<TrackModel, Integer> timeCol, ratingCol, playCountCol, sampleRateCol, bitRateCol, bitsPerSampleCol;
 
     @FXML
     public Menu addToPlaylistMenu;
@@ -64,7 +63,8 @@ public class TracksTableView extends TableView<Track> {
         intiColumnCellFactories();
         initColumnCellValueFactories();
         initSelectedItemsChangedListener();
-        initItemsChangedListener();
+        initItemsListChangedListener();
+        initTracksUpdatedListener();
         initKeyEventListeners();
         initRowFactories();
     }
@@ -80,96 +80,86 @@ public class TracksTableView extends TableView<Track> {
     }
 
     private void intiColumnCellFactories() {
-        bitRateCol.setCellFactory(new NumberFormatTableCellFactory(t -> t.audioFormat().bitRate()));
-        sampleRateCol.setCellFactory(new NumberFormatTableCellFactory(t -> t.audioFormat().sampleRate()));
+        bitRateCol.setCellFactory(new NumberFormatTableCellFactory(m -> m.track().audioFormat().bitRate()));
+        sampleRateCol.setCellFactory(new NumberFormatTableCellFactory(m -> m.track().audioFormat().sampleRate()));
         timeCol.setCellFactory(new TrackTimeTableCellFactory());
     }
 
     private void initColumnCellValueFactories() {
         // Object properties
-        timeCol.setCellValueFactory(c -> new SimpleObjectProperty<>(c.getValue().length().seconds()));
-        bitRateCol.setCellValueFactory(c -> new SimpleObjectProperty<>(c.getValue().audioFormat().bitRate()));
-        sampleRateCol.setCellValueFactory(c -> new SimpleObjectProperty<>(c.getValue().audioFormat().sampleRate()));
-        bitsPerSampleCol.setCellValueFactory(c -> new SimpleObjectProperty<>(c.getValue().audioFormat().bitsPerSample()));
+        timeCol.setCellValueFactory(c -> new SimpleObjectProperty<>(c.getValue().track().length().seconds()));
+        bitRateCol.setCellValueFactory(c -> new SimpleObjectProperty<>(c.getValue().track().audioFormat().bitRate()));
+        sampleRateCol.setCellValueFactory(c -> new SimpleObjectProperty<>(c.getValue().track().audioFormat().sampleRate()));
+        bitsPerSampleCol.setCellValueFactory(c -> new SimpleObjectProperty<>(c.getValue().track().audioFormat().bitsPerSample()));
         // String properties
-        trackNumberCol.setCellValueFactory(c -> new SimpleStringProperty(c.getValue().number()));
-        titleCol.setCellValueFactory(c -> new SimpleStringProperty(c.getValue().title()));
-        artistCol.setCellValueFactory(c -> new SimpleStringProperty(c.getValue().artistName()));
-        albumCol.setCellValueFactory(c -> new SimpleStringProperty(c.getValue().albumName()));
-        genreCol.setCellValueFactory(c -> new SimpleStringProperty(c.getValue().genre()));
-        filenameCol.setCellValueFactory(c -> new SimpleStringProperty(c.getValue().fileAttributes().name()));
-        extensionCol.setCellValueFactory(c -> new SimpleStringProperty(c.getValue().fileAttributes().extension()));
-        mimeTypeCol.setCellValueFactory(c -> new SimpleStringProperty(c.getValue().audioFormat().mimeType()));
-        ratingCol.setCellValueFactory(c -> new SimpleStringProperty("" + c.getValue().rating().value()));
-        playCountCol.setCellValueFactory(c -> new SimpleStringProperty("" + c.getValue().playback().count()));
+        trackNumberCol.setCellValueFactory(c -> new SimpleStringProperty(c.getValue().track().number()));
+        titleCol.setCellValueFactory(c -> new SimpleStringProperty(c.getValue().track().title()));
+        artistCol.setCellValueFactory(c -> new SimpleStringProperty(c.getValue().track().artistName()));
+        albumCol.setCellValueFactory(c -> new SimpleStringProperty(c.getValue().track().albumName()));
+        genreCol.setCellValueFactory(c -> new SimpleStringProperty(c.getValue().track().genre()));
+        filenameCol.setCellValueFactory(c -> new SimpleStringProperty(c.getValue().track().fileAttributes().name()));
+        extensionCol.setCellValueFactory(c -> new SimpleStringProperty(c.getValue().track().fileAttributes().extension()));
+        mimeTypeCol.setCellValueFactory(c -> new SimpleStringProperty(c.getValue().track().audioFormat().mimeType()));
+        ratingCol.setCellValueFactory(c -> c.getValue().rating().asObject());
+        ratedDateCol.setCellValueFactory(c -> c.getValue().ratedDisplayDate());
+        playCountCol.setCellValueFactory(c -> c.getValue().playCount().asObject());
+        lastPlayedDateCol.setCellValueFactory(c -> c.getValue().getLastPlayedDisplayDate());
 
-        sizeCol.setCellValueFactory(c -> {
-            var displaySize = c.getValue().fileAttributes().readableSize();
-            if (c.getValue().fileAttributes().size() == 0) {
-                displaySize = "";
-            }
-            return new SimpleStringProperty(displaySize);
-        });
-        lastPlayedDateCol.setCellValueFactory(c -> {
-            if (c.getValue().playback().lastPlayedDate() != null) {
-                var date = c.getValue().playback().lastPlayedDate();
-                return new SimpleStringProperty(date.format(DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm")));
-            }
-            return new SimpleStringProperty("");
-        });
-        addedDateCol.setCellValueFactory(c -> {
-            if (c.getValue().additionalInfo().addedToWatchFolderDate() != null) {
-                var date = c.getValue().additionalInfo().addedToWatchFolderDate();
-                return new SimpleStringProperty(date.format(DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm")));
-            }
-            return new SimpleStringProperty("");
-        });
+        sizeCol.setCellValueFactory(c -> new SimpleStringProperty(c.getValue().fileDisplaySize()));
+        addedDateCol.setCellValueFactory(c -> new SimpleStringProperty(c.getValue().addedToWatchFolderDisplayDate()));
     }
 
     private void initSelectedItemsChangedListener() {
-        getSelectionModel().getSelectedItems().addListener((ListChangeListener<Track>) changed ->
+        getSelectionModel().getSelectedItems().addListener((ListChangeListener<TrackModel>) changed ->
                 updateSelectedTracksInfoProperty(changed == null ? Collections.emptyList() : changed.getList()));
     }
 
-    private void initItemsChangedListener() {
-//        MusicLibrary.updatedTrackProperty().addListener((_, _, updatedTrack) -> {
-//            var idx = getItems().stream().map(Track::id).toList().indexOf(updatedTrack.id());
-//            if (idx >= 0) {
-//                var select = false;
-//                if (getSelectedTrack() != null && getSelectedTrack().id() == updatedTrack.id()) {
-//                    select = true;
-//                }
-//                getItems().set(idx, updatedTrack);
-//                if (select) {
-//                    getSelectionModel().select(idx);
-//                }
-//            }
-//        });
+    private void initItemsListChangedListener() {
         itemsProperty().addListener((_, _, newItems) -> updateTracksInfoProperty(newItems));
     }
 
-    private void updateSelectedTracksInfoProperty(List<? extends Track> changed) {
+    private void initTracksUpdatedListener() {
+        // This will only update currently displayed table items. If the items must be removed or added this is to be
+        // done in the class that hold the context about an action, e.g: Unlike a track in favorites view will remove
+        // an item from table view. This handler is only responsible to update observable properties.
+        MusicLibrary.tracksUpdateEventProperty().addListener((_, _, tracksUpdate) -> {
+            var updatedTracks = tracksUpdate.tracks().stream()
+                    .collect(Collectors.toMap(Track::id, Function.identity()));
+            for (TrackModel m : getItems()) {
+                if (updatedTracks.isEmpty()) {
+                    break;
+                }
+                var updatedTrack = updatedTracks.get(m.track().id());
+                if (updatedTrack != null) {
+                    m.setObservableProperties(updatedTrack);
+                    updatedTracks.remove(m.track().id());
+                }
+            }
+        });
+    }
+
+    private void updateSelectedTracksInfoProperty(List<? extends TrackModel> changed) {
         var selected = changed == null ? 0 : changed.size();
         var time = "";
         if (selected > 0) {
-            var totalSeconds = changed.stream().mapToInt(t -> t.length().seconds()).sum();
+            var totalSeconds = changed.stream().mapToInt(m -> m.track().length().seconds()).sum();
             time = TimeUtils.durationToTimeFormat(Duration.ofSeconds(totalSeconds));
         }
         var text = String.format("Selected: %s, time: %s", selected, time);
         selectedTracksInfoProperty.set(text);
     }
 
-    private void updateTracksInfoProperty(List<Track> newTracks) {
-        if (newTracks == null || newTracks.isEmpty()) {
+    private void updateTracksInfoProperty(List<TrackModel> trackModels) {
+        if (trackModels == null || trackModels.isEmpty()) {
             tracksInfoProperty.set("");
         } else {
             var totalSize = (long) 0;
             var totalLength = (long) 0;
-            for (var track : newTracks) {
-                totalSize += track.fileAttributes().size();
-                totalLength += track.length().seconds();
+            for (var m : trackModels) {
+                totalSize += m.track().fileAttributes().size();
+                totalLength += m.track().length().seconds();
             }
-            var files = Numbers.format(newTracks.size()) + (newTracks.size() > 1 ? " files" : " file");
+            var files = Numbers.format(trackModels.size()) + (trackModels.size() > 1 ? " files" : " file");
             var sizeFormatted = org.apache.commons.io.FileUtils.byteCountToDisplaySize(totalSize);
             var lengthFormatted = TimeUtils.durationToTimeFormat(Duration.ofSeconds(totalLength));
             tracksInfoProperty.set(String.format("%s, %s, %s", files, sizeFormatted, lengthFormatted));
@@ -184,7 +174,7 @@ public class TracksTableView extends TableView<Track> {
                     if (KeyCode.ENTER == keyCode) {
                         var items = getSelectionModel().getSelectedItems();
                         if (!items.isEmpty()) {
-                            Player.PLAYING_QUEUE.enqueue(Collections.unmodifiableList(items));
+                            Player.PLAYING_QUEUE.enqueue(items.stream().map(TrackModel::track).toList());
                         }
                     }
                 }
@@ -192,7 +182,7 @@ public class TracksTableView extends TableView<Track> {
                 if (KeyCode.ENTER == keyCode) {
                     var items = getSelectionModel().getSelectedItems();
                     if (!items.isEmpty()) {
-                        Player.enqueueAndPlay(new PlayRequest(Collections.unmodifiableList(items)));
+                        Player.enqueueAndPlay(new PlayRequest(items.stream().map(TrackModel::track).toList()));
                     }
                 }
             }
@@ -201,11 +191,11 @@ public class TracksTableView extends TableView<Track> {
 
     private void initRowFactories() {
         setRowFactory(_ -> {
-            var row = new TableRow<Track>();
+            var row = new TableRow<TrackModel>();
             row.setOnMouseClicked(e -> {
                 if (!row.isEmpty()) {
                     if (MouseEventHelper.primaryButtonDoubleClicked(e)) {
-                        rowDoubleClickedProperty.set(new TrackSelectedRow(row.getIndex(), row.getItem()));
+                        rowDoubleClickedProperty.set(new TrackSelectedRow(row.getIndex(), row.getItem().track()));
                     } else if (MouseEventHelper.secondaryButtonSingleClicked(e)) {
                         if (row.getContextMenu() == null) {
                             var contextMenu = new TrackRowContextMenu(getTrackContextMenuConfigurer());
@@ -243,8 +233,12 @@ public class TracksTableView extends TableView<Track> {
             if (comparator != null) {
                 allTracks.sort(comparator);
             }
-            setUserData(Collections.unmodifiableList(allTracks));
-            setItems(FXCollections.observableList(allTracks));
+            var models = allTracks.stream().map(TrackModel::new).toList();
+            setUserData(models);
+            setItems(FXCollections.observableList(models));
+            if (!models.isEmpty()) {
+                scrollTo(0);
+            }
         });
     }
 
@@ -261,11 +255,15 @@ public class TracksTableView extends TableView<Track> {
     }
 
     public Track getSelectedTrack() {
-        return getSelectionModel().getSelectedItem();
+        return getSelectionModel().getSelectedItem().track();
     }
 
     public List<Track> getSelectedTracks() {
-        return getSelectionModel().getSelectedItems();
+        return getSelectionModel().getSelectedItems().stream().map(TrackModel::track).toList();
+    }
+
+    public List<Track> getItemsAsTracks() {
+        return getItems().stream().map(TrackModel::track).toList();
     }
 
     @FXML
@@ -296,7 +294,7 @@ public class TracksTableView extends TableView<Track> {
     }
 
     private void addSelectedTracksToPlaylist(long playlistId) {
-        var trackIds = getSelectionModel().getSelectedItems().stream().map(Track::id).toList();
+        var trackIds = getSelectionModel().getSelectedItems().stream().map(m -> m.track().id()).toList();
         MusicLibrary.addTracksToPlaylist(playlistId, trackIds);
     }
 

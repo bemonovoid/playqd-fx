@@ -1,5 +1,7 @@
 package io.playqd.controller.trackexplorer;
 
-public record ListItem(ListItemId id, String title, int count) {
+import javafx.beans.property.IntegerProperty;
+
+public record ListItem(ListItemId id, String title, IntegerProperty countProperty) {
 
 }

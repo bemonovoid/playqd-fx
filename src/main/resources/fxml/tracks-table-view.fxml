@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import javafx.scene.control.*?>
 <?import de.jensd.fx.glyphs.fontawesome.FontAwesomeIconView?>
+<?import javafx.scene.control.*?>
 <fx:root xmlns="http://javafx.com/javafx"
          xmlns:fx="http://javafx.com/fxml"
          type="javafx.scene.control.TableView"
@@ -25,7 +25,6 @@
         <TableColumn fx:id="albumCol" text="Album" contextMenu="$columnContextMenu" visible="false"/>
         <TableColumn fx:id="extensionCol" text="Format" contextMenu="$columnContextMenu" visible="false"/>
         <TableColumn fx:id="sizeCol" text="Size" contextMenu="$columnContextMenu" visible="false"/>
-        <TableColumn fx:id="lastPlayedDateCol" text="Last played" contextMenu="$columnContextMenu" visible="false"/>
         <TableColumn fx:id="addedDateCol" text="Added played" contextMenu="$columnContextMenu" visible="false"/>
         <TableColumn fx:id="genreCol" text="Genre" contextMenu="$columnContextMenu" visible="false"/>
         <TableColumn fx:id="filenameCol" text="File name" contextMenu="$columnContextMenu" visible="false"/>
@@ -34,8 +33,10 @@
         <TableColumn fx:id="bitRateCol" text="Bit rate" contextMenu="$columnContextMenu" visible="false"/>
         <TableColumn fx:id="sampleRateCol" text="Sample rate" contextMenu="$columnContextMenu" visible="false"/>
         <TableColumn fx:id="trackNumberCol" text="#" contextMenu="$columnContextMenu" visible="false"/>
+        <TableColumn fx:id="lastPlayedDateCol" text="Last played" contextMenu="$columnContextMenu" visible="false"/>
         <TableColumn fx:id="playCountCol" text="Played" contextMenu="$columnContextMenu" visible="false"/>
         <TableColumn fx:id="ratingCol" text="Rating" contextMenu="$columnContextMenu" visible="false"/>
+        <TableColumn fx:id="ratedDateCol" text="Rated on" contextMenu="$columnContextMenu" visible="false"/>
         <TableColumn fx:id="timeCol" text="Time" contextMenu="$columnContextMenu" style="-fx-alignment: CENTER-RIGHT"/>
     </columns>
 

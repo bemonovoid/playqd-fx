@@ -9,10 +9,10 @@ import javafx.util.Callback;
 
 import java.time.Duration;
 
-class TrackTimeTableCellFactory implements Callback<TableColumn<Track, Integer>, TableCell<Track, Integer>> {
+class TrackTimeTableCellFactory implements Callback<TableColumn<TrackModel, Integer>, TableCell<TrackModel, Integer>> {
 
     @Override
-    public TableCell<Track, Integer> call(TableColumn<Track, Integer> param) {
+    public TableCell<TrackModel, Integer> call(TableColumn<TrackModel, Integer> param) {
         return new TextFieldTableCell<>() {
 
             @Override

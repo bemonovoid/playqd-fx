@@ -2,11 +2,13 @@ package io.playqd.controller.trackexplorer;
 
 import io.playqd.controller.view.TracksTableView;
 import io.playqd.controller.view.TracksView;
+import io.playqd.controller.view.menuitem.TracksExplorerTrackContextMenuConfigurer;
 import io.playqd.data.Track;
+import io.playqd.event.TrackUpdateType;
 import io.playqd.player.PlayRequest;
 import io.playqd.player.Player;
 import io.playqd.service.MusicLibrary;
-import io.playqd.service.TrackComparators;
+import javafx.beans.property.SimpleIntegerProperty;
 import javafx.fxml.FXML;
 import javafx.scene.control.ListView;
 
@@ -25,6 +27,7 @@ public class TracksExplorerViewController {
     @FXML
     private void initialize() {
         tracksTableView = tracksView.tracksTableView();
+        tracksTableView.setTrackContextMenuConfigurerFactory(() -> new TracksExplorerTrackContextMenuConfigurer(this));
         setTracksVisibleColumns();
         initTracksTableViewEventHandlers();
         listView.setCellFactory(new TracksExplorerListViewCellFactory());
@@ -37,7 +40,7 @@ public class TracksExplorerViewController {
             if (ListItemId.ALL == selectedItem.id()) {
                 tracksTableView.showTracks(MusicLibrary::getAllTracks);
             } else if (ListItemId.FAVORITES == selectedItem.id()) {
-                tracksTableView.showTracks(MusicLibrary::getFavoriteTracks, TrackComparators.byFavoriteAddedDateDesc());
+                tracksTableView.showTracks(MusicLibrary::getFavoriteTracks);
             } else if (ListItemId.PLAYED == selectedItem.id()) {
                 tracksTableView.showTracks(MusicLibrary::getPlayedTracks);
             } else if (ListItemId.CUE == selectedItem.id()) {
@@ -48,23 +51,40 @@ public class TracksExplorerViewController {
     }
 
     private void setOnTrackUpdated() {
-        MusicLibrary.updatedTrackProperty().addListener((_, _, updatedTrack) -> {
-            listView.getItems().setAll(getListItems());
-            tracksTableView.refresh();
+        MusicLibrary.tracksUpdateEventProperty().addListener((_, _, tracksUpdateEvent) -> {
+            var counts = getCounts();
+            listView.getItems().forEach(li -> {
+                switch (li.id()) {
+                    case ALL -> li.countProperty().set(counts.allTracks());
+                    case CUE -> li.countProperty().set(counts.cues());
+                    case FAVORITES -> {
+                        li.countProperty().set(counts.favorites());
+                        if (li == getSelectedItem() && tracksUpdateEvent.type().isLikeOrUnlike()) {
+                            tracksTableView.showTracks(MusicLibrary::getFavoriteTracks);
+                        }
+                    }
+                    case PLAYED -> {
+                        li.countProperty().set(counts.played());
+                        if (li == getSelectedItem() && TrackUpdateType.PLAY_COUNT_INCR == tracksUpdateEvent.type()) {
+                            tracksTableView.showTracks(MusicLibrary::getPlayedTracks);
+                        }
+                    }
+                }
+            });
         });
     }
 
     private void populateListView() {
-        listView.getItems().addAll(getListItems());
+        listView.getItems().addAll(buildListItems());
     }
 
-    private List<ListItem> getListItems() {
+    private static List<ListItem> buildListItems() {
         var counts = getCounts();
         return List.of(
-                new ListItem(ListItemId.ALL, "All", counts.allTracks()),
-                new ListItem(ListItemId.FAVORITES, "Favorites", counts.favorites()),
-                new ListItem(ListItemId.PLAYED, "Played", counts.played()),
-                new ListItem(ListItemId.CUE, "Cue tracks", counts.cues()));
+                new ListItem(ListItemId.ALL, "All", new SimpleIntegerProperty(counts.allTracks())),
+                new ListItem(ListItemId.FAVORITES, "Favorites", new SimpleIntegerProperty(counts.favorites())),
+                new ListItem(ListItemId.PLAYED, "Played", new SimpleIntegerProperty(counts.played())),
+                new ListItem(ListItemId.CUE, "Cue tracks", new SimpleIntegerProperty(counts.cues())));
     }
 
     private void setTracksVisibleColumns() {
@@ -85,6 +105,10 @@ public class TracksExplorerViewController {
                 Player.enqueueAndPlay(new PlayRequest(row.track()));
             }
         });
+    }
+
+    private ListItem getSelectedItem() {
+        return listView.getSelectionModel().getSelectedItem();
     }
 
     private static Counts getCounts() {

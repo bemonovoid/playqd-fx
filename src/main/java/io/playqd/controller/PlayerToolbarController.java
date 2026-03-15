@@ -25,6 +25,8 @@ import javafx.util.Duration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.List;
+
 /**
  * //TODO disable slider while on pause
  */
@@ -86,13 +88,9 @@ public class PlayerToolbarController {
     private void initButtonEventHandlers() {
         favoriteBtn.selectedProperty().addListener((_, _, selected) -> {
             if (selected) {
-                Player.PLAYING_QUEUE.current().ifPresent(track -> {
-                    MusicLibrary.addToFavorites(track.id());
-                });
+                Player.PLAYING_QUEUE.current().ifPresent(track -> MusicLibrary.like(List.of(track.id())));
             } else {
-                Player.PLAYING_QUEUE.current().ifPresent(track -> {
-                    MusicLibrary.removeFromFavorites(track.id());
-                });
+                Player.PLAYING_QUEUE.current().ifPresent(track -> MusicLibrary.unlike(List.of(track.id())));
             }
             styleFavouriteButton(selected);
         });

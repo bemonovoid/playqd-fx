@@ -1,7 +1,6 @@
 package io.playqd.controller.view;
 
 import io.playqd.controller.view.menuitem.TrackContextMenuConfigurer;
-import io.playqd.data.Track;
 import javafx.scene.control.ContextMenu;
 import javafx.scene.control.TableRow;
 import org.slf4j.Logger;
@@ -18,7 +17,7 @@ public class TrackRowContextMenu extends ContextMenu {
         LOG.info("Initialized with {}", trackContextMenuConfigurer.getClass().getSimpleName());
     }
 
-    public void show(TableRow<Track> row, double anchorX, double anchorY) {
+    public void show(TableRow<TrackModel> row, double anchorX, double anchorY) {
         if (this.trackContextMenuConfigurer == null) {
             LOG.warn("'trackContextMenuConfigurer' is null. Context menu will not be shown.");
             return;

@@ -9,7 +9,7 @@ public class MusicLibraryTracksController extends MusicLibraryAlbumsController {
         super.initializeInternal();
         tracksView().tracksTableView().rowDoubleClickedProperty().addListener((_, _, row) -> {
             if (row != null) {
-                Player.enqueueAndPlay(new PlayRequest(tracksView().tracksTableView().getItems(), row.index()));
+                Player.enqueueAndPlay(new PlayRequest(tracksView().tracksTableView().getItemsAsTracks(), row.index()));
             }
         });
     }

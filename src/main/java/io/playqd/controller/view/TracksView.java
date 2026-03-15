@@ -4,7 +4,6 @@ import de.jensd.fx.glyphs.fontawesome.FontAwesomeIcon;
 import de.jensd.fx.glyphs.fontawesome.FontAwesomeIconView;
 import io.playqd.controller.library.SearchTextController;
 import io.playqd.controller.library.Searchable;
-import io.playqd.data.Track;
 import io.playqd.dialog.tracks.TracksTableViewColumnsDialog;
 import io.playqd.fxml.FXMLLoaderUtils;
 import io.playqd.fxml.FXMLResource;
@@ -88,11 +87,11 @@ public class TracksView extends VBox {
                 return;
             }
             @SuppressWarnings("unchecked")
-            var items = ((List<Track>) tracksTableView.getUserData()).stream()
-                    .filter(track -> track.title().toLowerCase().contains(newInput))
+            var items = ((List<TrackModel>) tracksTableView.getUserData()).stream()
+                    .filter(m -> m.track().title().toLowerCase().contains(newInput))
                     .collect(Collectors.toCollection(ArrayList::new));
             LOG.info("Search by: '{}'. Found: {}", newInput, items.size());
-            items.sort(Comparator.comparing(t -> t.title().toLowerCase()));
+            items.sort(Comparator.comparing(m -> m.track().title().toLowerCase()));
             tracksTableView.setItems(FXCollections.observableArrayList(items));
             tracksTableView.getSelectionModel().selectFirst();
             if (!tracksTableHeader.tracksSearchLabel().isVisible()) {
@@ -105,7 +104,7 @@ public class TracksView extends VBox {
     private Runnable onSearchTextInputCleared() {
         return () -> {
             @SuppressWarnings("unchecked")
-            var sourceItems = (List<Track>) tracksTableView.getUserData();
+            var sourceItems = (List<TrackModel>) tracksTableView.getUserData();
             tracksTableView.setItems(FXCollections.observableArrayList(sourceItems));
             tracksTableView.getSelectionModel().selectFirst();
         };

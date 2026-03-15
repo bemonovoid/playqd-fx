@@ -18,6 +18,6 @@ public class AlbumsListViewCellFactoryListener {
     }
 
     public void onAlbumDoubleClicked(Album album) {
-        Player.enqueueAndPlay(new PlayRequest(musicSplitPaneController.tracksView().tracksTableView().getItems()));
+        Player.enqueueAndPlay(new PlayRequest(musicSplitPaneController.tracksView().tracksTableView().getItemsAsTracks()));
     }
 }

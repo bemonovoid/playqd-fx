@@ -9,6 +9,8 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.util.Callback;
 
+import java.util.function.Consumer;
+
 public class TracksExplorerListViewCellFactory implements Callback<ListView<ListItem>, ListCell<ListItem>> {
 
     @Override
@@ -30,10 +32,19 @@ public class TracksExplorerListViewCellFactory implements Callback<ListView<List
                     image.setFitHeight(25);
                     image.setFitWidth(25);
 
-                    var countText = listItem.count() == 1 ? " track" : " tracks";
-                    var countTextLabel = new Label(Numbers.format(listItem.count()) + countText);
+                    var countTextLabel = new Label();
                     countTextLabel.setDisable(true);
                     countTextLabel.setStyle("-fx-font-size: 10px;");
+                    var newCountConsumer = (Consumer<Integer>) count-> {
+                        var countText = count == 1 ? " track" : " tracks";
+                        countTextLabel.setText(Numbers.format(count) + countText);
+                    };
+                    newCountConsumer.accept(listItem.countProperty().intValue());
+                    listItem.countProperty().addListener((_, _, newValue) -> {
+                        if (newValue != null) {
+                            newCountConsumer.accept(newValue.intValue());
+                        }
+                    });
 
                     var listItemLabel = new Label(listItem.title());
                     listItemLabel.setStyle("-fx-font-size: 14px;");

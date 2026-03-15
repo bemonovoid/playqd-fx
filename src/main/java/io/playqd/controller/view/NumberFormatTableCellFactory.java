@@ -9,16 +9,16 @@ import javafx.util.Callback;
 
 import java.util.function.Function;
 
-class NumberFormatTableCellFactory implements Callback<TableColumn<Track, Integer>, TableCell<Track, Integer>> {
+class NumberFormatTableCellFactory implements Callback<TableColumn<TrackModel, Integer>, TableCell<TrackModel, Integer>> {
 
-    private final Function<Track, Integer> trackNumberValue;
+    private final Function<TrackModel, Integer> trackNumberValue;
 
-    NumberFormatTableCellFactory(Function<Track, Integer> trackNumberValue) {
+    NumberFormatTableCellFactory(Function<TrackModel, Integer> trackNumberValue) {
         this.trackNumberValue = trackNumberValue;
     }
 
     @Override
-    public TableCell<Track, Integer> call(TableColumn<Track, Integer> param) {
+    public TableCell<TrackModel, Integer> call(TableColumn<TrackModel, Integer> param) {
         return new TextFieldTableCell<>() {
 
             @Override
