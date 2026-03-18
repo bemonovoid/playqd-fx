@@ -1,6 +1,7 @@
 package io.playqd.controller.library;
 
-import io.playqd.player.PlayRequest;
+import io.playqd.player.PlayerTrackListManager;
+import io.playqd.player.TrackListRequest;
 import io.playqd.player.Player;
 
 public class MusicLibraryTracksController extends MusicLibraryAlbumsController {
@@ -9,7 +10,8 @@ public class MusicLibraryTracksController extends MusicLibraryAlbumsController {
         super.initializeInternal();
         tracksView().tracksTableView().rowDoubleClickedProperty().addListener((_, _, row) -> {
             if (row != null) {
-                Player.enqueueAndPlay(new PlayRequest(tracksView().tracksTableView().getItemsAsTracks(), row.index()));
+                var trackListReq = new TrackListRequest(tracksView().tracksTableView().getItemsAsTracks(), row.index());
+                PlayerTrackListManager.enqueue(trackListReq);
             }
         });
     }

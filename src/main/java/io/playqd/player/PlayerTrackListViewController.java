@@ -4,7 +4,6 @@ import io.playqd.data.Track;
 import io.playqd.utils.TimeUtils;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
-import javafx.collections.ListChangeListener;
 import javafx.fxml.FXML;
 import javafx.scene.control.Label;
 import javafx.scene.control.ListView;
@@ -12,30 +11,34 @@ import javafx.scene.control.Tooltip;
 
 import java.time.Duration;
 import java.util.ArrayList;
+import java.util.List;
 
-public class PlayerQueueController {
+public class PlayerTrackListViewController extends PlayerTrackListView {
 
     @FXML
-    private ListView<QueuedTrack> queueListView;
+    private ListView<Track> trackListView;
 
     @FXML
     private Label trackNameLabel, artistNameLabel, albumNameLabel, albumInfoLabel, fileInfoLabel, fileLocationLabel;
 
+    @Override
+    void setItems(List<Track> tracks) {
+        trackListView.setCellFactory(new PlayerTrackListViewCellFactory());
+        trackListView.setItems((FXCollections.observableArrayList(new ArrayList<>(tracks))));
+    }
+
     @FXML
     private void initialize() {
+        PlayerTrackListManager.setPlayerTrackListView(this);
         initTooltips();
-        Player.PLAYING_QUEUE.queuedTracks().addListener((ListChangeListener<QueuedTrack>) queueChanged -> {
-            queueListView.setCellFactory(new PlayerQueueListViewCellFactory());
-            queueListView.setItems((FXCollections.observableArrayList(new ArrayList<>(queueChanged.getList()))));
-        });
-        Player.onPlayingTrackChanged(track ->
+        Player.onPlayingTrackChanged(playingTrack ->
                 Platform.runLater(() ->
-                        queueListView.getItems().stream()
-                                .filter(queuedTrack -> queuedTrack.track().id() == track.id())
+                        trackListView.getItems().stream()
+                                .filter(track -> track.id() == playingTrack.id())
                                 .findFirst()
-                                .ifPresent(newPlayingTrack -> {
-                                    queueListView.getSelectionModel().select(newPlayingTrack);
-                                    updateTrackInfoView(newPlayingTrack.track());
+                                .ifPresent(track -> {
+                                    trackListView.getSelectionModel().select(track);
+                                    updateTrackInfoView(track);
                                 })));
     }
 

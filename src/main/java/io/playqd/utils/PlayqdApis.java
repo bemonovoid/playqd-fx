@@ -8,17 +8,19 @@ public class PlayqdApis {
         return AppConfig.getProperties().apiBaseUrl().get();
     }
 
+    public static String trackStream(long id) {
+        return String.format("%s/tracks/%s/file", baseUrl(), id);
+    }
+
     public static String albumArtwork(long trackId) {
         return albumArtwork(trackId, -1);
     }
 
     public static String albumArtwork(long trackId, int size) {
         var url = baseUrl() + "/tracks/" + trackId + "/artwork";
-
         if (size > 0) {
             url = url + "?" + size;
         }
-
         return url;
     }
 

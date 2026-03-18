@@ -1,12 +1,10 @@
 package io.playqd.controller.playlists;
 
-import io.playqd.controller.view.TracksTableFooter;
-import io.playqd.controller.view.TracksTableHeader;
-import io.playqd.controller.view.TracksTableView;
 import io.playqd.controller.view.TracksView;
 import io.playqd.controller.view.menuitem.PlaylistTrackContextMenuConfigurer;
 import io.playqd.data.PlaylistWithTrackIds;
-import io.playqd.player.PlayRequest;
+import io.playqd.player.PlayerTrackListManager;
+import io.playqd.player.TrackListRequest;
 import io.playqd.player.Player;
 import io.playqd.service.MusicLibrary;
 import io.playqd.utils.Numbers;
@@ -22,7 +20,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.time.format.DateTimeFormatter;
-import java.util.Optional;
 
 public class PlaylistsViewController {
 
@@ -80,7 +77,7 @@ public class PlaylistsViewController {
     private void initTracksTableViewEventHandlers() {
         tracksView.tracksTableView().rowDoubleClickedProperty().addListener((_, _, row) -> {
             if (row != null) {
-                Player.enqueueAndPlay(new PlayRequest(row.track()));
+                PlayerTrackListManager.enqueue(new TrackListRequest(row.track()));
             }
         });
     }

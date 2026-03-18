@@ -19,7 +19,7 @@ public class PlayerQueue {
     private static final Logger LOG = LoggerFactory.getLogger(PlayerQueue.class);
 
     private LoopMode loopMode = LoopMode.OFF;
-    private FetchMode fetchMode = FetchMode.ORDINAL;
+    private FetchMode fetchMode = FetchMode.NORMAL;
     private final AtomicInteger currentPosition = new AtomicInteger();
     private final ObservableList<QueuedTrack> queue = FXCollections.observableArrayList();
 
@@ -67,7 +67,7 @@ public class PlayerQueue {
         if (LoopMode.OFF != loopMode) {
             return true;
         }
-        if (FetchMode.ORDINAL == fetchMode && currentPosition.get() == queue.size() - 1) {
+        if (FetchMode.NORMAL == fetchMode && currentPosition.get() == queue.size() - 1) {
             return false;
         }
         return queue.stream().anyMatch(t -> !t.visited());
@@ -90,7 +90,7 @@ public class PlayerQueue {
 
         if (FetchMode.RANDOM == fetchMode) {
             next = nextRandom();
-        } else if (queue.size() - 1 == currentPosition.get() && LoopMode.ALL == loopMode) {
+        } else if (queue.size() - 1 == currentPosition.get() && LoopMode.ON == loopMode) {
             currentPosition.set(0);
             next = Optional.of(queue.getFirst());
         } else {

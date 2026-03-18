@@ -12,6 +12,7 @@ dependencyResolutionManagement {
             version('gradleGitPropsPluginVersion', '2.4.2')
             version('logbackVersion', '1.5.16')
             version('fasterxmlVersion', '2.18.3')
+            version('dBusVersion', '5.2.0')
             version('jUnit5PlatformVersion', '1.12.2')
             version('jUnit5EngineVersion', '5.12.2')
 //            version('mockitoVersion', '5.17.1')
@@ -43,7 +44,8 @@ dependencyResolutionManagement {
             library('playqd-client', 'io.playqd', 'playqd-client').versionRef('playqdVersion')
 
             library('vlcj', 'uk.co.caprica', 'vlcj').version('4.12.1')
-
+            library('dbus-core', 'com.github.hypfvieh', 'dbus-java-parent').versionRef('dBusVersion')
+            library('dbus-unixsocket', 'com.github.hypfvieh', 'dbus-java-transport-native-unixsocket').versionRef('dBusVersion')
             library('junit-platform-commons', 'org.junit.platform', 'junit-platform-commons').versionRef('jUnit5PlatformVersion')
             library('junit-platform-engine', 'org.junit.platform', 'junit-platform-engine').versionRef('jUnit5PlatformVersion')
             library('junit-platform-launcher', 'org.junit.platform', 'junit-platform-launcher').versionRef('jUnit5PlatformVersion')

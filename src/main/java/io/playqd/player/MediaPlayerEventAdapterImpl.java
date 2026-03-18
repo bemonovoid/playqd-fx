@@ -4,28 +4,43 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import uk.co.caprica.vlcj.player.base.MediaPlayer;
 import uk.co.caprica.vlcj.player.base.MediaPlayerEventAdapter;
+import uk.co.caprica.vlcj.player.list.MediaListPlayer;
 
 class MediaPlayerEventAdapterImpl extends MediaPlayerEventAdapter {
 
     private static final Logger LOG = LoggerFactory.getLogger(MediaPlayerEventAdapterImpl.class);
 
-    private final PlayerQueue playerQueue;
+    private final MediaListPlayer mediaListPlayer;
 
-    MediaPlayerEventAdapterImpl(PlayerQueue playerQueue) {
-        this.playerQueue = playerQueue;
+    MediaPlayerEventAdapterImpl(MediaListPlayer mediaListPlayer) {
+        this.mediaListPlayer = mediaListPlayer;
     }
 
     @Override
-    public void paused(MediaPlayer mediaPlayer) {
-        Player.PAUSED_PROPERTY.set(true);
+    public void mediaPlayerReady(MediaPlayer mediaPlayer) {
+        Player.PAUSED_PROPERTY.set(false);
+        Player.STOPPED_PROPERTY.set(false);
+
+        if (Player.LIST_PLAYER_EVENT_LISTENER == null) {
+            Player.LIST_PLAYER_EVENT_LISTENER = new MediaListPlayerEventListenerImpl();
+            mediaListPlayer.events().addMediaListPlayerEventListener(Player.LIST_PLAYER_EVENT_LISTENER);
+        }
+
+        var trackRef = (TrackRef) mediaPlayer.userData();
+        if (trackRef != null) {
+            Player.PLAYING_TRACK_PROPERTY.set(trackRef.track());
+        }
     }
 
     @Override
     public void playing(MediaPlayer mediaPlayer) {
         Player.PAUSED_PROPERTY.set(false);
         Player.STOPPED_PROPERTY.set(false);
+    }
 
-        Player.PLAYING_TRACK_PROPERTY.set(playerQueue.current().orElse(null));
+    @Override
+    public void paused(MediaPlayer mediaPlayer) {
+        Player.PAUSED_PROPERTY.set(true);
     }
 
     @Override
@@ -35,7 +50,10 @@ class MediaPlayerEventAdapterImpl extends MediaPlayerEventAdapter {
 
     @Override
     public void finished(MediaPlayer mediaPlayer) {
-        Player.FINISHED_PROPERTY.set(playerQueue.current().orElse(null));
+        var trackRef = (TrackRef) mediaPlayer.userData();
+        if (trackRef != null) {
+            Player.FINISHED_PROPERTY.set(trackRef.track());
+        }
     }
 
     @Override

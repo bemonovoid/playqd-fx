@@ -1,14 +1,20 @@
 package io.playqd.player;
 
 import io.playqd.data.Track;
-import io.playqd.utils.PlayqdApis;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import uk.co.caprica.vlcj.factory.MediaPlayerFactory;
 import uk.co.caprica.vlcj.player.base.MediaPlayer;
+import uk.co.caprica.vlcj.player.list.MediaListPlayer;
+import uk.co.caprica.vlcj.player.list.MediaListPlayerEventListener;
+import uk.co.caprica.vlcj.player.list.PlaybackMode;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Optional;
 import java.util.function.Consumer;
 
 public class Player {
@@ -17,7 +23,6 @@ public class Player {
 
     private static final MediaPlayer MEDIA_PLAYER;
     private static final MediaPlayerFactory MEDIA_PLAYER_FACTORY;
-    private static final MediaPlayerEventAdapterImpl MEDIA_PLAYER_EVENT_ADAPTER;
 
     static final SimpleObjectProperty<Track> FINISHED_PROPERTY = new SimpleObjectProperty<>();
     static final SimpleObjectProperty<Track> PLAYING_TRACK_PROPERTY = new SimpleObjectProperty<>();
@@ -26,14 +31,137 @@ public class Player {
     static final SimpleBooleanProperty STOPPED_PROPERTY = new SimpleBooleanProperty();
     static final SimpleObjectProperty<Long> TIME_CHANGED_PROPERTY = new SimpleObjectProperty<>();
 
-    public static final PlayerQueue PLAYING_QUEUE = new PlayerQueue();
+    static MediaListPlayerEventListener LIST_PLAYER_EVENT_LISTENER;
+
+    private static final MediaListPlayer MEDIA_LIST_PLAYER;
 
     static {
         MEDIA_PLAYER_FACTORY = new MediaPlayerFactory();
-        MEDIA_PLAYER_EVENT_ADAPTER = new MediaPlayerEventAdapterImpl(PLAYING_QUEUE);
         MEDIA_PLAYER = MEDIA_PLAYER_FACTORY.mediaPlayers().newMediaPlayer();
-        MEDIA_PLAYER.events().addMediaPlayerEventListener(MEDIA_PLAYER_EVENT_ADAPTER);
+        MEDIA_LIST_PLAYER = newMediaListPlayerInstance();
         addLoggingListeners();
+    }
+
+    private static MediaListPlayer newMediaListPlayerInstance() {
+        var instance = MEDIA_PLAYER_FACTORY.mediaPlayers().newMediaListPlayer();
+        instance.mediaPlayer().setMediaPlayer(MEDIA_PLAYER);
+        instance.controls().setMode(PlaybackMode.DEFAULT);
+        MEDIA_PLAYER.events().addMediaPlayerEventListener(new MediaPlayerEventAdapterImpl(instance));
+        return instance;
+    }
+
+    public static Optional<Track> playingTrack() {
+        return Optional.ofNullable((TrackRef) MEDIA_PLAYER.userData()).map(TrackRef::track);
+    }
+
+    static void enqueueAndPlay(TrackListRequest trackListRequest) {
+        var index = trackListRequest.startTrackIdx();
+
+        var trackRefs = trackRefs(trackListRequest.tracks());
+
+        MEDIA_LIST_PLAYER.userData(trackRefs);
+
+        var playTrackRef = trackRefs.get(index);
+
+        LOG.info("Created new media list with {} tracks. Playback starts at index: {} ({} - {})",
+                trackRefs.size(), index, playTrackRef.track().artistName(), playTrackRef.track().title());
+
+        setNewMediaList(trackRefs);
+        play(index, playTrackRef);
+    }
+
+    public static void play(Track track) {
+        LOG.info("Media list track look up: {} - {}.", track.artistName(), track.title());
+        if (MEDIA_LIST_PLAYER.list().media() != null) {
+            var trackRef = new TrackRef(track);
+            var listSize = MEDIA_LIST_PLAYER.list().media().count();
+            for (int idx = 0; idx < listSize; idx++) {
+                var ref = MEDIA_LIST_PLAYER.list().media().newMediaRef(idx);
+                if (ref != null) {
+                    var mrl = ref.newMedia().info().mrl();
+                    if (trackRef.mrl().equals(mrl)) {
+                        LOG.info("Track was found.");
+                        play(idx, trackRef);
+                        return;
+                    }
+                }
+            }
+        }
+        LOG.info("Track was not found.");
+    }
+
+    private static void play(int index, TrackRef trackRef) {
+        // Need to reset the listener when playing by index, otherwise the list listener triggers on previous mrl
+        // preventing to grab current mrl correctly.
+        // The listener is reset upon playing callback in media player listener.
+        if (LIST_PLAYER_EVENT_LISTENER != null) {
+            MEDIA_LIST_PLAYER.events().removeMediaListPlayerEventListener(LIST_PLAYER_EVENT_LISTENER);
+            LIST_PLAYER_EVENT_LISTENER = null;
+        }
+        MEDIA_LIST_PLAYER.mediaPlayer().mediaPlayer().userData(trackRef);
+        MEDIA_LIST_PLAYER.controls().play(index);
+    }
+
+    public static boolean playNext() {
+        return MEDIA_LIST_PLAYER.controls().playNext();
+    }
+
+    public static boolean playPrevious() {
+        return MEDIA_LIST_PLAYER.controls().playPrevious();
+    }
+
+    public static void seek(float position) {
+        LOG.info("Seeking position from '{}' to '{}'", MEDIA_PLAYER.status().position(), position);
+        MEDIA_PLAYER.controls().setPosition(position);
+    }
+
+    public static void pause() {
+        if (isPlaying()) {
+            MEDIA_PLAYER.controls().setPause(true);
+        }
+    }
+
+    public static void resume() {
+        if (!isPlaying()) {
+            MEDIA_PLAYER.controls().setPause(false);
+        }
+        if (!isPlaying()) {
+            MEDIA_PLAYER.controls().play();
+        }
+    }
+
+    public static boolean isPlaying() {
+        return MEDIA_PLAYER.status().isPlaying();
+    }
+
+    public static void setVolume(int volume) {
+        MEDIA_PLAYER.audio().setVolume(volume);
+    }
+
+    public static int getVolume() {
+        return MEDIA_PLAYER.audio().volume();
+    }
+
+    public static void fetchMode(FetchMode mode) {
+        switch (mode) {
+            case NORMAL -> setNewMediaList(getPlayerListTrackRefs());
+            case RANDOM -> {
+                var shuffledTrackRefs = getPlayerListTrackRefs();
+                Collections.shuffle(shuffledTrackRefs);
+                setNewMediaList(shuffledTrackRefs);
+            }
+        }
+        LOG.info("Media list player fetch mode was set to {}", mode);
+    }
+
+    public static void loopMode(LoopMode mode) {
+        var playbackMode = switch (mode) {
+            case ON -> PlaybackMode.LOOP;
+            case OFF -> PlaybackMode.DEFAULT;
+            case SINGLE -> PlaybackMode.REPEAT;
+        };
+        MEDIA_LIST_PLAYER.controls().setMode(playbackMode);
+        LOG.info("Media list player playback mode was set to {}", mode);
     }
 
     public static void onPaused(Consumer<Boolean> callback) {
@@ -72,87 +200,23 @@ public class Player {
         });
     }
 
-    public static void enqueueAndPlay(PlayRequest playRequest) {
-        PLAYING_QUEUE.clear();
-        PLAYING_QUEUE.enqueue(playRequest.tracks());
-        PLAYING_QUEUE.setStartingPosition(playRequest.startTrackIdx());
-        PLAYING_QUEUE.setVisited(playRequest.startTrackIdx());
-        var playingTrack = playRequest.tracks().get(playRequest.startTrackIdx());
-        submitPlay(playingTrack);
+    @SuppressWarnings("unchecked")
+    static List<TrackRef> getPlayerListTrackRefs() {
+        return new ArrayList<>((List<TrackRef>) MEDIA_LIST_PLAYER.userData());
     }
 
-    public static void playFromQueue(int position) {
-        PLAYING_QUEUE.get(position).ifPresent(track -> {
-            PLAYING_QUEUE.setStartingPosition(position);
-            PLAYING_QUEUE.resetVisited();
-            submitPlay(track);
-        });
-    }
-
-    public static void playNext() {
-        if (isPlaying()) {
-            MEDIA_PLAYER.controls().stop();
+    private static void setNewMediaList(List<TrackRef> trackRefs) {
+        if (MEDIA_LIST_PLAYER.list().media() == null) {
+            var mediaListRef = MEDIA_PLAYER_FACTORY.media().newMediaListRef();
+            MEDIA_LIST_PLAYER.list().setMediaList(mediaListRef); // old mediaListRef releases inside this setter
+        } else {
+            MEDIA_LIST_PLAYER.list().media().clear();
         }
-        LOG.info("Resolving next track ...");
-        PLAYING_QUEUE.next().ifPresent(Player::submitPlay);
+        trackRefs.forEach(trackRef -> MEDIA_LIST_PLAYER.list().media().add(trackRef.mrl(), trackRef.options()));
     }
 
-    public static void seek(float position) {
-        LOG.info("Seeking position from '{}' to '{}'", MEDIA_PLAYER.status().position(), position);
-        MEDIA_PLAYER.controls().setPosition(position);
-    }
-
-    public static void pause() {
-        if (isPlaying()) {
-            MEDIA_PLAYER.controls().setPause(true);
-        }
-    }
-
-    public static void resume() {
-        if (!isPlaying()) {
-            MEDIA_PLAYER.controls().setPause(false);
-        }
-        if (!isPlaying()) {
-            MEDIA_PLAYER.controls().play();
-        }
-    }
-
-    public static boolean isPlaying() {
-        return MEDIA_PLAYER.status().isPlaying();
-    }
-
-    public static void setVolume(int volume) {
-        MEDIA_PLAYER.audio().setVolume(volume);
-    }
-
-    public static int getVolume() {
-        return MEDIA_PLAYER.audio().volume();
-    }
-
-    public static void setPlaylistFetchMode(FetchMode fetchMode) {
-        PLAYING_QUEUE.setFetchMode(fetchMode);
-    }
-
-    public static void setPlaylistLoopMode(LoopMode loopMode) {
-        PLAYING_QUEUE.setLoopMode(loopMode);
-    }
-
-    private static void submitPlay(Track track) {
-        var trackId = track.id();
-        var options = new String[]{};
-        if (track.cueInfo().parentId() != null) {
-            trackId = track.cueInfo().parentId();
-            options = buildRangeOptions(track);
-        }
-        MEDIA_PLAYER.media().play(PlayqdApis.baseUrl() + "/tracks/" + trackId + "/file", options);
-    }
-
-    private static String[] buildRangeOptions(Track track) {
-        var startTime = track.cueInfo().startTimeInSeconds();
-        var endTime = track.cueInfo().startTimeInSeconds() + track.length().seconds();
-        var startTimeOption = ":start-time=" + startTime;
-        var stopTimeOption = ":stop-time=" + endTime;
-        return new String[]{ startTimeOption, stopTimeOption };
+    private static List<TrackRef> trackRefs(List<Track> tracks) {
+        return tracks.stream().map(TrackRef::new).toList();
     }
 
     private static void addLoggingListeners() {

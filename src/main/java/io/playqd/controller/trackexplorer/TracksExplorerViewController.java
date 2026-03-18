@@ -5,7 +5,8 @@ import io.playqd.controller.view.TracksView;
 import io.playqd.controller.view.menuitem.TracksExplorerTrackContextMenuConfigurer;
 import io.playqd.data.Track;
 import io.playqd.event.TrackUpdateType;
-import io.playqd.player.PlayRequest;
+import io.playqd.player.PlayerTrackListManager;
+import io.playqd.player.TrackListRequest;
 import io.playqd.player.Player;
 import io.playqd.service.MusicLibrary;
 import javafx.beans.property.SimpleIntegerProperty;
@@ -102,7 +103,7 @@ public class TracksExplorerViewController {
     private void initTracksTableViewEventHandlers() {
         tracksTableView.rowDoubleClickedProperty().addListener((_, _, row) -> {
             if (row != null) {
-                Player.enqueueAndPlay(new PlayRequest(row.track()));
+                PlayerTrackListManager.enqueue(new TrackListRequest(row.track()));
             }
         });
     }

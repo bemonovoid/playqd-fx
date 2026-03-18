@@ -50,6 +50,8 @@ dependencies {
     implementation libs.jackson.databind
     implementation libs.jackson.datatype.jsr310
 
+    implementation libs.dbus.core
+    implementation libs.dbus.unixsocket
     implementation libs.vlcj
 
     implementation libs.playqd.client

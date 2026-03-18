@@ -1,5 +1,6 @@
 package io.playqd.player;
 
+import io.playqd.data.Track;
 import io.playqd.event.MouseEventHelper;
 import javafx.geometry.Pos;
 import javafx.scene.control.Label;
@@ -13,28 +14,28 @@ import javafx.util.Callback;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-class PlayerQueueListViewCellFactory implements Callback<ListView<QueuedTrack>, ListCell<QueuedTrack>> {
+class PlayerTrackListViewCellFactory implements Callback<ListView<Track>, ListCell<Track>> {
 
-    private static final Logger LOG = LoggerFactory.getLogger(PlayerQueueListViewCellFactory.class);
+    private static final Logger LOG = LoggerFactory.getLogger(PlayerTrackListViewCellFactory.class);
 
     @Override
-    public ListCell<QueuedTrack> call(ListView<QueuedTrack> queuedTrackGridView) {
+    public ListCell<Track> call(ListView<Track> queuedTrackGridView) {
 
         return new ListCell<>() {
 
             @Override
-            protected void updateItem(QueuedTrack queuedTrack, boolean empty) {
+            protected void updateItem(Track track, boolean empty) {
 
-                super.updateItem(queuedTrack, empty);
+                super.updateItem(track, empty);
 
-                if (empty || queuedTrack == null) {
+                if (empty || track == null) {
                     setText(null);
                 } else {
 
-                    var trackTitle = new Label(queuedTrack.track().title());
+                    var trackTitle = new Label(track.title());
 //                    var trackTitleHbox = new HBox(trackTitle, createHiResBadge());
 
-                    var artistName = new Label(queuedTrack.track().artistName());
+                    var artistName = new Label(track.artistName());
                     artistName.setDisable(true);
                     artistName.setStyle("-fx-font-size: 10px;");
                     artistName.setOpacity(0.6);
@@ -42,7 +43,7 @@ class PlayerQueueListViewCellFactory implements Callback<ListView<QueuedTrack>, 
                     var pane = new Pane();
                     HBox.setHgrow(pane, Priority.ALWAYS);
 
-                    var trackTime = new Label(queuedTrack.track().length().readable());
+                    var trackTime = new Label(track.length().readable());
 
                     var vBox = new VBox();
                     vBox.setSpacing(3);
@@ -56,7 +57,7 @@ class PlayerQueueListViewCellFactory implements Callback<ListView<QueuedTrack>, 
 
                     setOnMouseClicked(mouseEvent -> {
                         if (MouseEventHelper.primaryButtonDoubleClicked(mouseEvent)) {
-                            Player.playFromQueue(getIndex());
+                            Player.play(track);
                         }
                     });
 

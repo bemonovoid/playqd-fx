@@ -7,8 +7,9 @@ import io.playqd.dialog.tracks.TracksTableViewColumnsDialog;
 import io.playqd.event.MouseEventHelper;
 import io.playqd.fxml.FXMLLoaderUtils;
 import io.playqd.fxml.FXMLResource;
-import io.playqd.player.PlayRequest;
 import io.playqd.player.Player;
+import io.playqd.player.PlayerTrackListManager;
+import io.playqd.player.TrackListRequest;
 import io.playqd.service.MusicLibrary;
 import io.playqd.utils.Numbers;
 import io.playqd.utils.TimeUtils;
@@ -174,7 +175,8 @@ public class TracksTableView extends TableView<TrackModel> {
                     if (KeyCode.ENTER == keyCode) {
                         var items = getSelectionModel().getSelectedItems();
                         if (!items.isEmpty()) {
-                            Player.PLAYING_QUEUE.enqueue(items.stream().map(TrackModel::track).toList());
+                            var trackListReq = new TrackListRequest(items.stream().map(TrackModel::track).toList());
+                            PlayerTrackListManager.enqueue(trackListReq);
                         }
                     }
                 }
@@ -182,7 +184,8 @@ public class TracksTableView extends TableView<TrackModel> {
                 if (KeyCode.ENTER == keyCode) {
                     var items = getSelectionModel().getSelectedItems();
                     if (!items.isEmpty()) {
-                        Player.enqueueAndPlay(new PlayRequest(items.stream().map(TrackModel::track).toList()));
+                        var trackListReq = new TrackListRequest(items.stream().map(TrackModel::track).toList());
+                        PlayerTrackListManager.enqueue(trackListReq);
                     }
                 }
             }

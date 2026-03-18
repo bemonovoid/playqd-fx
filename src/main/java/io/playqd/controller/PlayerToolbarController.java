@@ -59,7 +59,7 @@ public class PlayerToolbarController {
         initButtonEventHandlers();
 
         slider.setOnMouseClicked(_ -> {
-            Player.PLAYING_QUEUE.current()
+            Player.playingTrack()
                     .filter(cueTrack -> cueTrack.cueInfo().parentId() != null)
                     .ifPresentOrElse(cueTrack -> {
                         var parentTrack = MusicLibrary.getTrackById(cueTrack.cueInfo().parentId());
@@ -82,37 +82,38 @@ public class PlayerToolbarController {
 
     @FXML
     private void playNext() {
-        Player.playNext();
+        var hasNext = Player.playNext();
+        playNextBtn.setDisable(!hasNext);
     }
 
     private void initButtonEventHandlers() {
         favoriteBtn.selectedProperty().addListener((_, _, selected) -> {
             if (selected) {
-                Player.PLAYING_QUEUE.current().ifPresent(track -> MusicLibrary.like(List.of(track.id())));
+                Player.playingTrack().ifPresent(track -> MusicLibrary.like(List.of(track.id())));
             } else {
-                Player.PLAYING_QUEUE.current().ifPresent(track -> MusicLibrary.unlike(List.of(track.id())));
+                Player.playingTrack().ifPresent(track -> MusicLibrary.unlike(List.of(track.id())));
             }
             styleFavouriteButton(selected);
         });
         shuffleBtn.selectedProperty().addListener((_, _, selected) -> {
             if (selected) {
-                Player.setPlaylistFetchMode(FetchMode.RANDOM);
+                Player.fetchMode(FetchMode.RANDOM);
                 var icon = new FontAwesomeIconView(FontAwesomeIcon.RANDOM);
                 icon.setStyle("-fx-fill: #00d000");
                 shuffleBtn.setGraphic(icon);
             } else {
-                Player.setPlaylistFetchMode(FetchMode.ORDINAL);
+                Player.fetchMode(FetchMode.NORMAL);
                 shuffleBtn.setGraphic(new FontAwesomeIconView(FontAwesomeIcon.RANDOM));
             }
         });
         repeatBtn.selectedProperty().addListener((_, _, selected) -> {
             if (selected) {
-                Player.setPlaylistLoopMode(LoopMode.ALL);
+                Player.loopMode(LoopMode.ON);
                 var icon = new FontAwesomeIconView(FontAwesomeIcon.REPEAT);
                 icon.setStyle("-fx-fill: #00d000");
                 repeatBtn.setGraphic(icon);
             } else {
-                Player.setPlaylistLoopMode(LoopMode.OFF);
+                Player.loopMode(LoopMode.OFF);
                 repeatBtn.setGraphic(new FontAwesomeIconView(FontAwesomeIcon.REPEAT));
             }
         });
@@ -125,7 +126,6 @@ public class PlayerToolbarController {
                     updateArtwork(track);
                     updateSliderTitle(track);
                     updateTrackTime(track);
-                    updateControlButtons();
                     updateFunctionButtons(track);
                 }));
         Player.onStopped((stopped) -> {
@@ -133,7 +133,7 @@ public class PlayerToolbarController {
                 Platform.runLater(this::handleTrackStopped);
             }
         });
-        Player.onFinished((track) -> Platform.runLater(() -> handleTrackFinished(track)));
+//        Player.onFinished((track) -> Platform.runLater(() -> handleTrackFinished(track)));
         Player.onPositionChanged(this::updateSliderPosition);
         Player.onPaused(this::updatePlayButton);
         Player.onTimeChanged(newTime -> Platform.runLater(() -> updateTrackPlayingTime(newTime)));
@@ -201,7 +201,7 @@ public class PlayerToolbarController {
     }
 
     private void updateSliderPosition(double newValue) {
-        Player.PLAYING_QUEUE.current()
+        Player.playingTrack()
                 .filter(track -> track.cueInfo().parentId() == null)
                 .ifPresent(_ -> slider.setValue(newValue));
     }
@@ -216,7 +216,7 @@ public class PlayerToolbarController {
 
     private void updateTrackPlayingTime(long newTime) {
         if (newTime > 1000) {
-            Player.PLAYING_QUEUE.current()
+            Player.playingTrack()
                     .filter(track -> track.cueInfo().parentId() != null)
                     .ifPresentOrElse(track -> {
                         // the 'newTime' is relative to parent track
@@ -228,10 +228,6 @@ public class PlayerToolbarController {
                     }, () -> timeElapsedLabel.setText(
                             TimeUtils.durationToTimeFormat(java.time.Duration.ofMillis(newTime))));
         }
-    }
-
-    private void updateControlButtons() {
-        playNextBtn.setDisable(!Player.PLAYING_QUEUE.hasNext());
     }
 
     private void updateFunctionButtons(Track track) {
@@ -253,7 +249,7 @@ public class PlayerToolbarController {
     }
 
     private void showFullSizeImageInPopup() {
-        Player.PLAYING_QUEUE.current().ifPresent(track -> {
+        Player.playingTrack().ifPresent(track -> {
             var screenBounds = Screen.getPrimary().getVisualBounds();
             var maxWidth = screenBounds.getWidth() * 0.7; // 70% of screen width
             var maxHeight = screenBounds.getHeight() * 0.7; // 70% of screen height
