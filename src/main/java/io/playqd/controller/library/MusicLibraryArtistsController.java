@@ -105,11 +105,12 @@ public class MusicLibraryArtistsController extends MusicSplitPaneController {
         artistsInfoLabel.setStyle("-fx-font-size: 11px;");
         artistsInfoLabel.setOpacity(0.6);
         artistsListView.itemsProperty().addListener((_, _, newItems) -> {
-            if (newItems == null || newItems.isEmpty()) {
+            var itemsSize = newItems == null ? 0 : newItems.size() - 1; // exclude 'All artists items'
+            if (itemsSize == 0) {
                 artistsInfoLabel.setText("");
             } else {
-                var artistsText = newItems.size() > 1 ? "artists" : "artist";
-                artistsInfoLabel.setText(Numbers.format(newItems.size()) + " " + artistsText);
+                var artistsText = itemsSize > 1 ? "artists" : "artist";
+                artistsInfoLabel.setText(Numbers.format(itemsSize) + " " + artistsText);
             }
         });
     }

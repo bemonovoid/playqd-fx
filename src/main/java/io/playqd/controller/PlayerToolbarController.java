@@ -43,7 +43,7 @@ public class PlayerToolbarController {
     private Label sliderTitle, timeElapsedLabel, trackTimeLabel;
 
     @FXML
-    private Button playBtn, playNextBtn, volumeBtn;
+    private Button playPrevBtn, playBtn, playNextBtn, volumeBtn;
 
     @FXML
     private ToggleButton favoriteBtn, repeatBtn, shuffleBtn;
@@ -69,6 +69,12 @@ public class PlayerToolbarController {
                         Player.seek((float) seekPosition);
                     }, () -> Player.seek((float) slider.getValue()));
         });
+    }
+
+    @FXML
+    private void playPrevious() {
+        var hasNext = Player.playPrevious();
+        playPrevBtn.setDisable(!hasNext);
     }
 
     @FXML

@@ -5,6 +5,7 @@
 <?import javafx.scene.control.*?>
 <?import javafx.scene.image.ImageView?>
 <?import javafx.scene.layout.*?>
+<?import javafx.scene.text.Font?>
 <ToolBar xmlns="http://javafx.com/javafx"
          xmlns:fx="http://javafx.com/fxml"
          fx:controller="io.playqd.controller.PlayerToolbarController">
@@ -14,13 +15,24 @@
     </padding>
 
     <HBox alignment="CENTER">
-        <ImageView fx:id="artworkImageView" fitHeight="55" fitWidth="55"/>
+        <ImageView fx:id="artworkImageView" fitHeight="60" fitWidth="60"/>
     </HBox>
 
     <HBox alignment="CENTER">
+
+        <padding>
+            <Insets left="15" right="15"/>
+        </padding>
+
+        <Button fx:id="playPrevBtn" onAction="#playPrevious" style="-fx-background-color: transparent">
+            <graphic>
+                <FontAwesomeIconView glyphName="STEP_BACKWARD" glyphSize="16"/>
+            </graphic>
+        </Button>
+
         <Button fx:id="playBtn" onAction="#play" style="-fx-background-color: transparent;" minWidth="40">
             <graphic>
-                <FontAwesomeIconView glyphName="PAUSE" glyphSize="18"/>
+                <FontAwesomeIconView glyphName="PAUSE" glyphSize="20"/>
             </graphic>
         </Button>
 
@@ -33,7 +45,14 @@
 
     <HBox HBox.hgrow="ALWAYS">
         <VBox HBox.hgrow="ALWAYS" spacing="1">
-            <Label fx:id="sliderTitle" text="Playing queue is empty"/>
+            <Label fx:id="sliderTitle" text="Playing queue is empty">
+                <padding>
+                    <Insets left="5" bottom="2"/>
+                </padding>
+                <font>
+                    <Font name="Segoe UI Medium" size="15.0" />
+                </font>
+            </Label>
             <Slider max="1" fx:id="slider" HBox.hgrow="ALWAYS"/>
             <HBox >
                 <Pane HBox.hgrow="ALWAYS"/>

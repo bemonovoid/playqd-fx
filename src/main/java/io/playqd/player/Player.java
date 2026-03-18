@@ -71,7 +71,7 @@ public class Player {
     }
 
     public static void play(Track track) {
-        LOG.info("Media list track look up: {} - {}.", track.artistName(), track.title());
+        LOG.info("Requesting track from media list: {} - {}.", track.artistName(), track.title());
         if (MEDIA_LIST_PLAYER.list().media() != null) {
             var trackRef = new TrackRef(track);
             var listSize = MEDIA_LIST_PLAYER.list().media().count();
@@ -80,7 +80,7 @@ public class Player {
                 if (ref != null) {
                     var mrl = ref.newMedia().info().mrl();
                     if (trackRef.mrl().equals(mrl)) {
-                        LOG.info("Track was found.");
+                        LOG.info("Track was found at index {}", idx);
                         play(idx, trackRef);
                         return;
                     }
@@ -103,10 +103,12 @@ public class Player {
     }
 
     public static boolean playNext() {
+        LOG.info("Play next requested.");
         return MEDIA_LIST_PLAYER.controls().playNext();
     }
 
     public static boolean playPrevious() {
+        LOG.info("Play previous requested.");
         return MEDIA_LIST_PLAYER.controls().playPrevious();
     }
 
