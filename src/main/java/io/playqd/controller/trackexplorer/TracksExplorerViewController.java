@@ -124,7 +124,7 @@ public class TracksExplorerViewController {
             if (track.playback() != null && track.playback().count() > 0) {
                 played++;
             }
-            if (track.cueInfo().parentId() != null) {
+            if (track.isCueTrack()) {
                 cues++;
             }
         }

@@ -60,11 +60,11 @@ public class PlayerToolbarController {
 
         slider.setOnMouseClicked(_ -> {
             Player.playingTrack()
-                    .filter(cueTrack -> cueTrack.cueInfo().parentId() != null)
-                    .ifPresentOrElse(cueTrack -> {
-                        var parentTrack = MusicLibrary.getTrackById(cueTrack.cueInfo().parentId());
-                        var seekCueTime = slider.getValue() * (cueTrack.length().seconds());
-                        var seekParentTime = (cueTrack.cueInfo().startTimeInSeconds()) + seekCueTime;
+                    .filter(Track::isCueTrack)
+                    .ifPresentOrElse(track -> {
+                        var parentTrack = MusicLibrary.getTrackById(track.realId());
+                        var seekCueTime = slider.getValue() * (track.length().seconds());
+                        var seekParentTime = (track.cueInfo().startTimeInSeconds()) + seekCueTime;
                         var seekPosition = seekParentTime / (parentTrack.length().seconds());
                         Player.seek((float) seekPosition);
                     }, () -> Player.seek((float) slider.getValue()));
@@ -208,7 +208,7 @@ public class PlayerToolbarController {
 
     private void updateSliderPosition(double newValue) {
         Player.playingTrack()
-                .filter(track -> track.cueInfo().parentId() == null)
+                .filter(track -> track.cueInfo().parentId() == null) //todo ???
                 .ifPresent(_ -> slider.setValue(newValue));
     }
 
@@ -223,7 +223,7 @@ public class PlayerToolbarController {
     private void updateTrackPlayingTime(long newTime) {
         if (newTime > 1000) {
             Player.playingTrack()
-                    .filter(track -> track.cueInfo().parentId() != null)
+                    .filter(Track::isCueTrack)
                     .ifPresentOrElse(track -> {
                         // the 'newTime' is relative to parent track
                         var newCueTimeInMillis = newTime - (((long) track.cueInfo().startTimeInSeconds()) * 1000);

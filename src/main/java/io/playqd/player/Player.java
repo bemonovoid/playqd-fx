@@ -1,6 +1,7 @@
 package io.playqd.player;
 
 import io.playqd.data.Track;
+import io.playqd.dbus.MprisApplication;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import org.slf4j.Logger;
@@ -39,6 +40,10 @@ public class Player {
         MEDIA_PLAYER_FACTORY = new MediaPlayerFactory();
         MEDIA_PLAYER = MEDIA_PLAYER_FACTORY.mediaPlayers().newMediaPlayer();
         MEDIA_LIST_PLAYER = newMediaListPlayerInstance();
+        var mprisApp = MprisApplication.getInstance();
+        mprisApp.start(MEDIA_PLAYER, MEDIA_LIST_PLAYER);
+        var mediaPlayerEventListener = new MediaPlayerEventAdapterImpl(MEDIA_LIST_PLAYER, mprisApp.getMprisNotifier());
+        MEDIA_PLAYER.events().addMediaPlayerEventListener(mediaPlayerEventListener);
         addLoggingListeners();
     }
 
@@ -46,7 +51,6 @@ public class Player {
         var instance = MEDIA_PLAYER_FACTORY.mediaPlayers().newMediaListPlayer();
         instance.mediaPlayer().setMediaPlayer(MEDIA_PLAYER);
         instance.controls().setMode(PlaybackMode.DEFAULT);
-        MEDIA_PLAYER.events().addMediaPlayerEventListener(new MediaPlayerEventAdapterImpl(instance));
         return instance;
     }
 
@@ -121,6 +125,10 @@ public class Player {
         if (isPlaying()) {
             MEDIA_PLAYER.controls().setPause(true);
         }
+    }
+
+    public static void stop() {
+        MEDIA_LIST_PLAYER.controls().stop();
     }
 
     public static void resume() {
@@ -231,12 +239,23 @@ public class Player {
             }
         });
         onPlayingTrackChanged(track -> {
-            if (track.cueInfo().parentId() != null) {
+            if (track.isCueTrack()) {
                 LOG.info("PLAYING (cue track) '{} - {}'", track.artistName(), track.title());
             } else {
                 LOG.info("PLAYING '{} - {}'", track.artistName(), track.title());
             }
         });
+    }
+
+    public static void close() {
+        LOG.info("Closing Player ...");
+        if (isPlaying()) {
+            stop();
+        }
+        MprisApplication.getInstance().close();
+        MEDIA_LIST_PLAYER.release();
+        MEDIA_PLAYER.release();
+        LOG.info("Player was closed.");
     }
 
 }

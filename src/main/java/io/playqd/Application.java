@@ -1,6 +1,7 @@
 package io.playqd;
 
 import io.playqd.core.ApplicationCloseHandler;
+import io.playqd.core.ApplicationExiter;
 import io.playqd.core.ApplicationTitleUpdateListener;
 import io.playqd.core.ApplicationUncaughtExceptionHandler;
 import io.playqd.fxml.FXMLLoaderUtils;
@@ -16,12 +17,14 @@ public class Application extends javafx.application.Application {
 
     public static final String TITLE = "playqd-fx";
 
-    static {
-//        System.setProperty("slf4j.internal.verbosity", "WARN");
-    }
+    private static ApplicationExiter applicationExiter;
 
     public static void main(String[] args) {
         launch(args);
+    }
+
+    public static void exit() {
+        applicationExiter.doExit();
     }
 
     @Override
@@ -45,7 +48,9 @@ public class Application extends javafx.application.Application {
         ApplicationTitleUpdateListener.register(stage);
 
         stage.setOnShown(_ -> {
-
+            if (applicationExiter == null) {
+                applicationExiter = new ApplicationExiter(stage);
+            }
         });
 
         stage.show();

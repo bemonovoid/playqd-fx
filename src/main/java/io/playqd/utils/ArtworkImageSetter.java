@@ -31,7 +31,7 @@ public final class ArtworkImageSetter {
     }
 
     public static void set(Track track, int size, ImageView imageView) {
-        var trackId = track.cueInfo().parentId() != null ? track.cueInfo().parentId() : track.id();
+        var trackId = track.id();
         var cacheKey = trackId + "_" + size;
         if (ARTWORK_CACHE.containsKey(cacheKey)) {
             imageView.setImage(ARTWORK_CACHE.get(cacheKey));
@@ -60,7 +60,7 @@ public final class ArtworkImageSetter {
     }
 
     private static Image getImage(Track track, int size) {
-        var trackId = track.cueInfo().parentId() != null ? track.cueInfo().parentId() : track.id();
+        var trackId = track.id();
         var cacheKey = trackId + "_" + size;
         if (ARTWORK_CACHE.containsKey(cacheKey)) {
             return ARTWORK_CACHE.get(cacheKey);

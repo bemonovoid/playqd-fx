@@ -3,20 +3,15 @@ package io.playqd.player;
 import io.playqd.data.Track;
 import io.playqd.utils.PlayqdApis;
 
-record TrackRef(String mrl, String[] options, Track track) {
+public record TrackRef(String mrl, String[] options, Track track) {
 
     TrackRef(Track track) {
-        this(resolveMrl(track), resolveOptions(track), track);
-    }
-
-    private static String resolveMrl(Track track) {
-        var trackId = track.cueInfo().parentId() != null ? track.cueInfo().parentId(): track.id();
-        return PlayqdApis.trackStream(trackId);
+        this(PlayqdApis.trackStream(track.id()), resolveOptions(track), track);
     }
 
     private static String[] resolveOptions(Track track) {
         var options = new String[]{};
-        if (track.cueInfo().parentId() != null) {
+        if (track.isCueTrack()) {
             options = buildRangeOptions(track);
         }
         return options;

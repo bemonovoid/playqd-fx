@@ -1,5 +1,6 @@
 package io.playqd.player;
 
+import io.playqd.dbus.MprisNotifierDelegate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import uk.co.caprica.vlcj.player.base.MediaPlayer;
@@ -11,9 +12,11 @@ class MediaPlayerEventAdapterImpl extends MediaPlayerEventAdapter {
     private static final Logger LOG = LoggerFactory.getLogger(MediaPlayerEventAdapterImpl.class);
 
     private final MediaListPlayer mediaListPlayer;
+    private final MprisNotifierDelegate mprisNotifier;
 
-    MediaPlayerEventAdapterImpl(MediaListPlayer mediaListPlayer) {
+    MediaPlayerEventAdapterImpl(MediaListPlayer mediaListPlayer, MprisNotifierDelegate mprisNotifier) {
         this.mediaListPlayer = mediaListPlayer;
+        this.mprisNotifier = mprisNotifier;
     }
 
     @Override
@@ -29,6 +32,7 @@ class MediaPlayerEventAdapterImpl extends MediaPlayerEventAdapter {
         var trackRef = (TrackRef) mediaPlayer.userData();
         if (trackRef != null) {
             Player.PLAYING_TRACK_PROPERTY.set(trackRef.track());
+            mprisNotifier.notifyTrackChanged(trackRef);
         }
     }
 
@@ -36,16 +40,20 @@ class MediaPlayerEventAdapterImpl extends MediaPlayerEventAdapter {
     public void playing(MediaPlayer mediaPlayer) {
         Player.PAUSED_PROPERTY.set(false);
         Player.STOPPED_PROPERTY.set(false);
+        mprisNotifier.notifyIsPlaying();
     }
 
     @Override
     public void paused(MediaPlayer mediaPlayer) {
         Player.PAUSED_PROPERTY.set(true);
+        mprisNotifier.notifyIsPaused();
     }
 
     @Override
     public void stopped(MediaPlayer mediaPlayer) {
         Player.STOPPED_PROPERTY.set(true);
+        mprisNotifier.notifyIsStopped();
+
     }
 
     @Override

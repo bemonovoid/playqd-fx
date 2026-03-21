@@ -103,7 +103,7 @@ public final class MusicLibrary {
     }
 
     private static Stream<Track> getAllTracksStreamExcludingCueParent() {
-        return getAllTracks().stream().filter(t -> t.cueInfo().cueFile() == null);
+        return getAllTracks().stream().filter(t -> !t.isCueParentTrack());
     }
 
     public static List<Track> getArtistTracks(long artistTrackId) {
