@@ -5,6 +5,7 @@ import io.playqd.event.MouseEventHelper;
 import io.playqd.utils.ArtworkImageSetter;
 import io.playqd.utils.FakeIds;
 import io.playqd.utils.TimeUtils;
+import javafx.application.Platform;
 import javafx.geometry.Insets;
 import javafx.geometry.Orientation;
 import javafx.geometry.Pos;
@@ -72,7 +73,7 @@ public class AlbumsListViewCellFactory implements Callback<ListView<Album>, List
                     }
 
                     var imageView = new ImageView();
-                    ArtworkImageSetter.set(album.id(), 80, imageView);
+                    ArtworkImageSetter.set(album.id(), imageView, 80);
 
                     var vBox = new VBox();
                     vBox.setAlignment(Pos.TOP_LEFT);

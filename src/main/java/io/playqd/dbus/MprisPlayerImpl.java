@@ -1,7 +1,6 @@
 package io.playqd.dbus;
 
 import io.playqd.Application;
-import javafx.application.Platform;
 import org.freedesktop.dbus.DBusPath;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -34,7 +33,7 @@ public class MprisPlayerImpl implements MprisMediaPlayer2, MprisPlayer {
     @Override
     public String identity() {
         LOG.info("Received 'GetIdentity'.");
-        return "PlayqdFx Player";
+        return MprisApplication.APPLICATION_IDENTITY;
     }
 
     @Override

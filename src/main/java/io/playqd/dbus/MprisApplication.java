@@ -17,6 +17,8 @@ public final class MprisApplication {
     public static final String OBJECT_PATH = "/org/mpris/MediaPlayer2";
     public static final String APP_BUS_NAME = "org.mpris.MediaPlayer2.PlayqdPlayerApp";
 
+    static final String APPLICATION_IDENTITY = "PlayqdFx Player";
+
     private static final DBusConnection CONNECTION;
 
     private static final MprisApplication MPRIS_APPLICATION = new MprisApplication();
@@ -59,6 +61,15 @@ public final class MprisApplication {
         } catch (IOException e) {
             LOG.error("Failed to gracefully close DBusConnection.", e);
         }
+    }
+
+    public DBusConnectionInfo getInfo() {
+        return new DBusConnectionInfo(
+                CONNECTION.isConnected(),
+                APPLICATION_IDENTITY,
+                CONNECTION.getMachineId(),
+                CONNECTION.getNames(),
+                CONNECTION.getAddress());
     }
 
     private MprisApplication() {

@@ -1,6 +1,8 @@
 package io.playqd.config;
 
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import io.playqd.platform.PlatformApi;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -8,8 +10,8 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
+import java.util.Map;
 
 public class AppConfig {
 
@@ -17,8 +19,13 @@ public class AppConfig {
 
     private static final String APP_WORK_DIR = ".playqd";
     private static final String PROPERTIES_FILE_NAME = "properties.json";
+    private static final ObjectMapper OBJECT_MAPPER;
 
     private static ApplicationProperties PROPERTIES;
+
+    static {
+        OBJECT_MAPPER = new ObjectMapper();
+    }
 
     public static ApplicationProperties getProperties() {
         if (PROPERTIES != null) {
@@ -30,16 +37,27 @@ public class AppConfig {
             if (Files.size(propertiesFile) == 0) {
                 commitPropertiesToFile(new ApplicationProperties());
             }
-            var objectMapper = new ObjectMapper();
             return PROPERTIES =
-                    objectMapper.readValue(Files.readAllBytes(propertiesFile), ApplicationProperties.class);
+                    OBJECT_MAPPER.readValue(Files.readAllBytes(propertiesFile), ApplicationProperties.class);
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
     }
 
-    public static void commitPropertiesToFile() {
-       commitPropertiesToFile(PROPERTIES);
+    public static void saveProperties() {
+        try {
+            var propertiesFile = getWorkingDir().resolve(PROPERTIES_FILE_NAME);
+            var old = OBJECT_MAPPER.readValue(
+                    Files.readAllBytes(propertiesFile), new TypeReference<Map<String, Object>>() {});
+            if (!old.equals(OBJECT_MAPPER.convertValue(PROPERTIES, Map.class))) {
+                commitPropertiesToFile(PROPERTIES);
+                LOG.info("Properties were successfully saved to {}", propertiesFile);
+            } else {
+                LOG.info("Properties are up to date.");
+            }
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to save properties", e);
+        }
     }
 
     private static void commitPropertiesToFile(ApplicationProperties properties) {
@@ -55,9 +73,8 @@ public class AppConfig {
     private static void commitPropertiesToFile(byte[] data) {
         try {
             try (var is = new ByteArrayInputStream(data)) {
-                var appHomeDir = getWorkingDir();
-                var appPropertiesInWorkDir = appHomeDir.resolve(PROPERTIES_FILE_NAME);
-                Files.copy(is, appPropertiesInWorkDir, StandardCopyOption.REPLACE_EXISTING);
+                var propertiesFile = getWorkingDir().resolve(PROPERTIES_FILE_NAME);
+                Files.copy(is, propertiesFile, StandardCopyOption.REPLACE_EXISTING);
             } catch (IOException e) {
                 throw new RuntimeException(e);
             }
@@ -89,12 +106,8 @@ public class AppConfig {
         }
     }
 
-    public static Path getUserHomeDir() {
-        return Paths.get(System.getProperty("user.home"));
-    }
-
     public static Path getWorkingDir() {
-        return getUserHomeDir().resolve(APP_WORK_DIR);
+        return PlatformApi.getUserHomeDir().resolve(APP_WORK_DIR);
     }
 
 }

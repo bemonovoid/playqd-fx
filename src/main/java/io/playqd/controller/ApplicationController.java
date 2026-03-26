@@ -13,13 +13,13 @@ public class ApplicationController {
     private static final Logger LOG = LoggerFactory.getLogger(ApplicationController.class);
 
     @FXML
-    private SplitPane rootSplitPane, musicSplitPane, playlistsSplitPane, tracksExplorerSplitPane;
+    private SplitPane rootSplitPane, musicSplitPane, playlistsSplitPane, tracksExplorerSplitPane, foldersSplitPane;
 
     @FXML
     private ToggleGroup viewToggleGroup;
 
     @FXML
-    private ToggleButton libraryViewButton, tracksViewButton, playlistsViewButton;
+    private ToggleButton libraryViewButton, tracksViewButton, playlistsViewButton, foldersViewButton;
 
     @FXML
     private void initialize() {
@@ -34,6 +34,8 @@ public class ApplicationController {
                 nodeToShow = musicSplitPane;
             } else if (playlistsViewButton == newToggle) {
                 nodeToShow = playlistsSplitPane;
+            } else if (foldersViewButton == newToggle) {
+                nodeToShow = foldersSplitPane;
             }
             if (nodeToShow != null) {
                 if (rootSplitPane.getItems().size() == 1) {

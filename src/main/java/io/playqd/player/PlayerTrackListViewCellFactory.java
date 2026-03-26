@@ -2,10 +2,12 @@ package io.playqd.player;
 
 import io.playqd.data.Track;
 import io.playqd.event.MouseEventHelper;
+import io.playqd.utils.ArtworkImageSetter;
 import javafx.geometry.Pos;
 import javafx.scene.control.Label;
 import javafx.scene.control.ListCell;
 import javafx.scene.control.ListView;
+import javafx.scene.image.ImageView;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.Priority;
@@ -40,20 +42,23 @@ class PlayerTrackListViewCellFactory implements Callback<ListView<Track>, ListCe
                     artistName.setStyle("-fx-font-size: 10px;");
                     artistName.setOpacity(0.6);
 
+                    var artworkImage = new ImageView();
+                    ArtworkImageSetter.set(track, artworkImage, 35);
+
+                    var vBox = new VBox();
+                    vBox.setSpacing(3);
+                    vBox.getChildren().addAll(trackTitle, artistName);
+
                     var pane = new Pane();
                     HBox.setHgrow(pane, Priority.ALWAYS);
 
                     var trackTime = new Label(track.length().readable());
 
-                    var vBox = new VBox();
-                    vBox.setSpacing(3);
-                    vBox.getChildren().addAll(trackTitle, artistName, trackTime);
-
                     var hBox = new HBox();
                     hBox.setSpacing(10);
                     hBox.setAlignment(Pos.CENTER_LEFT);
 
-                    hBox.getChildren().addAll(vBox, pane, trackTime);
+                    hBox.getChildren().addAll(artworkImage, vBox, pane, trackTime);
 
                     setOnMouseClicked(mouseEvent -> {
                         if (MouseEventHelper.primaryButtonDoubleClicked(mouseEvent)) {

@@ -9,7 +9,6 @@ import javafx.scene.control.*;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
-import javafx.stage.Modality;
 import javafx.stage.StageStyle;
 import javafx.util.Callback;
 
@@ -18,10 +17,14 @@ class PlaylistsListViewCellFactory
 
     @Override
     public ListCell<PlaylistWithTrackIds> call(ListView<PlaylistWithTrackIds> artistListView) {
+
         return new ListCell<>() {
+
             @Override
             protected void updateItem(PlaylistWithTrackIds listItem, boolean empty) {
+
                 super.updateItem(listItem, empty);
+
                 if (empty) {
                     setText(null);
                     setGraphic(null);

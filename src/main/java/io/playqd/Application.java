@@ -1,11 +1,13 @@
 package io.playqd;
 
-import io.playqd.core.ApplicationCloseHandler;
+import io.playqd.config.AppConfig;
 import io.playqd.core.ApplicationExiter;
-import io.playqd.core.ApplicationTitleUpdateListener;
+import io.playqd.core.ApplicationStartUpListeners;
 import io.playqd.core.ApplicationUncaughtExceptionHandler;
 import io.playqd.fxml.FXMLLoaderUtils;
 import io.playqd.fxml.FXMLResource;
+import io.playqd.platform.PlatformApi;
+import io.playqd.service.MusicLibraryScanServiceManager;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
 import org.slf4j.Logger;
@@ -32,7 +34,7 @@ public class Application extends javafx.application.Application {
         startInStage(primaryStage);
     }
 
-    private static void startInStage(Stage stage) throws Exception {
+    private void startInStage(Stage stage) throws Exception {
         Thread.setDefaultUncaughtExceptionHandler(new ApplicationUncaughtExceptionHandler());
 
         var fxmlLoader = FXMLLoaderUtils.resourceLoader(FXMLResource.APPLICATION);
@@ -44,16 +46,22 @@ public class Application extends javafx.application.Application {
         stage.setMaximized(true);
         scene.getStylesheets().addAll("css/glyphs.css", "css/tables.css", "css/music-library.css");
 
-        ApplicationCloseHandler.register(stage);
-        ApplicationTitleUpdateListener.register(stage);
+        PlatformApi.setHostServices(getHostServices());
+        ApplicationStartUpListeners.register(stage);
 
-        stage.setOnShown(_ -> {
-            if (applicationExiter == null) {
-                applicationExiter = new ApplicationExiter(stage);
-            }
-        });
+        stage.setOnShown(_ -> onApplicationIsShown(stage));
 
         stage.show();
+    }
+
+    private static void onApplicationIsShown(Stage stage) {
+        if (applicationExiter == null) {
+            applicationExiter = new ApplicationExiter(stage);
+        }
+        var rescanOnStartUp = AppConfig.getProperties().library().rescanOnStartUp().get();
+        if (rescanOnStartUp) {
+            MusicLibraryScanServiceManager.submitScan();
+        }
     }
 
 }

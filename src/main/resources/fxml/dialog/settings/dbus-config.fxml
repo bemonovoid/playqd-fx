@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import org.controlsfx.control.ToggleSwitch?>
+<fx:root xmlns="http://javafx.com/javafx"
+         xmlns:fx="http://javafx.com/fxml"
+         type="javafx.scene.layout.VBox"
+         HBox.hgrow="ALWAYS"
+         VBox.vgrow="ALWAYS" spacing="10">
+
+    <padding>
+        <Insets topRightBottomLeft="10"/>
+    </padding>
+
+    <VBox>
+        <Label text="DBus" style="-fx-font-weight: BOLD"/>
+        <Separator/>
+    </VBox>
+
+    <GridPane hgap="5" vgap="10">
+        <columnConstraints>
+            <ColumnConstraints hgrow="NEVER"/>
+            <ColumnConstraints hgrow="ALWAYS"/>
+        </columnConstraints>
+        <Label text="Enabled" GridPane.rowIndex="0" GridPane.columnIndex="0"/>
+        <ToggleSwitch selected="true" disable="true" GridPane.rowIndex="0" GridPane.columnIndex="1" GridPane.halignment="RIGHT"/>
+        <Label text="Status:" GridPane.rowIndex="1" GridPane.columnIndex="0"/>
+        <Label fx:id="statusLabel" GridPane.rowIndex="1" GridPane.columnIndex="1"/>
+        <Label text="Identity:" GridPane.rowIndex="2" GridPane.columnIndex="0"/>
+        <Label fx:id="identityLabel" GridPane.rowIndex="2" GridPane.columnIndex="1"/>
+        <Label text="Machine id:" GridPane.rowIndex="3" GridPane.columnIndex="0"/>
+        <Label fx:id="machineIdLabel" GridPane.rowIndex="3" GridPane.columnIndex="1"/>
+        <Label text="Names:" GridPane.rowIndex="4" GridPane.columnIndex="0" GridPane.valignment="TOP"/>
+        <Label fx:id="namesLabel" GridPane.rowIndex="4" GridPane.columnIndex="1" wrapText="true"/>
+    </GridPane>
+
+    <Pane VBox.vgrow="ALWAYS"/>
+
+</fx:root>

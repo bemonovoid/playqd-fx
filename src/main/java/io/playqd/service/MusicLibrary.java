@@ -19,6 +19,8 @@ import javafx.collections.ObservableMap;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.*;
 import java.util.function.Consumer;
 import java.util.function.Function;
@@ -94,6 +96,12 @@ public final class MusicLibrary {
                 .toList();
     }
 
+    public static List<Track> getTracksByPaths(Set<Path> paths) {
+        return getAllTracksStreamExcludingCueChildren()
+                .filter(t -> paths.contains(Paths.get(t.fileAttributes().location())))
+                .toList();
+    }
+
     public static List<Track> getAllTracks() {
         return new ArrayList<>(getTracksFromCache().values());
     }
@@ -104,6 +112,10 @@ public final class MusicLibrary {
 
     private static Stream<Track> getAllTracksStreamExcludingCueParent() {
         return getAllTracks().stream().filter(t -> !t.isCueParentTrack());
+    }
+
+    private static Stream<Track> getAllTracksStreamExcludingCueChildren() {
+        return getAllTracks().stream().filter(t -> !t.isCueTrack());
     }
 
     public static List<Track> getArtistTracks(long artistTrackId) {

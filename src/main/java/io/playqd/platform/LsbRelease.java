@@ -1,4 +1,4 @@
-package io.playqd.platform.linux;
+package io.playqd.platform;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -8,15 +8,15 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.Optional;
 
-public record LsbRelease(String distributorId, String description, String release, String codename) {
+record LsbRelease(String distributorId, String description, String release, String codename) {
 
     private static final Logger LOG = LoggerFactory.getLogger(LsbRelease.class);
 
-    public boolean isMint() {
+    boolean isMint() {
         return distributorId.toLowerCase().contains("mint") || description.toLowerCase().contains("mint");
     }
 
-    public static Optional<LsbRelease> get() {
+    static Optional<LsbRelease> get() {
         if (!System.getProperty("os.name").toLowerCase().contains("linux")) {
             LOG.error("'lsb_release -a' is not supported on this OS.");
             return Optional.empty();

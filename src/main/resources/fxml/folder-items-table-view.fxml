@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import de.jensd.fx.glyphs.fontawesome.FontAwesomeIconView?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<VBox xmlns="http://javafx.com/javafx"
+      xmlns:fx="http://javafx.com/fxml"
+      fx:id="folderItemsTableView"
+      fx:controller="io.playqd.controller.folders.FolderItemsTableViewController">
+
+    <fx:define>
+        <ContextMenu fx:id="columnContextMenu">
+            <items>
+                <MenuItem text="Configure columns">
+                    <graphic>
+                        <FontAwesomeIconView glyphName="COLUMNS"/>
+                    </graphic>
+                </MenuItem>
+            </items>
+        </ContextMenu>
+    </fx:define>
+
+    <ToolBar>
+        <Label fx:id="titleLabel" text="Folder content" style="-fx-font-weight: bold"/>
+        <MenuButton visible="false"/>
+    </ToolBar>
+
+    <TableView fx:id="tableView" VBox.vgrow="ALWAYS">
+        <columns>
+            <TableColumn fx:id="filenameCol" text="File name" contextMenu="$columnContextMenu"/>
+            <TableColumn fx:id="mimeTypeCol" text="Mime type" contextMenu="$columnContextMenu"/>
+            <TableColumn fx:id="sizeCol" text="Size" contextMenu="$columnContextMenu"/>
+            <TableColumn fx:id="createdDataCol" text="Created date" contextMenu="$columnContextMenu"/>
+            <TableColumn fx:id="lastModifiedDataCol" text="Last modified date" contextMenu="$columnContextMenu"/>
+        </columns>
+    </TableView>
+
+    <HBox>
+        <padding>
+            <Insets top="2" bottom="2" left="5" right="20"/>
+        </padding>
+        <Label fx:id="selectedLabel" opacity="0.6" style="-fx-font-size: 11px;" disable="true"/>
+        <Pane HBox.hgrow="ALWAYS"/>
+        <Label fx:id="detailsLabel" disable="true" opacity="0.6" style="-fx-font-size: 11px;"/>
+    </HBox>
+
+</VBox>

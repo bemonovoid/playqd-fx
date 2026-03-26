@@ -1,8 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import de.jensd.fx.glyphs.fontawesome.FontAwesomeIconView?>
+<?import de.jensd.fx.glyphs.fontawesome.*?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.VBox?>
+<?import javafx.scene.input.KeyCombination?>
 <MenuBar xmlns="http://javafx.com/javafx"
          xmlns:fx="http://javafx.com/fxml"
          VBox.vgrow="NEVER"
@@ -18,7 +19,14 @@
     </Menu>
 
     <Menu text="_Edit">
-
+        <MenuItem text="Settings" onAction="#showSettingsDialog">
+            <accelerator>
+                <KeyCombination fx:value="Shortcut+P" />
+            </accelerator>
+            <graphic>
+                <FontAwesomeIconView glyphName="COG"/>
+            </graphic>
+        </MenuItem>
     </Menu>
 
     <Menu text="_View">

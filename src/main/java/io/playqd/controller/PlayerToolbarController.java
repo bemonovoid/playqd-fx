@@ -9,18 +9,12 @@ import io.playqd.player.LoopMode;
 import io.playqd.player.Player;
 import io.playqd.service.MusicLibrary;
 import io.playqd.utils.ArtworkImageSetter;
+import io.playqd.utils.ImagePopup;
 import io.playqd.utils.TimeUtils;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
-import javafx.geometry.Insets;
-import javafx.geometry.Pos;
-import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.image.ImageView;
-import javafx.scene.layout.StackPane;
-import javafx.scene.layout.VBox;
-import javafx.stage.Screen;
-import javafx.stage.Stage;
 import javafx.util.Duration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -129,10 +123,10 @@ public class PlayerToolbarController {
         Player.onPlayingTrackChanged(track ->
                 Platform.runLater(() -> {
                     updatePlayButton(false);
-                    updateArtwork(track);
                     updateSliderTitle(track);
                     updateTrackTime(track);
                     updateFunctionButtons(track);
+                    updateArtwork(track);
                 }));
         Player.onStopped((stopped) -> {
             if (stopped) {
@@ -203,7 +197,7 @@ public class PlayerToolbarController {
     }
 
     private void updateArtwork(Track track) {
-        ArtworkImageSetter.set(track, 80, artworkImageView);
+        ArtworkImageSetter.set(track, artworkImageView, 80);
     }
 
     private void updateSliderPosition(double newValue) {
@@ -256,34 +250,8 @@ public class PlayerToolbarController {
 
     private void showFullSizeImageInPopup() {
         Player.playingTrack().ifPresent(track -> {
-            var screenBounds = Screen.getPrimary().getVisualBounds();
-            var maxWidth = screenBounds.getWidth() * 0.7; // 70% of screen width
-            var maxHeight = screenBounds.getHeight() * 0.7; // 70% of screen height
-
             var image = ArtworkImageSetter.getImage(track);
-
-            if (image != null) {
-
-                var imageView = new ImageView(image);
-
-                imageView.setPreserveRatio(true);
-                imageView.setFitWidth(maxWidth);
-                imageView.setFitHeight(maxHeight);
-
-                var vBox = new VBox(imageView);
-                vBox.setAlignment(Pos.CENTER);
-                vBox.setPadding(new Insets(10, 10, 10, 10));
-
-                var scene = new Scene(new StackPane(vBox));
-
-                var popupStage = new Stage();
-
-                popupStage.setScene(scene);
-                popupStage.setResizable(true);
-                popupStage.setAlwaysOnTop(true);
-                popupStage.setTitle(track.artistName() + " - " + track.albumName());
-                popupStage.show();
-            }
+            ImagePopup.show(image, track.artistName() + " - " + track.title());
         });
     }
 

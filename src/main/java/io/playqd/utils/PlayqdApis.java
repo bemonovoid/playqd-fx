@@ -5,23 +5,19 @@ import io.playqd.config.AppConfig;
 public class PlayqdApis {
 
     public static String baseUrl() {
-        return AppConfig.getProperties().apiBaseUrl().get();
+        return AppConfig.getProperties().serverHost().get();
     }
 
     public static String trackStream(long id) {
         return String.format("%s/tracks/%s/file", baseUrl(), id);
     }
 
-    public static String albumArtwork(long trackId) {
-        return albumArtwork(trackId, -1);
+    public static String watchFolderItemBinary(String id) {
+        return String.format("%s/folders/items/%s/binary", baseUrl(), id);
     }
 
-    public static String albumArtwork(long trackId, int size) {
-        var url = baseUrl() + "/tracks/" + trackId + "/artwork";
-        if (size > 0) {
-            url = url + "?" + size;
-        }
-        return url;
+    public static String albumArtwork(long trackId) {
+        return baseUrl() + "/tracks/" + trackId + "/artwork";
     }
 
 }

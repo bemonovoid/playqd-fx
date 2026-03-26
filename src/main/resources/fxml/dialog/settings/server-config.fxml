@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import de.jensd.fx.glyphs.fontawesome.FontAwesomeIconView?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<fx:root xmlns="http://javafx.com/javafx"
+         xmlns:fx="http://javafx.com/fxml"
+         type="javafx.scene.layout.VBox"
+         HBox.hgrow="ALWAYS"
+         VBox.vgrow="ALWAYS" spacing="10">
+
+    <padding>
+        <Insets topRightBottomLeft="10"/>
+    </padding>
+
+    <VBox>
+        <Label text="Server" style="-fx-font-weight: BOLD"/>
+        <Separator/>
+    </VBox>
+
+    <GridPane hgap="5" vgap="5">
+        <columnConstraints>
+            <ColumnConstraints hgrow="NEVER"/>
+            <ColumnConstraints hgrow="ALWAYS"/>
+        </columnConstraints>
+        <Label text="Server url:" GridPane.rowIndex="0" GridPane.columnIndex="0"/>
+        <TextField fx:id="serverHostTextFld" promptText="Server host" GridPane.rowIndex="0" GridPane.columnIndex="1"/>
+        <Button GridPane.rowIndex="0" GridPane.columnIndex="2" GridPane.halignment="RIGHT" onAction="#testConnection">
+            <graphic>
+                <FontAwesomeIconView glyphName="REFRESH"/>
+            </graphic>
+        </Button>
+        <Label text="Status:" GridPane.rowIndex="1" GridPane.columnIndex="0"/>
+        <Label fx:id="testResultLabel" wrapText="true" GridPane.rowIndex="1" GridPane.columnIndex="1" GridPane.columnSpan="2"/>
+    </GridPane>
+
+    <Pane VBox.vgrow="ALWAYS"/>
+
+<!--    <HBox alignment="CENTER_RIGHT">-->
+<!--        <Button text="Test connection"/>-->
+<!--    </HBox>-->
+
+</fx:root>

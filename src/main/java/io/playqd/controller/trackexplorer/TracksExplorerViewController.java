@@ -7,7 +7,6 @@ import io.playqd.data.Track;
 import io.playqd.event.TrackUpdateType;
 import io.playqd.player.PlayerTrackListManager;
 import io.playqd.player.TrackListRequest;
-import io.playqd.player.Player;
 import io.playqd.service.MusicLibrary;
 import javafx.beans.property.SimpleIntegerProperty;
 import javafx.fxml.FXML;
