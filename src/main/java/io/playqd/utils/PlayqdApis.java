@@ -9,15 +9,15 @@ public class PlayqdApis {
     }
 
     public static String trackStream(long id) {
-        return String.format("%s/tracks/%s/file", baseUrl(), id);
+        return String.format("%s/api/v1/tracks/%s/file", baseUrl(), id);
     }
 
     public static String watchFolderItemBinary(String id) {
-        return String.format("%s/folders/items/%s/binary", baseUrl(), id);
+        return String.format("%s/api/v1/folders/items/%s/binary", baseUrl(), id);
     }
 
     public static String albumArtwork(long trackId) {
-        return baseUrl() + "/tracks/" + trackId + "/artwork";
+        return baseUrl() + "/api/v1/tracks/" + trackId + "/artwork";
     }
 
 }

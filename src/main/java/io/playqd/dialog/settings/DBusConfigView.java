@@ -34,7 +34,7 @@ public class DBusConfigView extends VBox implements ConfigView {
     }
 
     @Override
-    public void commitOnSave() {
+    public void applyUpdates() {
 
     }
 }

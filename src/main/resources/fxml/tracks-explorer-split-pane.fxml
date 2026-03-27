@@ -7,6 +7,8 @@
 <?import javafx.scene.control.SplitPane?>
 <?import javafx.scene.control.ToolBar?>
 <?import javafx.scene.layout.*?>
+<?import javafx.scene.control.MenuItem?>
+<?import de.jensd.fx.glyphs.fontawesome.FontAwesomeIconView?>
 <SplitPane xmlns="http://javafx.com/javafx"
            xmlns:fx="http://javafx.com/fxml"
            fx:id="tracksExplorerSplitPane"
@@ -17,7 +19,15 @@
     <VBox VBox.vgrow="ALWAYS">
 
         <ToolBar>
-            <MenuButton text="Tracks explorer" style="-fx-background-color: transparent;"/>
+            <MenuButton text="Tracks explorer" style="-fx-background-color: transparent;">
+                <items>
+                    <MenuItem text="Refresh" onAction="#refresh">
+                        <graphic>
+                            <FontAwesomeIconView glyphName="REFRESH" glyphSize="10"/>
+                        </graphic>
+                    </MenuItem>
+                </items>
+            </MenuButton>
         </ToolBar>
 
         <ListView fx:id="listView" VBox.vgrow="ALWAYS"/>

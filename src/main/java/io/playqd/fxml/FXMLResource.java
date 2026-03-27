@@ -9,9 +9,9 @@ public enum FXMLResource {
     TRACKS_TABLE_VIEW("/fxml/tracks-table-view.fxml"),
     TRACKS_TABLE_FOOTER("/fxml/tracks-table-footer.fxml"),
 
-    DIALOG_INVALIDATE_CACHES("/fxml/dialog/invalidate-caches.fxml"),
     DIALOG_SETTINGS("/fxml/dialog/settings/settings.fxml"),
     DIALOG_SETTINGS_SERVER("/fxml/dialog/settings/server-config.fxml"),
+    DIALOG_SETTINGS_CACHES("/fxml/dialog/settings/caches-config.fxml"),
     DIALOG_SETTINGS_LIBRARY("/fxml/dialog/settings/library-config.fxml"),
     DIALOG_SETTINGS_DBUS("/fxml/dialog/settings/dbus-config.fxml"),
 

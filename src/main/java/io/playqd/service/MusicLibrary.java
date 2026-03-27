@@ -9,8 +9,9 @@ import io.playqd.data.PlaylistWithTrackIds;
 import io.playqd.data.Track;
 import io.playqd.data.request.MovePlaylistTracksRequest;
 import io.playqd.data.request.UpdatePlaylistRequest;
+import io.playqd.event.LibraryRefreshedEvent;
 import io.playqd.event.TrackUpdateType;
-import io.playqd.event.TracksUpdateEvent;
+import io.playqd.event.TracksUpdatedEvent;
 import javafx.beans.property.ReadOnlyObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.collections.FXCollections;
@@ -31,19 +32,25 @@ public final class MusicLibrary {
 
     private static final Logger LOG = LoggerFactory.getLogger(MusicLibrary.class);
 
-    private static final SimpleObjectProperty<TracksUpdateEvent> TRACKS_UPDATE_EVENT_PROPERTY = new SimpleObjectProperty<>();
+    private static final SimpleObjectProperty<LibraryRefreshedEvent> LIBRARY_REFRESHED_EVENT_PROPERTY =
+            new SimpleObjectProperty<>();
+
+    private static final SimpleObjectProperty<TracksUpdatedEvent> TRACKS_UPDATED_EVENT_PROPERTY =
+            new SimpleObjectProperty<>();
 
     private static final ObservableMap<Long, PlaylistWithTrackIds> PLAYLIST_CACHE =
             FXCollections.observableMap(new HashMap<>());
+
     private static Map<Long, Track> TRACKS_CACHE;
 
-    public static ReadOnlyObjectProperty<TracksUpdateEvent> tracksUpdateEventProperty() {
-        return TRACKS_UPDATE_EVENT_PROPERTY;
-    }
-
-    public static void onPlaylistsModified(Consumer<List<PlaylistWithTrackIds>> callback) {
-        PLAYLIST_CACHE.addListener((MapChangeListener<? super Long, ? super PlaylistWithTrackIds>) _ ->
-                callback.accept(new ArrayList<>(PLAYLIST_CACHE.values())));
+    static {
+        MusicLibraryScanServiceManager.scanResultProperty().addListener((_, _, scanDataResult) -> {
+            scanDataResult.ifPresent(scanData -> {
+                if (scanData.added() + scanData.updated() + scanData.deleted() > 0) {
+                    refresh();
+                }
+            });
+        });
     }
 
     public static void refresh() {
@@ -51,8 +58,22 @@ public final class MusicLibrary {
         var itemsBefore = TRACKS_CACHE.size();
         TRACKS_CACHE.clear();
         getTracksFromCache();
+        LIBRARY_REFRESHED_EVENT_PROPERTY.set(new LibraryRefreshedEvent());
         LOG.info("Music library cache was refreshed. Items before: {}, items after: {}",
                 itemsBefore, TRACKS_CACHE.size());
+    }
+
+    public static ReadOnlyObjectProperty<LibraryRefreshedEvent> libraryRefreshedEventProperty() {
+        return LIBRARY_REFRESHED_EVENT_PROPERTY;
+    }
+
+    public static ReadOnlyObjectProperty<TracksUpdatedEvent> tracksUpdatedEventProperty() {
+        return TRACKS_UPDATED_EVENT_PROPERTY;
+    }
+
+    public static void onPlaylistsModified(Consumer<List<PlaylistWithTrackIds>> callback) {
+        PLAYLIST_CACHE.addListener((MapChangeListener<? super Long, ? super PlaylistWithTrackIds>) _ ->
+                callback.accept(new ArrayList<>(PLAYLIST_CACHE.values())));
     }
 
     public static List<Artist> getArtists() {
@@ -230,7 +251,7 @@ public final class MusicLibrary {
     }
 
     private static void updateTracksUpdateEventProperty(TrackUpdateType trackUpdateType, List<Track> tracks) {
-        TRACKS_UPDATE_EVENT_PROPERTY.set(new TracksUpdateEvent(trackUpdateType, tracks));
+        TRACKS_UPDATED_EVENT_PROPERTY.set(new TracksUpdatedEvent(trackUpdateType, tracks));
     }
 
     private static Map<Long, Track> getTracksFromCache() {

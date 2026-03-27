@@ -1,9 +1,12 @@
 package io.playqd;
 
+import io.playqd.client.PlayqdClientProvider;
 import io.playqd.config.AppConfig;
 import io.playqd.core.ApplicationExiter;
 import io.playqd.core.ApplicationStartUpListeners;
 import io.playqd.core.ApplicationUncaughtExceptionHandler;
+import io.playqd.dialog.settings.ConfigName;
+import io.playqd.dialog.settings.SettingsDialog;
 import io.playqd.fxml.FXMLLoaderUtils;
 import io.playqd.fxml.FXMLResource;
 import io.playqd.platform.PlatformApi;
@@ -36,6 +39,14 @@ public class Application extends javafx.application.Application {
 
     private void startInStage(Stage stage) throws Exception {
         Thread.setDefaultUncaughtExceptionHandler(new ApplicationUncaughtExceptionHandler());
+
+        try {
+            PlayqdClientProvider.get().health();
+        } catch (Exception e) {
+            new SettingsDialog(ConfigName.SERVER).afterShowAndWait(_ -> {
+
+            });
+        }
 
         var fxmlLoader = FXMLLoaderUtils.resourceLoader(FXMLResource.APPLICATION);
 

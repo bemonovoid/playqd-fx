@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import de.jensd.fx.glyphs.fontawesome.FontAwesomeIconView?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import org.controlsfx.control.ToggleSwitch?>
+<fx:root xmlns="http://javafx.com/javafx"
+         xmlns:fx="http://javafx.com/fxml"
+         type="javafx.scene.layout.VBox"
+         HBox.hgrow="ALWAYS"
+         VBox.vgrow="ALWAYS" spacing="10">
+
+    <padding>
+        <Insets topRightBottomLeft="10"/>
+    </padding>
+
+    <VBox>
+        <Label text="Caches" style="-fx-font-weight: BOLD"/>
+        <Separator/>
+    </VBox>
+
+    <GridPane hgap="5" vgap="5">
+        <columnConstraints>
+            <ColumnConstraints hgrow="NEVER"/>
+            <ColumnConstraints hgrow="ALWAYS"/>
+        </columnConstraints>
+        <Label text="Invalidate client caches:" GridPane.rowIndex="0" GridPane.columnIndex="0"/>
+        <ToggleSwitch fx:id="clientCachesToggle" selected="true" GridPane.rowIndex="0" GridPane.columnIndex="1" GridPane.halignment="RIGHT"/>
+        <Label text="Invalidate client and server caches:" GridPane.rowIndex="1" GridPane.columnIndex="0"/>
+        <ToggleSwitch fx:id="allCachesToggle" selected="false" GridPane.rowIndex="1" GridPane.columnIndex="1" GridPane.halignment="RIGHT"/>
+    </GridPane>
+
+    <Pane VBox.vgrow="ALWAYS"/>
+
+    <HBox alignment="CENTER_RIGHT">
+        <Button text="Invalidate caches" onAction="#invalidateCaches">
+            <graphic>
+                <FontAwesomeIconView glyphName="REFRESH"/>
+            </graphic>
+        </Button>
+    </HBox>
+
+</fx:root>

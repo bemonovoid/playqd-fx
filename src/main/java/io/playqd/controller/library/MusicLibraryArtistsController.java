@@ -67,6 +67,8 @@ public class MusicLibraryArtistsController extends MusicSplitPaneController {
 
         initArtistsInfoLabelListener();
 
+        MusicLibrary.libraryRefreshedEventProperty().addListener((_, _, _) -> showAllArtists());
+
         showAllArtists();
     }
 

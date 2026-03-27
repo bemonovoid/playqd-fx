@@ -6,9 +6,6 @@ import io.playqd.client.PlayqdClientProvider;
 import io.playqd.data.ItemType;
 import io.playqd.data.WatchFolderItem;
 import io.playqd.event.MouseEventHelper;
-import io.playqd.player.PlayerTrackListManager;
-import io.playqd.player.TrackListRequest;
-import io.playqd.service.MusicLibrary;
 import javafx.scene.control.*;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
@@ -38,8 +35,11 @@ class FolderTreeItemCellFactory implements Callback<TreeView<WatchFolderItem>, T
                     hBox.setSpacing(5);
 
                     var icon = getTreeItem().isExpanded() ? FontAwesomeIcon.FOLDER_OPEN_ALT : FontAwesomeIcon.FOLDER_ALT;
-                    var image = new FontAwesomeIconView(icon, "18px");
-                    image.setTextAlignment(TextAlignment.CENTER);
+                    var iconView = new FontAwesomeIconView(icon, "18px");
+                    iconView.setTextAlignment(TextAlignment.CENTER);
+                    if (item.childFoldersCount() == 0) {
+                        iconView.setStyle("-fx-fill: #ff6703;-fx-font-size: 18px");
+                    }
 
                     var countText = item.totalChildItemsCount() > 1 ? " items" : " item";
                     var countTextLabel = new Label(item.totalChildItemsCount() + countText);
@@ -52,7 +52,7 @@ class FolderTreeItemCellFactory implements Callback<TreeView<WatchFolderItem>, T
                     var vBox = new VBox();
                     vBox.getChildren().addAll(artistNameLabel, countTextLabel);
 
-                    hBox.getChildren().addAll(image, vBox);
+                    hBox.getChildren().addAll(iconView, vBox);
 
                     setGraphic(hBox);
 

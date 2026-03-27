@@ -60,11 +60,11 @@ public class MusicLibraryScanServiceManager {
                 var scanData = scanService.getValue();
                 if (scanData != null) {
                     LOG.info("Scan completed: {}", scanData);
-                    SCAN_RESULT_PROPERTY.set(Result.success(scanData));
                     NotificationService.showSuccess("Music library", buildScanDataMessage(scanData));
                 } else {
                     LOG.info("Scan completed but result was not available.");
                 }
+                SCAN_RESULT_PROPERTY.set(Result.success(scanData));
                 ACTIVE_SCANS.remove(watchFolder.uuid());
             });
 

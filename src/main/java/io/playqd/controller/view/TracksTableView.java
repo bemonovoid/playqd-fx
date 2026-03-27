@@ -7,7 +7,6 @@ import io.playqd.dialog.tracks.TracksTableViewColumnsDialog;
 import io.playqd.event.MouseEventHelper;
 import io.playqd.fxml.FXMLLoaderUtils;
 import io.playqd.fxml.FXMLResource;
-import io.playqd.player.Player;
 import io.playqd.player.PlayerTrackListManager;
 import io.playqd.player.TrackListRequest;
 import io.playqd.service.MusicLibrary;
@@ -123,7 +122,7 @@ public class TracksTableView extends TableView<TrackModel> {
         // This will only update currently displayed table items. If the items must be removed or added this is to be
         // done in the class that hold the context about an action, e.g: Unlike a track in favorites view will remove
         // an item from table view. This handler is only responsible to update observable properties.
-        MusicLibrary.tracksUpdateEventProperty().addListener((_, _, tracksUpdate) -> {
+        MusicLibrary.tracksUpdatedEventProperty().addListener((_, _, tracksUpdate) -> {
             var updatedTracks = tracksUpdate.tracks().stream()
                     .collect(Collectors.toMap(Track::id, Function.identity()));
             for (TrackModel m : getItems()) {

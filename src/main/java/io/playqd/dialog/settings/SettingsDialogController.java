@@ -1,5 +1,6 @@
 package io.playqd.dialog.settings;
 
+import io.playqd.config.AppConfig;
 import io.playqd.dialog.PlayqdAbstractDialogController;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
@@ -12,7 +13,7 @@ public class SettingsDialogController extends
     private TreeView<String> settingsTreeView;
 
     @FXML
-    private TreeItem<String> serverConfigItem, libraryConfigItem, generalConfigItem, dBusConfigItem;
+    private TreeItem<String> generalConfigItem, serverConfigItem, libraryConfigItem, dBusConfigItem, cachesConfigItem;
 
     @FXML
     private HBox configurationContainer;
@@ -31,6 +32,8 @@ public class SettingsDialogController extends
                 configurationContainer.getChildren().add(new LibraryConfigView());
             } else if (dBusConfigItem == selectedItem) {
                 configurationContainer.getChildren().add(new DBusConfigView());
+            } else if (cachesConfigItem == selectedItem) {
+                configurationContainer.getChildren().add(new CachesConfigView());
             }
         });
 
@@ -38,9 +41,17 @@ public class SettingsDialogController extends
         saveBtn.setOnAction(_ -> {
             if (!configurationContainer.getChildren().isEmpty()) {
                 var configView = (ConfigView) configurationContainer.getChildren().getFirst();
-                configView.commitOnSave();
+                configView.applyUpdates();
+                AppConfig.saveProperties();
             }
         });
+        var showingConfigViewName = dialogPane.autoSelectConfigViewName();
+        if (showingConfigViewName != null) {
+            settingsTreeView.getRoot().getChildren().stream()
+                    .filter(item -> showingConfigViewName.displayName().equals(item.getValue()))
+                    .findFirst()
+                    .ifPresent(treeItem -> settingsTreeView.getSelectionModel().select(treeItem));
+        }
     }
 
 }

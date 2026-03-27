@@ -48,9 +48,8 @@ public class ServerConfigView extends VBox implements ConfigView {
     }
 
     @Override
-    public void commitOnSave() {
+    public void applyUpdates() {
         AppConfig.getProperties().serverHost().set(serverHostTextFld.getText());
-        AppConfig.saveProperties();
     }
 
 }

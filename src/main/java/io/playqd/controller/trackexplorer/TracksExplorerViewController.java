@@ -28,11 +28,10 @@ public class TracksExplorerViewController {
     private void initialize() {
         tracksTableView = tracksView.tracksTableView();
         tracksTableView.setTrackContextMenuConfigurerFactory(() -> new TracksExplorerTrackContextMenuConfigurer(this));
-        setTracksVisibleColumns();
-        initTracksTableViewEventHandlers();
         listView.setCellFactory(new TracksExplorerListViewCellFactory());
+        setTracksVisibleColumns();
+        setEventHandlers();
         populateListView();
-        setOnTrackUpdated();
         listView.getSelectionModel().selectedItemProperty().addListener((_, _, selectedItem) -> {
             if (selectedItem == null) {
                 return;
@@ -50,28 +49,9 @@ public class TracksExplorerViewController {
         listView.getSelectionModel().select(0);
     }
 
-    private void setOnTrackUpdated() {
-        MusicLibrary.tracksUpdateEventProperty().addListener((_, _, tracksUpdateEvent) -> {
-            var counts = getCounts();
-            listView.getItems().forEach(li -> {
-                switch (li.id()) {
-                    case ALL -> li.countProperty().set(counts.allTracks());
-                    case CUE -> li.countProperty().set(counts.cues());
-                    case FAVORITES -> {
-                        li.countProperty().set(counts.favorites());
-                        if (li == getSelectedItem() && tracksUpdateEvent.type().isLikeOrUnlike()) {
-                            tracksTableView.showTracks(MusicLibrary::getFavoriteTracks);
-                        }
-                    }
-                    case PLAYED -> {
-                        li.countProperty().set(counts.played());
-                        if (li == getSelectedItem() && TrackUpdateType.PLAY_COUNT_INCR == tracksUpdateEvent.type()) {
-                            tracksTableView.showTracks(MusicLibrary::getPlayedTracks);
-                        }
-                    }
-                }
-            });
-        });
+    @FXML
+    private void refresh() {
+        MusicLibrary.refresh();
     }
 
     private void populateListView() {
@@ -99,11 +79,45 @@ public class TracksExplorerViewController {
         tracksTableView.sampleRateCol.setVisible(true);
     }
 
-    private void initTracksTableViewEventHandlers() {
+    private void setEventHandlers() {
         tracksTableView.rowDoubleClickedProperty().addListener((_, _, row) -> {
             if (row != null) {
                 PlayerTrackListManager.enqueue(new TrackListRequest(row.track()));
             }
+        });
+        setMusicLibraryEventListeners();
+    }
+
+    private void setMusicLibraryEventListeners() {
+        MusicLibrary.libraryRefreshedEventProperty().addListener((_, _, _) -> {
+            var selectedIdx = listView.getSelectionModel().getSelectedIndex();
+            if (selectedIdx < 0) {
+                selectedIdx = 0;
+            }
+            listView.getItems().clear();
+            listView.getItems().addAll(buildListItems());
+            listView.getSelectionModel().select(selectedIdx);
+        });
+        MusicLibrary.tracksUpdatedEventProperty().addListener((_, _, tracksUpdatedEvent) -> {
+            var counts = getCounts();
+            listView.getItems().forEach(li -> {
+                switch (li.id()) {
+                    case ALL -> li.countProperty().set(counts.allTracks());
+                    case CUE -> li.countProperty().set(counts.cues());
+                    case FAVORITES -> {
+                        li.countProperty().set(counts.favorites());
+                        if (li == getSelectedItem() && tracksUpdatedEvent.type().isLikeOrUnlike()) {
+                            tracksTableView.showTracks(MusicLibrary::getFavoriteTracks);
+                        }
+                    }
+                    case PLAYED -> {
+                        li.countProperty().set(counts.played());
+                        if (li == getSelectedItem() && TrackUpdateType.PLAY_COUNT_INCR == tracksUpdatedEvent.type()) {
+                            tracksTableView.showTracks(MusicLibrary::getPlayedTracks);
+                        }
+                    }
+                }
+            });
         });
     }
 

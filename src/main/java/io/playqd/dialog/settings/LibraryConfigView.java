@@ -1,6 +1,5 @@
 package io.playqd.dialog.settings;
 
-import io.playqd.client.ClientException;
 import io.playqd.client.PlayqdClientProvider;
 import io.playqd.config.AppConfig;
 import io.playqd.data.WatchFolder;
@@ -11,7 +10,6 @@ import javafx.geometry.Pos;
 import javafx.scene.control.Label;
 import javafx.scene.control.ListCell;
 import javafx.scene.control.ListView;
-import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.util.Callback;
 import org.controlsfx.control.ToggleSwitch;
@@ -50,7 +48,7 @@ public class LibraryConfigView extends VBox implements ConfigView {
     }
 
     @Override
-    public void commitOnSave() {
+    public void applyUpdates() {
         AppConfig.saveProperties();
     }
 

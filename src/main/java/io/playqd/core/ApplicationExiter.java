@@ -1,6 +1,5 @@
 package io.playqd.core;
 
-import io.playqd.player.Player;
 import javafx.application.Platform;
 import javafx.stage.Stage;
 

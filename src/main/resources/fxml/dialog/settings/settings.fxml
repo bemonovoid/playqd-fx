@@ -26,6 +26,7 @@
                                 <TreeItem fx:id="generalConfigItem" value="General"/>
                                 <TreeItem fx:id="libraryConfigItem" value="Library"/>
                                 <TreeItem fx:id="serverConfigItem" value="Server"/>
+                                <TreeItem fx:id="cachesConfigItem" value="Caches"/>
                                 <TreeItem fx:id="dBusConfigItem" value="DBus"/>
                             </children>
                         </TreeItem>

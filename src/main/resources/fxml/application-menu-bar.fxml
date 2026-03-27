@@ -11,11 +11,7 @@
          fx:controller="io.playqd.controller.ApplicationMenuBarController">
 
     <Menu text="_File">
-        <MenuItem text="Invalidate Caches..." onAction="#showInvalidateCachesDialog">
-            <graphic>
-                <FontAwesomeIconView glyphName="REFRESH"/>
-            </graphic>
-        </MenuItem>
+
     </Menu>
 
     <Menu text="_Edit">

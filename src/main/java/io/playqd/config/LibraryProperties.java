@@ -7,14 +7,16 @@ import io.playqd.config.serializer.BooleanPropertySerializer;
 import javafx.beans.property.SimpleBooleanProperty;
 
 public record LibraryProperties(@JsonSerialize(using = BooleanPropertySerializer.class)
-                                SimpleBooleanProperty rescanOnStartUp) {
+                                SimpleBooleanProperty rescanOnStartUp,
+                                CachesProperties caches) {
 
     public LibraryProperties() {
-        this(false);
+        this(false, new CachesProperties());
     }
 
     @JsonCreator
-    public LibraryProperties(@JsonProperty("rescanOnStartUp") boolean rescanOnStartUp) {
-        this(new SimpleBooleanProperty(rescanOnStartUp));
+    public LibraryProperties(@JsonProperty("rescanOnStartUp") boolean rescanOnStartUp,
+                             @JsonProperty("caches") CachesProperties caches) {
+        this(new SimpleBooleanProperty(rescanOnStartUp), caches);
     }
 }

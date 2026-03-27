@@ -50,8 +50,14 @@ public class PlaylistsViewController {
             updateTrackViewHeader(selectedPlaylist);
         });
 
-        listView.getSelectionModel().select(0);
         tracksTableView.setTrackContextMenuConfigurerFactory(() -> new PlaylistTrackContextMenuConfigurer(this));
+
+        MusicLibrary.libraryRefreshedEventProperty().addListener((_, _, _) -> {
+            listView.getSelectionModel().clearSelection();
+            listView.getSelectionModel().select(0);
+        });
+
+        listView.getSelectionModel().select(0);
     }
 
     private void initPlaylists() {
