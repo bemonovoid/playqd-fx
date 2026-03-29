@@ -2,7 +2,7 @@ package io.playqd.player;
 
 import io.playqd.data.Track;
 import io.playqd.event.MouseEventHelper;
-import io.playqd.utils.ArtworkImages;
+import io.playqd.client.ArtworkImages;
 import javafx.geometry.Pos;
 import javafx.scene.control.Label;
 import javafx.scene.control.ListCell;

@@ -1,7 +1,7 @@
 package io.playqd.dbus;
 
 import io.playqd.player.TrackRef;
-import io.playqd.utils.PlayqdApis;
+import io.playqd.client.PlayqdApis;
 import org.freedesktop.dbus.Marshalling;
 import org.freedesktop.dbus.connections.impl.DBusConnection;
 import org.freedesktop.dbus.exceptions.DBusException;

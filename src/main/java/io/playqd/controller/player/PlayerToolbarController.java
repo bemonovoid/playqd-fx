@@ -1,7 +1,9 @@
-package io.playqd.controller;
+package io.playqd.controller.player;
 
 import de.jensd.fx.glyphs.fontawesome.FontAwesomeIcon;
 import de.jensd.fx.glyphs.fontawesome.FontAwesomeIconView;
+import io.playqd.client.ArtworkImages;
+import io.playqd.client.MediaCollectionUtils;
 import io.playqd.controller.view.menuitem.CollectionsMenuItems;
 import io.playqd.data.Track;
 import io.playqd.event.MouseEventHelper;

@@ -1,4 +1,4 @@
-package io.playqd.controller.view;
+package io.playqd.controller.tracks;
 
 import javafx.beans.property.IntegerProperty;
 import javafx.beans.property.StringProperty;

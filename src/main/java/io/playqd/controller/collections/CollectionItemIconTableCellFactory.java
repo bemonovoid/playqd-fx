@@ -7,7 +7,7 @@ import io.playqd.data.MediaCollectionItem;
 import io.playqd.data.MediaItemType;
 import io.playqd.data.WatchFolderItem;
 import io.playqd.platform.PlatformApi;
-import io.playqd.utils.ArtworkImages;
+import io.playqd.client.ArtworkImages;
 import javafx.scene.control.TableCell;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.cell.TextFieldTableCell;

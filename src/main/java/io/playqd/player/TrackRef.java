@@ -1,7 +1,7 @@
 package io.playqd.player;
 
 import io.playqd.data.Track;
-import io.playqd.utils.PlayqdApis;
+import io.playqd.client.PlayqdApis;
 
 public record TrackRef(String mrl, String[] options, Track track) {
 

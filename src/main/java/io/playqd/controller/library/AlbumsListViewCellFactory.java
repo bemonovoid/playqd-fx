@@ -2,7 +2,7 @@ package io.playqd.controller.library;
 
 import io.playqd.data.Album;
 import io.playqd.event.MouseEventHelper;
-import io.playqd.utils.ArtworkImages;
+import io.playqd.client.ArtworkImages;
 import io.playqd.utils.FakeIds;
 import io.playqd.utils.TimeUtils;
 import javafx.geometry.Insets;

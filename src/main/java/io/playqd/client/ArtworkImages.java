@@ -1,4 +1,4 @@
-package io.playqd.utils;
+package io.playqd.client;
 
 import javafx.scene.image.Image;
 

@@ -1,4 +1,4 @@
-package io.playqd.controller.view;
+package io.playqd.controller.tracks;
 
 import io.playqd.data.Track;
 

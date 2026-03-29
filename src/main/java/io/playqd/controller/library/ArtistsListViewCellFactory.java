@@ -1,7 +1,7 @@
 package io.playqd.controller.library;
 
 import io.playqd.data.Artist;
-import io.playqd.utils.ArtworkImages;
+import io.playqd.client.ArtworkImages;
 import javafx.geometry.Pos;
 import javafx.scene.control.Label;
 import javafx.scene.control.ListCell;

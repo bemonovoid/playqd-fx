@@ -4,7 +4,7 @@ import de.jensd.fx.glyphs.fontawesome.FontAwesomeIcon;
 import de.jensd.fx.glyphs.fontawesome.FontAwesomeIconView;
 import io.playqd.data.Track;
 import io.playqd.platform.PlatformApi;
-import io.playqd.utils.PlayqdApis;
+import io.playqd.client.PlayqdApis;
 import javafx.scene.control.MenuItem;
 
 import java.util.Collections;

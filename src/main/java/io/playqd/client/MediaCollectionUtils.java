@@ -1,4 +1,4 @@
-package io.playqd.utils;
+package io.playqd.client;
 
 import io.playqd.data.MediaCollectionItem;
 import io.playqd.data.MediaItemType;

@@ -1,6 +1,6 @@
-package io.playqd.controller.view;
+package io.playqd.controller.tracks;
 
-import io.playqd.utils.ArtworkImages;
+import io.playqd.client.ArtworkImages;
 import javafx.scene.control.TableCell;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.cell.TextFieldTableCell;

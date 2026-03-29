@@ -1,6 +1,5 @@
-package io.playqd.controller.view;
+package io.playqd.controller.tracks;
 
-import io.playqd.data.Track;
 import io.playqd.utils.TimeUtils;
 import javafx.scene.control.TableCell;
 import javafx.scene.control.TableColumn;

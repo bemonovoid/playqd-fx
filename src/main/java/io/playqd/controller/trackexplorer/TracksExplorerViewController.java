@@ -1,7 +1,7 @@
 package io.playqd.controller.trackexplorer;
 
-import io.playqd.controller.view.TracksTableView;
-import io.playqd.controller.view.TracksView;
+import io.playqd.controller.tracks.TracksTableView;
+import io.playqd.controller.tracks.TracksView;
 import io.playqd.data.Track;
 import io.playqd.event.TrackUpdateType;
 import io.playqd.player.PlayerTrackListManager;

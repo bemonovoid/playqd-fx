@@ -8,7 +8,7 @@
 <?import javafx.scene.text.Font?>
 <ToolBar xmlns="http://javafx.com/javafx"
          xmlns:fx="http://javafx.com/fxml"
-         fx:controller="io.playqd.controller.PlayerToolbarController">
+         fx:controller="io.playqd.controller.player.PlayerToolbarController">
 
     <padding>
         <Insets topRightBottomLeft="10"/>
