@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import de.jensd.fx.glyphs.fontawesome.FontAwesomeIconView?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<SplitPane xmlns="http://javafx.com/javafx"
+           xmlns:fx="http://javafx.com/fxml"
+           fx:id="collectionsSplitPane"
+           fx:controller="io.playqd.controller.collections.CollectionsViewController"
+           dividerPositions="0.15">
+
+
+    <VBox VBox.vgrow="ALWAYS">
+
+        <ToolBar>
+            <MenuButton text="Collections" style="-fx-background-color: transparent;">
+                <items>
+                    <MenuItem text="New collection.." onAction="#showCreateCollectionDialog">
+                        <graphic>
+                            <FontAwesomeIconView glyphName="PLUS" glyphSize="10"/>
+                        </graphic>
+                    </MenuItem>
+                    <SeparatorMenuItem/>
+                    <MenuItem text="Delete empty collections" onAction="#showDeleteEmptyCollections">
+                        <graphic>
+                            <FontAwesomeIconView glyphName="TRASH" glyphSize="10"/>
+                        </graphic>
+                    </MenuItem>
+                </items>
+            </MenuButton>
+            <Pane HBox.hgrow="ALWAYS"/>
+        </ToolBar>
+
+        <fx:include source="collections-list-view.fxml" fx:id="listView"/>
+
+        <HBox>
+            <padding>
+                <Insets top="2" bottom="2" left="5" right="20"/>
+            </padding>
+            <Pane HBox.hgrow="ALWAYS"/>
+            <Label fx:id="collectionsInfoLabel" opacity="0.6" style="-fx-font-size: 11px;"/>
+        </HBox>
+
+    </VBox>
+
+    <fx:include source="collection-items-view.fxml" fx:id="collectionItemsView"/>
+
+</SplitPane>

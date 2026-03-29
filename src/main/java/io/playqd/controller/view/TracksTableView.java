@@ -1,6 +1,6 @@
 package io.playqd.controller.view;
 
-import io.playqd.controller.view.menuitem.TrackContextMenuConfigurer;
+import io.playqd.controller.view.menuitem.TrackRowContextMenuItemsFactory;
 import io.playqd.data.PlaylistWithTrackIds;
 import io.playqd.data.Track;
 import io.playqd.dialog.tracks.TracksTableViewColumnsDialog;
@@ -38,13 +38,17 @@ public class TracksTableView extends TableView<TrackModel> {
     private final StringProperty selectedTracksInfoProperty = new SimpleStringProperty("");
     private final StringProperty tracksInfoProperty = new SimpleStringProperty("");
     private final ObjectProperty<TrackSelectedRow> rowDoubleClickedProperty = new SimpleObjectProperty<>();
-    private Supplier<TrackContextMenuConfigurer> trackContextMenuConfigurerFactory;
+
+    private Supplier<TrackRowContextMenuItemsFactory> trackContextMenuItemsFactory;
 
     @FXML
     public TableColumn<TrackModel, String> trackNumberCol, titleCol, artistCol, albumCol, filenameCol, sizeCol,
             genreCol, extensionCol, mimeTypeCol, addedDateCol, lastPlayedDateCol, ratedDateCol;
     @FXML
     public TableColumn<TrackModel, Integer> timeCol, ratingCol, playCountCol, sampleRateCol, bitRateCol, bitsPerSampleCol;
+
+    @FXML
+    private TableColumn<TrackModel, Long> artworkCol;
 
     @FXML
     public Menu addToPlaylistMenu;
@@ -80,6 +84,7 @@ public class TracksTableView extends TableView<TrackModel> {
     }
 
     private void intiColumnCellFactories() {
+        artworkCol.setCellFactory(new TrackArtworkTableCellFactory());
         bitRateCol.setCellFactory(new NumberFormatTableCellFactory(m -> m.track().audioFormat().bitRate()));
         sampleRateCol.setCellFactory(new NumberFormatTableCellFactory(m -> m.track().audioFormat().sampleRate()));
         timeCol.setCellFactory(new TrackTimeTableCellFactory());
@@ -87,6 +92,7 @@ public class TracksTableView extends TableView<TrackModel> {
 
     private void initColumnCellValueFactories() {
         // Object properties
+        artworkCol.setCellValueFactory(c -> new SimpleObjectProperty<>(c.getValue().track().id()));
         timeCol.setCellValueFactory(c -> new SimpleObjectProperty<>(c.getValue().track().length().seconds()));
         bitRateCol.setCellValueFactory(c -> new SimpleObjectProperty<>(c.getValue().track().audioFormat().bitRate()));
         sampleRateCol.setCellValueFactory(c -> new SimpleObjectProperty<>(c.getValue().track().audioFormat().sampleRate()));
@@ -200,7 +206,7 @@ public class TracksTableView extends TableView<TrackModel> {
                         rowDoubleClickedProperty.set(new TrackSelectedRow(row.getIndex(), row.getItem().track()));
                     } else if (MouseEventHelper.secondaryButtonSingleClicked(e)) {
                         if (row.getContextMenu() == null) {
-                            var contextMenu = new TrackRowContextMenu(getTrackContextMenuConfigurer());
+                            var contextMenu = new TrackRowContextMenu(getTrackContextMenuItemsFactory());
                             contextMenu.setOnHidden(_ -> row.setContextMenu(null)); // to reset a state
                             row.setContextMenu(contextMenu);
                             contextMenu.show(row, e.getScreenX(), e.getScreenY());
@@ -212,12 +218,12 @@ public class TracksTableView extends TableView<TrackModel> {
         });
     }
 
-    public void setTrackContextMenuConfigurerFactory(Supplier<TrackContextMenuConfigurer> factory) {
-        if (this.trackContextMenuConfigurerFactory != null) {
-            LOG.warn("'trackContextMenuConfigurerFactory' was already set.");
+    public void setTrackContextMenuItemsFactory(Supplier<TrackRowContextMenuItemsFactory> factory) {
+        if (this.trackContextMenuItemsFactory != null) {
+            LOG.warn("'trackContextMenuItemsFactory' was already set.");
         } else {
-            this.trackContextMenuConfigurerFactory = factory;
-            LOG.info("'trackContextMenuConfigurerFactory' was set.");
+            this.trackContextMenuItemsFactory = factory;
+            LOG.info("'trackContextMenuItemsFactory' was set.");
         }
     }
 
@@ -300,14 +306,14 @@ public class TracksTableView extends TableView<TrackModel> {
         MusicLibrary.addTracksToPlaylist(playlistId, trackIds);
     }
 
-    private TrackContextMenuConfigurer getTrackContextMenuConfigurer() {
-        var configurer = (TrackContextMenuConfigurer) null;
-        if (trackContextMenuConfigurerFactory != null) {
-            configurer = trackContextMenuConfigurerFactory.get();
+    private TrackRowContextMenuItemsFactory getTrackContextMenuItemsFactory() {
+        var factory = (TrackRowContextMenuItemsFactory) null;
+        if (trackContextMenuItemsFactory != null) {
+            factory = trackContextMenuItemsFactory.get();
         }
-        if (configurer == null) {
-            configurer = new TrackContextMenuConfigurer();
+        if (factory == null) {
+            factory = new TrackRowContextMenuItemsFactory();
         }
-        return configurer;
+        return factory;
     }
 }

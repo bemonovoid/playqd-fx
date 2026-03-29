@@ -9,7 +9,6 @@
            fx:controller="io.playqd.controller.folders.FoldersViewController"
            dividerPositions="0.2">
 
-
     <VBox VBox.vgrow="ALWAYS">
 
         <ToolBar>

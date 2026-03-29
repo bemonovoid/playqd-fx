@@ -2,10 +2,9 @@ package io.playqd.controller.library;
 
 import io.playqd.data.Album;
 import io.playqd.event.MouseEventHelper;
-import io.playqd.utils.ArtworkImageSetter;
+import io.playqd.utils.ArtworkImages;
 import io.playqd.utils.FakeIds;
 import io.playqd.utils.TimeUtils;
-import javafx.application.Platform;
 import javafx.geometry.Insets;
 import javafx.geometry.Orientation;
 import javafx.geometry.Pos;
@@ -37,6 +36,48 @@ public class AlbumsListViewCellFactory implements Callback<ListView<Album>, List
 
         return new ListCell<>() {
 
+            private static final int IMAGE_SIZE = 80;
+
+            private final HBox container = new HBox();
+            private final VBox albumInfoContainer = new VBox();
+            private final ImageView imageView = new ImageView();
+            private final Label nameLabel = new Label();
+            private final Label countLabel = new Label();
+            private final Label lengthLabel = new Label();
+            private final Label dateLabel = new Label();
+            private final Label genreLabel = new Label();
+
+            private final VBox allAlbumsContainer = new VBox();
+            private final HyperlinkLabel allAlbumsLabel = new HyperlinkLabel();
+
+            {
+                container.setSpacing(10);
+                container.setAlignment(Pos.CENTER_LEFT);
+                container.setPadding(new Insets(10, 0, 10, 0)); // creates spacing between ListView rows
+                albumInfoContainer.setAlignment(Pos.TOP_LEFT);
+                albumInfoContainer.getChildren().addAll(nameLabel, countLabel, lengthLabel, dateLabel, genreLabel);
+
+                nameLabel.setStyle("-fx-font-size: 15px;-fx-font-weight: 500"); // FontWeight.MEDIUM
+                countLabel.setDisable(true);
+                countLabel.setStyle("-fx-font-size: 10px;");
+                countLabel.setOpacity(0.6);
+                lengthLabel.setDisable(true);
+                lengthLabel.setStyle("-fx-font-size: 10px;");
+                lengthLabel.setOpacity(0.6);
+                dateLabel.setDisable(true);
+                dateLabel.setStyle("-fx-font-size: 10px;");
+                dateLabel.setOpacity(0.6);
+                genreLabel.setDisable(true);
+                genreLabel.setStyle("-fx-font-size: 10px;");
+                genreLabel.setOpacity(0.6);
+
+                container.getChildren().addAll(imageView, albumInfoContainer);
+
+                allAlbumsLabel.setStyle("-fx-font-size: 13px;-fx-font-weight: bold");
+                allAlbumsContainer.setSpacing(3);
+                allAlbumsContainer.getChildren().addAll(allAlbumsLabel, new Separator(Orientation.HORIZONTAL));
+            }
+
             @Override
             protected void updateItem(Album album, boolean empty) {
                 super.updateItem(album, empty);
@@ -60,60 +101,34 @@ public class AlbumsListViewCellFactory implements Callback<ListView<Album>, List
                     });
 
                     if (FakeIds.ALL_ARTIST_ALBUMS_NAME.equals(album.name())) {
-
-                        var artistNameLabel = new HyperlinkLabel("[" + album.artistName() + "]");
-                        artistNameLabel.setStyle("-fx-font-size: 13px;-fx-font-weight: bold");
-                        artistNameLabel.setOnAction(_ -> cellFactoryListener.onAllArtistAlbumsClicked(album.id()));
-                        var vBoxContainer = new VBox();
-
-                        vBoxContainer.setSpacing(3);
-                        vBoxContainer.getChildren().addAll(artistNameLabel, new Separator(Orientation.HORIZONTAL));
-                        setGraphic(vBoxContainer);
+                        allAlbumsLabel.setText("[" + album.artistName() + "]");
+                        allAlbumsLabel.setOnAction(_ -> cellFactoryListener.onAllArtistAlbumsClicked(album.id()));
+                        setGraphic(allAlbumsContainer);
                         return;
                     }
 
-                    var imageView = new ImageView();
-                    ArtworkImageSetter.set(album.id(), imageView, 80);
+                    var image = ArtworkImages.album(album.id(), IMAGE_SIZE);
+                    if (image == null) {
+                        imageView.setImage(ArtworkImages.defaultAlbum(IMAGE_SIZE));
+                    } else {
+                        imageView.setImage(image);
+                        image.errorProperty().addListener((_, _, hasError) -> {
+                            if (hasError) {
+                                var defaultImage = ArtworkImages.defaultAlbum(IMAGE_SIZE);
+                                ArtworkImages.setAlbum(album.id(), defaultImage, IMAGE_SIZE);
+                                imageView.setImage(defaultImage);
+                            }
+                        });
+                    }
 
-                    var vBox = new VBox();
-                    vBox.setAlignment(Pos.TOP_LEFT);
+                    nameLabel.setText(album.name());
+                    nameLabel.setTooltip(new Tooltip(album.name()));
+                    countLabel.setText(album.tracksCount() + (album.tracksCount() > 1 ? " tracks" : " track"));
+                    lengthLabel.setText(TimeUtils.durationToTimeFormat(Duration.ofSeconds(album.lengthInSeconds())));
+                    dateLabel.setText(album.releaseDate());
+                    genreLabel.setText(album.genre());
 
-                    var albNameLabel = new Label(album.name());
-                    albNameLabel.setTooltip(new Tooltip(album.name()));
-                    albNameLabel.setStyle("-fx-font-size: 15px;-fx-font-weight: 500"); // FontWeight.MEDIUM
-
-                    var albTracksCountLabel = new Label(
-                            album.tracksCount() + (album.tracksCount() > 1 ? " tracks" : " track"));
-                    albTracksCountLabel.setDisable(true);
-                    albTracksCountLabel.setStyle("-fx-font-size: 10px;");
-                    albTracksCountLabel.setOpacity(0.6);
-
-                    var albLengthLabel = new Label(
-                            TimeUtils.durationToTimeFormat(Duration.ofSeconds(album.lengthInSeconds())));
-                    albLengthLabel.setDisable(true);
-                    albLengthLabel.setStyle("-fx-font-size: 10px;");
-                    albLengthLabel.setOpacity(0.6);
-
-                    var albDate = new Label(album.releaseDate());
-                    albDate.setDisable(true);
-                    albDate.setStyle("-fx-font-size: 10px;");
-                    albDate.setOpacity(0.6);
-
-                    var albGenre = new Label(album.genre());
-                    albGenre.setDisable(true);
-                    albGenre.setStyle("-fx-font-size: 10px;");
-                    albGenre.setOpacity(0.6);
-
-                    vBox.getChildren().addAll(albNameLabel, albTracksCountLabel, albLengthLabel, albDate, albGenre);
-
-                    var hBox = new HBox();
-                    hBox.setSpacing(10);
-                    hBox.setAlignment(Pos.CENTER_LEFT);
-                    hBox.setPadding(new Insets(10, 0, 10, 0)); // creates spacing between ListView rows
-
-                    hBox.getChildren().addAll(imageView, vBox);
-
-                    setGraphic(hBox);
+                    setGraphic(container);
 
                     // Removes horizontal scroll.
                     // The horizontal scrollbar appears because the cells are wider than the list.

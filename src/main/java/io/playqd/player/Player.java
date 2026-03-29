@@ -59,11 +59,31 @@ public class Player {
     }
 
     static void enqueueAndPlay(TrackListRequest trackListRequest) {
-        var index = trackListRequest.startTrackIdx();
+        var playTrackRef = enqueueNewList(trackListRequest);
+        play(trackListRequest.firstTrackPosition(), playTrackRef);
+    }
+
+    static void enqueue(TrackListRequest trackListRequest) {
+        var trackRefs = trackRefs(trackListRequest.tracks());
+        if (MEDIA_LIST_PLAYER.list().media() == null) {
+            enqueueNewList(trackListRequest);
+        } else {
+            var userDataRefs = getPlayerListTrackRefs();
+            userDataRefs.addAll(trackListRequest.firstTrackPosition(), trackRefs); // Update current list snapshot
+            for (int i = 0; i < trackRefs.size(); i++) { // update player list itself
+                var trackRef = trackRefs.get(i);
+                var insertAt = trackListRequest.firstTrackPosition() + i;
+                MEDIA_LIST_PLAYER.list().media().insert(insertAt, trackRef.mrl(), trackRef.options());
+            }
+        }
+    }
+
+    private static TrackRef enqueueNewList(TrackListRequest trackListRequest) {
+        var index = trackListRequest.firstTrackPosition();
 
         var trackRefs = trackRefs(trackListRequest.tracks());
 
-        MEDIA_LIST_PLAYER.userData(trackRefs);
+        MEDIA_LIST_PLAYER.userData(new ArrayList<>(trackRefs));
 
         var playTrackRef = trackRefs.get(index);
 
@@ -71,7 +91,30 @@ public class Player {
                 trackRefs.size(), index, playTrackRef.track().artistName(), playTrackRef.track().title());
 
         setNewMediaList(trackRefs);
-        play(index, playTrackRef);
+
+        return playTrackRef;
+    }
+
+    static void remove(List<Integer> indices) {
+        if (MEDIA_LIST_PLAYER.list().media() == null) {
+            return;
+        }
+        if (indices == null || indices.isEmpty()) {
+            return;
+        }
+        var userDataTrackRefs = getPlayerListTrackRefs();
+        indices.forEach(idx -> {
+            userDataTrackRefs.remove(idx.intValue());
+            MEDIA_LIST_PLAYER.list().media().remove(idx);
+        });
+    }
+
+    static void clearMediaList() {
+        if (MEDIA_LIST_PLAYER.list().media() == null) {
+            return;
+        }
+        getPlayerListTrackRefs().clear();
+        MEDIA_LIST_PLAYER.list().media().clear();
     }
 
     public static void play(Track track) {
@@ -210,9 +253,13 @@ public class Player {
         });
     }
 
+    /**
+     *
+     * @return mutable list
+     */
     @SuppressWarnings("unchecked")
     static List<TrackRef> getPlayerListTrackRefs() {
-        return new ArrayList<>((List<TrackRef>) MEDIA_LIST_PLAYER.userData());
+        return (List<TrackRef>) MEDIA_LIST_PLAYER.userData();
     }
 
     private static void setNewMediaList(List<TrackRef> trackRefs) {

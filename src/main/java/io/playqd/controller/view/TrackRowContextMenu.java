@@ -1,6 +1,6 @@
 package io.playqd.controller.view;
 
-import io.playqd.controller.view.menuitem.TrackContextMenuConfigurer;
+import io.playqd.controller.view.menuitem.TrackRowContextMenuItemsFactory;
 import javafx.scene.control.ContextMenu;
 import javafx.scene.control.TableRow;
 import org.slf4j.Logger;
@@ -10,15 +10,15 @@ public class TrackRowContextMenu extends ContextMenu {
 
     private static final Logger LOG = LoggerFactory.getLogger(TrackRowContextMenu.class);
 
-    private final TrackContextMenuConfigurer trackContextMenuConfigurer;
+    private final TrackRowContextMenuItemsFactory menuItemsFactory;
 
-    public TrackRowContextMenu(TrackContextMenuConfigurer trackContextMenuConfigurer) {
-        this.trackContextMenuConfigurer = trackContextMenuConfigurer;
-        LOG.info("Initialized with {}", trackContextMenuConfigurer.getClass().getSimpleName());
+    public TrackRowContextMenu(TrackRowContextMenuItemsFactory menuItemsFactory) {
+        this.menuItemsFactory = menuItemsFactory;
+        LOG.info("Initialized with {}", menuItemsFactory.getClass().getSimpleName());
     }
 
     public void show(TableRow<TrackModel> row, double anchorX, double anchorY) {
-        if (this.trackContextMenuConfigurer == null) {
+        if (this.menuItemsFactory == null) {
             LOG.warn("'trackContextMenuConfigurer' is null. Context menu will not be shown.");
             return;
         }
@@ -27,10 +27,10 @@ public class TrackRowContextMenu extends ContextMenu {
             return;
         }
         var tracks = ((TracksTableView) row.getTableView()).getSelectedTracks();
-        var menuItems = trackContextMenuConfigurer.configure(tracks);
+        var menuItems = menuItemsFactory.get(tracks);
         getItems().addAll(menuItems);
         LOG.info("Showing {} menu items configured with {}",
-                menuItems.size(), this.trackContextMenuConfigurer.getClass().getSimpleName());
+                menuItems.size(), this.menuItemsFactory.getClass().getSimpleName());
         show(row.getScene().getWindow(), anchorX, anchorY);
     }
 

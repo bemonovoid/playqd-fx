@@ -83,7 +83,7 @@ public class MprisNotifier {
         var properties = new HashMap<String, Variant<?>>();
         properties.put("mpris:trackid", new Variant<>(MprisApplication.OBJECT_PATH + "/Track/" + trackRef.track().id()));
         properties.put("mpris:length", new Variant<>(trackRef.track().length().seconds() * 1000L * 1000L));
-        properties.put("mpris:artUrl", new Variant<>(PlayqdApis.albumArtwork(trackRef.track().id())));
+        properties.put("mpris:artUrl", new Variant<>(PlayqdApis.trackArtwork(trackRef.track().id())));
         properties.put("xesam:title", new Variant<>(trackRef.track().title()));
         properties.put("xesam:artist", new Variant<>(trackRef.track().artistName()));
         return properties;

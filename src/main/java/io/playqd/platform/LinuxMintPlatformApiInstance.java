@@ -15,6 +15,7 @@ final class LinuxMintPlatformApiInstance extends LinuxPlatformApiInstance {
     private static final Logger LOG = LoggerFactory.getLogger(LinuxMintPlatformApiInstance.class);
 
     private final Path LINUX_MINT_X_ICONS_DIR = Paths.get("/usr/share/icons/Mint-X");
+    private static final String DEFAULT_SIZE = "24";
 //    private static final Path LINUX_MINT_L_ICONS_DIR = Paths.get("/usr/share/icons/Mint-L");
 //    private static final Path LINUX_MINT_L_YELLOW_ICONS_DIR = Paths.get("/usr/share/icons/Mint-L-Yellow");
 
@@ -41,7 +42,7 @@ final class LinuxMintPlatformApiInstance extends LinuxPlatformApiInstance {
     }
 
     private static Image getImageFromMimeTypeFile(Path dir, String filename) {
-        var path = dir.resolve("mimetypes", "16", filename + ".png");
+        var path = dir.resolve("mimetypes", DEFAULT_SIZE, filename + ".png");
         if (Files.exists(path)) {
             return new Image(path.toUri().toString(), true);
         }
@@ -53,7 +54,7 @@ final class LinuxMintPlatformApiInstance extends LinuxPlatformApiInstance {
         if (filename.startsWith("application-")) {
             if (filename.charAt("application-".length()) != 'x') {
                 resolvedFilename = "application-x-" + filename.substring("application-".length());
-                if (!Files.exists(dir.resolve("mimetypes", "16", resolvedFilename + ".png"))) {
+                if (!Files.exists(dir.resolve("mimetypes", DEFAULT_SIZE, resolvedFilename + ".png"))) {
                     resolvedFilename = "";
                 }
             }
@@ -71,7 +72,7 @@ final class LinuxMintPlatformApiInstance extends LinuxPlatformApiInstance {
                 resolvedFilename = "unknown";
             }
         }
-        var path = dir.resolve("mimetypes", "16", resolvedFilename + ".png");
+        var path = dir.resolve("mimetypes", DEFAULT_SIZE, resolvedFilename + ".png");
         return new Image(path.toUri().toString());
     }
 }

@@ -8,11 +8,13 @@ import io.playqd.data.WatchFolderItem;
 import io.playqd.event.MouseEventHelper;
 import javafx.scene.control.*;
 import javafx.scene.layout.HBox;
+import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.TextAlignment;
 import javafx.util.Callback;
 
 import java.util.Comparator;
+import java.util.function.Supplier;
 
 class FolderTreeItemCellFactory implements Callback<TreeView<WatchFolderItem>, TreeCell<WatchFolderItem>> {
 
@@ -20,6 +22,20 @@ class FolderTreeItemCellFactory implements Callback<TreeView<WatchFolderItem>, T
     public TreeCell<WatchFolderItem> call(TreeView<WatchFolderItem> foldersTreeView) {
 
         return new TreeCell<>() {
+
+            private final HBox container = new HBox();
+            private final Label nameLabel = new Label();
+            private final Label itemCountsLabel = new Label();
+
+            {
+                container.setSpacing(5);
+                nameLabel.setStyle("-fx-font-size: 14px;");
+                itemCountsLabel.setDisable(true);
+                itemCountsLabel.setStyle("-fx-font-size: 10px;");
+                var vBox = new VBox();
+                vBox.getChildren().addAll(nameLabel, itemCountsLabel);
+                container.getChildren().addAll(new Pane(), vBox);
+            }
 
             @Override
             protected void updateItem(WatchFolderItem item, boolean empty) {
@@ -29,10 +45,8 @@ class FolderTreeItemCellFactory implements Callback<TreeView<WatchFolderItem>, T
                     setGraphic(null);
                 } else {
                     if (!FolderConstants.ROOT_ITEM_ID.equals(item.id())) {
-//                        setContextMenu(buildCellContextMenu(item), () -> getTreeView().getSelectionModel().getSelectedItem().getValue());
+//                        setContextMenu(buildCellContextMenu(() -> getTreeView().getSelectionModel().getSelectedItem().getValue()));
                     }
-                    var hBox = new HBox();
-                    hBox.setSpacing(5);
 
                     var icon = getTreeItem().isExpanded() ? FontAwesomeIcon.FOLDER_OPEN_ALT : FontAwesomeIcon.FOLDER_ALT;
                     var iconView = new FontAwesomeIconView(icon, "18px");
@@ -41,20 +55,13 @@ class FolderTreeItemCellFactory implements Callback<TreeView<WatchFolderItem>, T
                         iconView.setStyle("-fx-fill: #ff6703;-fx-font-size: 18px");
                     }
 
+                    nameLabel.setText(item.name());
                     var countText = item.totalChildItemsCount() > 1 ? " items" : " item";
-                    var countTextLabel = new Label(item.totalChildItemsCount() + countText);
-                    countTextLabel.setDisable(true);
-                    countTextLabel.setStyle("-fx-font-size: 10px;");
+                    itemCountsLabel.setText(item.totalChildItemsCount() + countText);
 
-                    var artistNameLabel = new Label(item.name());
-                    artistNameLabel.setStyle("-fx-font-size: 14px;");
+                    container.getChildren().set(0, iconView);
 
-                    var vBox = new VBox();
-                    vBox.getChildren().addAll(artistNameLabel, countTextLabel);
-
-                    hBox.getChildren().addAll(iconView, vBox);
-
-                    setGraphic(hBox);
+                    setGraphic(container);
 
                     // Removes horizontal scroll.
                     // The horizontal scrollbar appears because the cells are wider than the list.
@@ -79,7 +86,7 @@ class FolderTreeItemCellFactory implements Callback<TreeView<WatchFolderItem>, T
         };
     }
 
-    private ContextMenu buildCellContextMenu(WatchFolderItem watchFolderItem) {
+    private ContextMenu buildCellContextMenu(Supplier<WatchFolderItem> watchFolderItem) {
         var contextMenu = new ContextMenu();
         var play = new MenuItem("Play", new FontAwesomeIconView(FontAwesomeIcon.PLAY));
         play.setOnAction(_ -> {

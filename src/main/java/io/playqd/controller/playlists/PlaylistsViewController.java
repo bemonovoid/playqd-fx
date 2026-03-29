@@ -1,11 +1,10 @@
 package io.playqd.controller.playlists;
 
 import io.playqd.controller.view.TracksView;
-import io.playqd.controller.view.menuitem.PlaylistTrackContextMenuConfigurer;
+import io.playqd.controller.view.menuitem.TrackRowContextMenuItemsFactory;
 import io.playqd.data.PlaylistWithTrackIds;
 import io.playqd.player.PlayerTrackListManager;
 import io.playqd.player.TrackListRequest;
-import io.playqd.player.Player;
 import io.playqd.service.MusicLibrary;
 import io.playqd.utils.Numbers;
 import javafx.collections.ListChangeListener;
@@ -50,7 +49,14 @@ public class PlaylistsViewController {
             updateTrackViewHeader(selectedPlaylist);
         });
 
-        tracksTableView.setTrackContextMenuConfigurerFactory(() -> new PlaylistTrackContextMenuConfigurer(this));
+        tracksTableView.setTrackContextMenuItemsFactory(() -> {
+            var factory = new TrackRowContextMenuItemsFactory();
+            factory.setPlaylistModifiedCallback(modifiedPlaylist -> {
+                tracksTableView.showTracks(() -> MusicLibrary.getTracksById(modifiedPlaylist.trackIds()));
+            });
+            factory.setThisPlaylist(this::getSelectedPlaylist);
+            return factory;
+        });
 
         MusicLibrary.libraryRefreshedEventProperty().addListener((_, _, _) -> {
             listView.getSelectionModel().clearSelection();

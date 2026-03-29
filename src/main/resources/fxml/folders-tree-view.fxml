@@ -7,5 +7,4 @@
           fx:id="foldersTreeView"
           fx:controller="io.playqd.controller.folders.FoldersTreeViewController"
           VBox.vgrow="ALWAYS">
-
 </TreeView>

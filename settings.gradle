@@ -16,7 +16,7 @@ dependencyResolutionManagement {
             version('jUnit5PlatformVersion', '1.12.2')
             version('jUnit5EngineVersion', '5.12.2')
 //            version('mockitoVersion', '5.17.1')
-            version('playqdVersion', '2.+')
+            version('playqdVersion', '3.+')
 
             library('gradle-shadow-plugin', 'com.gradleup.shadow', 'shadow-gradle-plugin').versionRef('gradleShadowPluginVersion')
 

@@ -3,11 +3,9 @@ package io.playqd.service;
 import io.playqd.client.PageRequest;
 import io.playqd.client.PlayqdClient;
 import io.playqd.client.PlayqdClientProvider;
-import io.playqd.data.Album;
-import io.playqd.data.Artist;
-import io.playqd.data.PlaylistWithTrackIds;
-import io.playqd.data.Track;
+import io.playqd.data.*;
 import io.playqd.data.request.MovePlaylistTracksRequest;
+import io.playqd.data.request.UpdateMediaCollectionRequest;
 import io.playqd.data.request.UpdatePlaylistRequest;
 import io.playqd.event.LibraryRefreshedEvent;
 import io.playqd.event.TrackUpdateType;
@@ -39,6 +37,9 @@ public final class MusicLibrary {
             new SimpleObjectProperty<>();
 
     private static final ObservableMap<Long, PlaylistWithTrackIds> PLAYLIST_CACHE =
+            FXCollections.observableMap(new HashMap<>());
+
+    private static final ObservableMap<Long, MediaCollection> COLLECTION_CACHE =
             FXCollections.observableMap(new HashMap<>());
 
     private static Map<Long, Track> TRACKS_CACHE;
@@ -74,6 +75,11 @@ public final class MusicLibrary {
     public static void onPlaylistsModified(Consumer<List<PlaylistWithTrackIds>> callback) {
         PLAYLIST_CACHE.addListener((MapChangeListener<? super Long, ? super PlaylistWithTrackIds>) _ ->
                 callback.accept(new ArrayList<>(PLAYLIST_CACHE.values())));
+    }
+
+    public static void onCollectionsModified(Consumer<List<MediaCollection>> callback) {
+        COLLECTION_CACHE.addListener((MapChangeListener<? super Long, ? super MediaCollection>) _ ->
+                callback.accept(new ArrayList<>(COLLECTION_CACHE.values())));
     }
 
     public static List<Artist> getArtists() {
@@ -244,6 +250,37 @@ public final class MusicLibrary {
         var updated = playqdClient().updatePlaylist(new UpdatePlaylistRequest(id, newName));
         PLAYLIST_CACHE.put(updated.id(), updated);
         return updated;
+    }
+
+    public static List<MediaCollection> getCollections() {
+        if (COLLECTION_CACHE.isEmpty()) {
+            COLLECTION_CACHE.putAll(playqdClient().getCollections().stream()
+                    .collect(Collectors.toMap(MediaCollection::id, p -> p)));
+        }
+        return new ArrayList<>(COLLECTION_CACHE.values());
+    }
+
+    public static MediaCollection createCollection(String name, List<MediaCollectionItem> items) {
+        var collection = playqdClient().createCollection(name, items);
+        COLLECTION_CACHE.put(collection.id(), collection);
+        return collection;
+    }
+
+    public static MediaCollection updateCollection(long id, String newName) {
+        var updated = playqdClient().updateCollection(new UpdateMediaCollectionRequest(id, newName));
+        COLLECTION_CACHE.put(updated.id(), updated);
+        return updated;
+    }
+
+    public static MediaCollection addItemsToCollection(long id, List<MediaCollectionItem> items) {
+        var collection = playqdClient().addItems(id, items);
+        COLLECTION_CACHE.put(id, collection);
+        return collection;
+    }
+
+    public static void deleteCollection(long id) {
+        playqdClient().deleteCollection(id);
+        COLLECTION_CACHE.remove(id);
     }
 
     private static void updateTrackInCache(List<Track> tracks) {

@@ -9,15 +9,23 @@ public class PlayqdApis {
     }
 
     public static String trackStream(long id) {
-        return String.format("%s/api/v1/tracks/%s/file", baseUrl(), id);
+        return String.format("%s/api/v1/tracks/%s/stream", baseUrl(), id);
+    }
+
+    public static String artistArtwork(long trackId) {
+        return String.format("%s/api/v1/artists/%s/artwork", baseUrl(), trackId);
+    }
+
+    public static String trackArtwork(long trackId) {
+        return String.format("%s/api/v1/tracks/%s/artwork", baseUrl(), trackId);
+    }
+
+    public static String trackCueFile(long trackId) {
+        return String.format("%s/api/v1/tracks/%s/cue", baseUrl(), trackId);
     }
 
     public static String watchFolderItemBinary(String id) {
         return String.format("%s/api/v1/folders/items/%s/binary", baseUrl(), id);
-    }
-
-    public static String albumArtwork(long trackId) {
-        return baseUrl() + "/api/v1/tracks/" + trackId + "/artwork";
     }
 
 }

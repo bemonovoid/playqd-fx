@@ -4,13 +4,13 @@ import io.playqd.data.Track;
 
 import java.util.List;
 
-public record TrackListRequest(List<Track> tracks, int startTrackIdx) {
+public record TrackListRequest(int firstTrackPosition, List<Track> tracks) {
 
     public TrackListRequest(Track track) {
         this(List.of(track));
     }
 
     public TrackListRequest(List<Track> tracks) {
-        this(tracks, 0);
+        this(0, tracks);
     }
 }

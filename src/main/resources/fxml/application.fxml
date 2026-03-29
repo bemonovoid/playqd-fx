@@ -27,9 +27,14 @@
                     <FontAwesomeIconView glyphName="FILE_AUDIO_ALT"/>
                 </graphic>
             </ToggleButton>
-            <ToggleButton fx:id="playlistsViewButton" text="Playlists" toggleGroup="$viewToggleGroup">
+            <ToggleButton fx:id="playlistsViewBtn" text="Playlists" toggleGroup="$viewToggleGroup">
                 <graphic>
                     <FontAwesomeIconView glyphName="HEADPHONES"/>
+                </graphic>
+            </ToggleButton>
+            <ToggleButton fx:id="collectionsViewBtn" text="Collections" toggleGroup="$viewToggleGroup">
+                <graphic>
+                    <FontAwesomeIconView glyphName="CLONE"/>
                 </graphic>
             </ToggleButton>
             <ToggleButton fx:id="foldersViewButton" text="Folders" toggleGroup="$viewToggleGroup">
@@ -44,6 +49,7 @@
                 <fx:include source="music-split-pane.fxml" fx:id="musicSplitPane"/>
                 <fx:include source="tracks-explorer-split-pane.fxml" fx:id="tracksExplorerSplitPane"/>
                 <fx:include source="playlists-split-pane.fxml" fx:id="playlistsSplitPane"/>
+                <fx:include source="collections-split-pane.fxml" fx:id="collectionsSplitPane"/>
                 <fx:include source="folders-split-pane.fxml" fx:id="foldersSplitPane"/>
             </fx:define>
             <fx:include source="player-queue.fxml" fx:id="playerQueue"/>

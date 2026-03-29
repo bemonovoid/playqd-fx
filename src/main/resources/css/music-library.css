@@ -1,21 +1,32 @@
-.artists-list-view {
-    -fx-background-color: transparent;
+/*.artists-list-view {*/
+/*    -fx-background-color: transparent;*/
+/*}*/
+
+/*.artists-list-view .scroll-bar {*/
+/*    -fx-background-color: transparent;*/
+/*    -fx-background-insets: 0;*/
+/*    -fx-padding: 0;*/
+/*}*/
+
+/*.artists-list-view .list-cell {*/
+/*    -fx-background-color: transparent; !* Or your background color *!*/
+/*    !*-fx-border-color: transparent;*!*/
+/*    -fx-background-insets: 0;*/
+/*}*/
+
+/*.artists-list-view .list-cell:filled:selected, .list-cell:filled:hover {*/
+/*    -fx-background-color: rgba(204, 204, 69, 0.63);*/
+/*}*/
+
+
+.tree-view:focused {
+    -fx-focus-color: transparent;
+    -fx-faint-focus-color: transparent;
 }
 
-.artists-list-view .scroll-bar {
-    -fx-background-color: transparent;
-    -fx-background-insets: 0;
-    -fx-padding: 0;
-}
-
-.artists-list-view .list-cell {
-    -fx-background-color: transparent; /* Or your background color */
-    /*-fx-border-color: transparent;*/
-    -fx-background-insets: 0;
-}
-
-.artists-list-view .list-cell:filled:selected, .list-cell:filled:hover {
-    -fx-background-color: rgba(204, 204, 69, 0.63);
+.list-view:focused {
+    -fx-focus-color: transparent;
+    -fx-faint-focus-color: transparent;
 }
 
 .track-info-toolbar {

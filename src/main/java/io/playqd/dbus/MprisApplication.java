@@ -1,5 +1,6 @@
 package io.playqd.dbus;
 
+import io.playqd.config.AppConfig;
 import org.freedesktop.dbus.connections.impl.DBusConnection;
 import org.freedesktop.dbus.connections.impl.DBusConnectionBuilder;
 import org.freedesktop.dbus.exceptions.DBusException;
@@ -10,7 +11,7 @@ import uk.co.caprica.vlcj.player.list.MediaListPlayer;
 
 import java.io.IOException;
 
-public final class MprisApplication {
+public sealed class MprisApplication {
 
     private static final Logger LOG = LoggerFactory.getLogger(MprisApplication.class);
 
@@ -73,6 +74,10 @@ public final class MprisApplication {
     }
 
     private MprisApplication() {
+
+    }
+
+    private static final class MockMprisApplication extends MprisApplication {
 
     }
 }

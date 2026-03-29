@@ -20,8 +20,9 @@
     </fx:define>
 
     <columns>
-        <TableColumn fx:id="artistCol" text="Artist" contextMenu="$columnContextMenu" visible="false"/>
+        <TableColumn fx:id="artworkCol" text="Art" reorderable="false" sortable="false" editable="false" maxWidth="33"/>
         <TableColumn fx:id="titleCol" text="Title" contextMenu="$columnContextMenu"/>
+        <TableColumn fx:id="artistCol" text="Artist" contextMenu="$columnContextMenu" visible="false"/>
         <TableColumn fx:id="albumCol" text="Album" contextMenu="$columnContextMenu" visible="false"/>
         <TableColumn fx:id="extensionCol" text="Format" contextMenu="$columnContextMenu" visible="false"/>
         <TableColumn fx:id="sizeCol" text="Size" contextMenu="$columnContextMenu" visible="false"/>

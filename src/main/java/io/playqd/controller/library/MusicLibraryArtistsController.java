@@ -8,7 +8,10 @@ import io.playqd.utils.SortDirection;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.fxml.FXML;
+import javafx.scene.Node;
 import javafx.scene.control.*;
+import javafx.scene.input.KeyCode;
+import javafx.scene.layout.VBox;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -17,6 +20,8 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.function.Consumer;
+import java.util.function.Predicate;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 public class MusicLibraryArtistsController extends MusicSplitPaneController {
@@ -38,12 +43,15 @@ public class MusicLibraryArtistsController extends MusicSplitPaneController {
     private MenuItem sortArtistsByName, sortArtistsByAlbCount, sortArtistsByTracksCount, sortArtistsAsc, sortArtistsDesc;
 
     @FXML
+    private VBox azVBox;
+
+    @FXML
     private Label artistsInfoLabel;
 
     protected void initializeInternal() {
         super.initializeInternal();
         initToggleGroupsListeners();
-
+        buildAzColumn();
         artistsListView.getStyleClass().add("artists-list-view");
 
         searchable.initialize(artistsListView, onSearchTextInputChanged(), onSearchTextInputCleared());
@@ -70,6 +78,40 @@ public class MusicLibraryArtistsController extends MusicSplitPaneController {
         MusicLibrary.libraryRefreshedEventProperty().addListener((_, _, _) -> showAllArtists());
 
         showAllArtists();
+    }
+
+    private void buildAzColumn() {
+        var children = azVBox.getChildren();
+        var all = new Hyperlink("All");
+        all.setStyle("-fx-font-size: 10");
+        all.setOnAction(_ -> filterByCharGroup(KeyCode.ESCAPE));
+        children.add(all);
+        for (char c = 'A'; c <= 'Z'; c++) {
+            var str = Character.toString(c);
+            var hl = new Hyperlink(str);
+            hl.setStyle("-fx-font-size: 10");
+            hl.setOnAction(_ -> filterByCharGroup(KeyCode.valueOf(str)));
+            children.add(hl);
+        }
+        var numbers = new Hyperlink("0-9");
+        numbers.setStyle("-fx-font-size: 10");
+        numbers.setOnAction(_ -> filterByCharGroup(KeyCode.DIGIT1));
+        var misc = new Hyperlink("!#?");
+        misc.setStyle("-fx-font-size: 10");
+        misc.setOnAction(_ -> filterByCharGroup(KeyCode.STAR));
+        children.addAll(numbers, misc);
+    }
+
+    private void filterByCharGroup(KeyCode keyCode) {
+        if (KeyCode.ESCAPE == keyCode) {
+            onSearchTextInputCleared().run();
+        } else if (KeyCode.STAR == keyCode) {
+            applyArtistNameContainsNonStandardCharacter();
+        } else if (keyCode.isLetterKey()) {
+            applyArtistNameStartsWithFilter(keyCode.getChar());
+        } else if (keyCode.isDigitKey()) {
+            applyArtistNameContainsDigitFilter();
+        }
     }
 
     private void initToggleGroupsListeners() {
@@ -139,24 +181,58 @@ public class MusicLibraryArtistsController extends MusicSplitPaneController {
                 artistsSearchLabel.setVisible(false);
                 return;
             }
-            @SuppressWarnings("unchecked")
-            var items = new ArrayList<>((List<Artist>) artistsListView.getUserData()).stream()
-                    .filter(artist -> artist.name().toLowerCase().contains(newInput))
-                    .filter(artist -> FakeIds.ALL_ARTIST != artist.id())
-                    .collect(Collectors.toCollection(ArrayList::new));
-            LOG.info("Search by: '{}'. Found: {}", newInput, items.size());
-            if (items.isEmpty()) {
-                artistsListView.getItems().clear();
-            } else {
-                items.sort(Comparator.comparing(a -> a.name().toLowerCase()));
-                artistsListView.setItems(FXCollections.observableArrayList(items));
-                artistsListView.getSelectionModel().selectFirst();
-            }
+
+            applyArtistNameContainsFilter(newInput);
+
             if (!artistsSearchLabel.isVisible()) {
                 artistsSearchLabel.setVisible(true);
             }
             artistsSearchLabel.setText(newInput);
         };
+    }
+
+    private void applyArtistNameContainsFilter(String input) {
+        var result = applyArtistNameFilter(artist -> artist.name().toLowerCase().contains(input));
+        LOG.info("Input: '{}'. Found: {}", input, result);
+    }
+
+    private void applyArtistNameStartsWithFilter(String input) {
+        var result = applyArtistNameFilter(artist -> artist.name().toLowerCase().startsWith(input.toLowerCase()));
+        LOG.info("Input: '{}'. Found: {}", input, result);
+    }
+
+    private void applyArtistNameContainsDigitFilter() {
+        var result = applyArtistNameFilter(artist -> {
+            for (char c : artist.name().toCharArray()) {
+                if (Character.isDigit(c)) {
+                    return true;
+                }
+            }
+            return false;
+        });
+        LOG.info("Input: 'contains digit'. Found: {}", result);
+    }
+
+    private void applyArtistNameContainsNonStandardCharacter() {
+        var pattern = Pattern.compile("^[^a-zA-Z0-9\\s]+$");
+        var result = applyArtistNameFilter(artist -> pattern.matcher(artist.name()).find());
+        LOG.info("Input: 'non standard char'. Found: {}", result);
+    }
+
+    private int applyArtistNameFilter(Predicate<Artist> predicate) {
+        @SuppressWarnings("unchecked")
+        var items = new ArrayList<>((List<Artist>) artistsListView.getUserData()).stream()
+                .filter(predicate)
+                .filter(artist -> FakeIds.ALL_ARTIST != artist.id())
+                .collect(Collectors.toCollection(ArrayList::new));
+        if (items.isEmpty()) {
+            artistsListView.getItems().clear();
+        } else {
+            items.sort(Comparator.comparing(a -> a.name().toLowerCase()));
+            artistsListView.setItems(FXCollections.observableArrayList(items));
+            artistsListView.getSelectionModel().selectFirst();
+        }
+        return items.size();
     }
 
     private Runnable onSearchTextInputCleared() {

@@ -2,12 +2,12 @@ package io.playqd.controller.trackexplorer;
 
 import io.playqd.controller.view.TracksTableView;
 import io.playqd.controller.view.TracksView;
-import io.playqd.controller.view.menuitem.TracksExplorerTrackContextMenuConfigurer;
 import io.playqd.data.Track;
 import io.playqd.event.TrackUpdateType;
 import io.playqd.player.PlayerTrackListManager;
 import io.playqd.player.TrackListRequest;
 import io.playqd.service.MusicLibrary;
+import javafx.application.Platform;
 import javafx.beans.property.SimpleIntegerProperty;
 import javafx.fxml.FXML;
 import javafx.scene.control.ListView;
@@ -27,7 +27,7 @@ public class TracksExplorerViewController {
     @FXML
     private void initialize() {
         tracksTableView = tracksView.tracksTableView();
-        tracksTableView.setTrackContextMenuConfigurerFactory(() -> new TracksExplorerTrackContextMenuConfigurer(this));
+//        tracksTableView.setTrackContextMenuItemsFactory(() -> new TracksExplorerTrackContextMenuConfigurer(this));
         listView.setCellFactory(new TracksExplorerListViewCellFactory());
         setTracksVisibleColumns();
         setEventHandlers();
@@ -51,7 +51,10 @@ public class TracksExplorerViewController {
 
     @FXML
     private void refresh() {
-        MusicLibrary.refresh();
+        Platform.runLater(() -> {
+            listView.setDisable(true);
+            MusicLibrary.refresh();
+        });
     }
 
     private void populateListView() {
@@ -97,6 +100,7 @@ public class TracksExplorerViewController {
             listView.getItems().clear();
             listView.getItems().addAll(buildListItems());
             listView.getSelectionModel().select(selectedIdx);
+            listView.setDisable(false);
         });
         MusicLibrary.tracksUpdatedEventProperty().addListener((_, _, tracksUpdatedEvent) -> {
             var counts = getCounts();

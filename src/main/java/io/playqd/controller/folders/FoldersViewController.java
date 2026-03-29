@@ -16,12 +16,14 @@ public class FoldersViewController {
     private void initialize() {
         foldersTreeViewController.foldersTreeView.getSelectionModel().selectedItemProperty()
                 .addListener((_, _, selectedTreeItem) -> {
-                    var item = selectedTreeItem.getValue();
-                    if (item.hasNonFolderChildren()) {
-                        var childrenItems = PlayqdClientProvider.get().watchFolderChildrenItems(item.id()).stream()
-                                .filter(wfi -> ItemType.FOLDER != wfi.itemType())
-                                .toList();
-                        folderItemsTableViewController.setItems(childrenItems);
+                    if (selectedTreeItem != null) {
+                        var item = selectedTreeItem.getValue();
+                        if (item.hasNonFolderChildren()) {
+                            var childrenItems = PlayqdClientProvider.get().watchFolderChildrenItems(item.id()).stream()
+                                    .filter(wfi -> ItemType.FOLDER != wfi.itemType())
+                                    .toList();
+                            folderItemsTableViewController.setItems(childrenItems);
+                        }
                     }
                 });
     }

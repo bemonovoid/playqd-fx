@@ -1,13 +1,12 @@
 package io.playqd.player;
 
 import io.playqd.data.Track;
-import javafx.collections.FXCollections;
-import javafx.collections.ObservableList;
+
+import java.util.List;
 
 public class PlayerTrackListManager {
 
     private static PlayerTrackListView PLAYER_TRACK_LIST_VIEW;
-    private static final ObservableList<Track> TRACK_LIST = FXCollections.observableArrayList();
 
     /**
      * Replaces current list (if exists) with the new list and starts playing from the given index
@@ -17,12 +16,23 @@ public class PlayerTrackListManager {
         Player.enqueueAndPlay(request);
     }
 
-    public static void removeFromList() {
-
+    public static void addNext(List<Track> tracks) {
+        var insertIdx = PLAYER_TRACK_LIST_VIEW.addNext(tracks);
+        Player.enqueue(new TrackListRequest(insertIdx, tracks));
     }
 
-    public static void clearList() {
+    public static void addLast(List<Track> tracks) {
+        var insertIdx = PLAYER_TRACK_LIST_VIEW.addLast(tracks);
+        Player.enqueue(new TrackListRequest(insertIdx, tracks));
+    }
 
+    // Indices must be in descending order
+    static void remove(List<Integer> indices) {
+        Player.remove(indices);
+    }
+
+    static void clear() {
+        Player.clearMediaList();
     }
 
     static void setPlayerTrackListView(PlayerTrackListView playerTrackListView) {

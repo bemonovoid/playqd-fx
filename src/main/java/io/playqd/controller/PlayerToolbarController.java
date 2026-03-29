@@ -2,15 +2,14 @@ package io.playqd.controller;
 
 import de.jensd.fx.glyphs.fontawesome.FontAwesomeIcon;
 import de.jensd.fx.glyphs.fontawesome.FontAwesomeIconView;
+import io.playqd.controller.view.menuitem.CollectionsMenuItems;
 import io.playqd.data.Track;
 import io.playqd.event.MouseEventHelper;
 import io.playqd.player.FetchMode;
 import io.playqd.player.LoopMode;
 import io.playqd.player.Player;
 import io.playqd.service.MusicLibrary;
-import io.playqd.utils.ArtworkImageSetter;
-import io.playqd.utils.ImagePopup;
-import io.playqd.utils.TimeUtils;
+import io.playqd.utils.*;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
@@ -19,6 +18,7 @@ import javafx.util.Duration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -187,17 +187,39 @@ public class PlayerToolbarController {
 
     private void initArtworkImageListeners() {
         artworkImageView.setOnMouseClicked(mouseEvent -> {
+            if (ArtworkImages.isDefaultImage(artworkImageView.getImage().getUrl())) {
+                return;
+            }
             if (MouseEventHelper.primaryButtonDoubleClicked(mouseEvent)) {
-                if (ArtworkImageSetter.isNotFoundImageUrl(artworkImageView.getImage().getUrl())) {
-                    return;
-                }
                 showFullSizeImageInPopup();
+            } else if (MouseEventHelper.secondaryButtonSingleClicked(mouseEvent)) {
+                var collectionsMenuItems = new CollectionsMenuItems()
+                        .onAddItemsToCollection(() -> Player.playingTrack()
+                                .map(track -> List.of(MediaCollectionUtils.buildAlbumArtworkItem(track)))
+                                .orElse(Collections.emptyList()))
+                        .build();
+                var contextMenu = new ContextMenu();
+                contextMenu.getItems().addAll(collectionsMenuItems);
+                contextMenu.show(artworkImageView, mouseEvent.getScreenX(), mouseEvent.getScreenY());
             }
         });
     }
 
     private void updateArtwork(Track track) {
-        ArtworkImageSetter.set(track, artworkImageView, 80);
+        var size = 80;
+        var image = ArtworkImages.album(track.id(), size);
+        if (image == null) {
+            artworkImageView.setImage(ArtworkImages.defaultAlbum(size));
+        } else {
+            artworkImageView.setImage(image);
+            image.errorProperty().addListener((_, _, hasError) -> {
+                if (hasError) {
+                    var defaultImage = ArtworkImages.defaultAlbum(size);
+                    ArtworkImages.setAlbum(track.id(), defaultImage, size);
+                    artworkImageView.setImage(defaultImage);
+                }
+            });
+        }
     }
 
     private void updateSliderPosition(double newValue) {
@@ -250,7 +272,7 @@ public class PlayerToolbarController {
 
     private void showFullSizeImageInPopup() {
         Player.playingTrack().ifPresent(track -> {
-            var image = ArtworkImageSetter.getImage(track);
+            var image = ArtworkImages.album(track.id());
             ImagePopup.show(image, track.artistName() + " - " + track.title());
         });
     }

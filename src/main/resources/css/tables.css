@@ -5,6 +5,15 @@
     -fx-text-fill: -fx-text-inner-color; /* Keeps text readable */
 }
 
+.table-view:focused {
+    -fx-focus-color: transparent;
+    -fx-faint-focus-color: transparent;
+}
+
+.table-cell {
+    -fx-alignment: CENTER_LEFT;
+}
+
 .table-row-cell:filled .no-highlight-cell {
     -fx-background: -fx-control-inner-background ;
     -fx-background-color: -fx-table-cell-border-color, -fx-background ;

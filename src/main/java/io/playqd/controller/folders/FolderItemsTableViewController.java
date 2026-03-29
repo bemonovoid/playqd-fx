@@ -1,5 +1,6 @@
 package io.playqd.controller.folders;
 
+import io.playqd.controller.view.menuitem.CollectionsMenuItems;
 import io.playqd.data.WatchFolderItem;
 import io.playqd.event.MouseEventHelper;
 import io.playqd.platform.PlatformApi;
@@ -7,7 +8,7 @@ import io.playqd.player.PlayerTrackListManager;
 import io.playqd.player.TrackListRequest;
 import io.playqd.service.MusicLibrary;
 import io.playqd.utils.DateUtils;
-import io.playqd.utils.ImagePopup;
+import io.playqd.utils.MediaCollectionUtils;
 import io.playqd.utils.Numbers;
 import io.playqd.utils.PlayqdApis;
 import javafx.beans.property.SimpleStringProperty;
@@ -15,7 +16,6 @@ import javafx.collections.FXCollections;
 import javafx.collections.ListChangeListener;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
-import javafx.scene.image.Image;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -86,7 +86,21 @@ public class FolderItemsTableViewController {
                             .map(WatchFolderItem::path)
                             .collect(Collectors.toSet());
                     var tracks = MusicLibrary.getTracksByPaths(selectedItemPaths);
-                    PlayerTrackListManager.enqueue(new TrackListRequest(tracks, 0));
+                    PlayerTrackListManager.enqueue(new TrackListRequest(tracks));
+                } else if (MouseEventHelper.secondaryButtonSingleClicked(e)) {
+                    if (row.getContextMenu() == null) {
+                        var collectionsMenuItems = new CollectionsMenuItems()
+                                .onAddItemsToCollection(() -> {
+                                    var selectedItems = tableView.getSelectionModel().getSelectedItems();
+                                    return selectedItems.stream().map(MediaCollectionUtils::buildCollectionItem).toList();
+                                })
+                                .build();
+                        var contextMenu = new ContextMenu();
+                        contextMenu.getItems().addAll(collectionsMenuItems);
+                        contextMenu.setOnHidden(_ -> row.setContextMenu(null)); // to reset a state
+                        row.setContextMenu(contextMenu);
+                        contextMenu.show(row, e.getScreenX(), e.getScreenY());
+                    }
                 }
             });
             return row;
@@ -113,4 +127,5 @@ public class FolderItemsTableViewController {
             detailsLabel.setText(String.format("%s, %s", files, sizeFormatted));
         }
     }
+
 }

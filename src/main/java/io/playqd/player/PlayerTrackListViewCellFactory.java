@@ -2,15 +2,15 @@ package io.playqd.player;
 
 import io.playqd.data.Track;
 import io.playqd.event.MouseEventHelper;
-import io.playqd.utils.ArtworkImageSetter;
+import io.playqd.utils.ArtworkImages;
 import javafx.geometry.Pos;
 import javafx.scene.control.Label;
 import javafx.scene.control.ListCell;
 import javafx.scene.control.ListView;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.HBox;
-import javafx.scene.layout.Pane;
 import javafx.scene.layout.Priority;
+import javafx.scene.layout.Region;
 import javafx.scene.layout.VBox;
 import javafx.util.Callback;
 import org.slf4j.Logger;
@@ -25,6 +25,29 @@ class PlayerTrackListViewCellFactory implements Callback<ListView<Track>, ListCe
 
         return new ListCell<>() {
 
+            private final HBox container = new HBox();
+            private final ImageView imageView = new ImageView();
+            private final Label trackTitleLabel = new Label();
+            private final Label artistNameLabel = new Label();
+            private final Label trackTimeLabel = new Label();
+
+            {
+                container.setSpacing(10);
+                container.setAlignment(Pos.CENTER_LEFT);
+
+                artistNameLabel.setDisable(true);
+                artistNameLabel.setStyle("-fx-font-size: 10px;");
+                artistNameLabel.setOpacity(0.6);
+
+                var vBox = new VBox();
+                vBox.setSpacing(3);
+                vBox.getChildren().addAll(trackTitleLabel, artistNameLabel);
+                var region = new Region();
+                HBox.setHgrow(region, Priority.ALWAYS);
+
+                container.getChildren().addAll(imageView, vBox, region, trackTimeLabel);
+            }
+
             @Override
             protected void updateItem(Track track, boolean empty) {
 
@@ -32,33 +55,25 @@ class PlayerTrackListViewCellFactory implements Callback<ListView<Track>, ListCe
 
                 if (empty || track == null) {
                     setText(null);
+                    setGraphic(null);
                 } else {
-
-                    var trackTitle = new Label(track.title());
+                    var image = ArtworkImages.album(track.id(), 25);
+                    if (image == null) {
+                        imageView.setImage(ArtworkImages.defaultAlbum(25));
+                    } else {
+                        imageView.setImage(image);
+                        image.errorProperty().addListener((_, _, hasError) -> {
+                            if (hasError) {
+                                var defaultImage = ArtworkImages.defaultAlbum(25);
+                                ArtworkImages.setAlbum(track.id(), defaultImage, 25);
+                                imageView.setImage(defaultImage);
+                            }
+                        });
+                    }
+                    trackTitleLabel.setText(track.title());
+                    artistNameLabel.setText(track.artistName());
+                    trackTimeLabel.setText(track.length().readable());
 //                    var trackTitleHbox = new HBox(trackTitle, createHiResBadge());
-
-                    var artistName = new Label(track.artistName());
-                    artistName.setDisable(true);
-                    artistName.setStyle("-fx-font-size: 10px;");
-                    artistName.setOpacity(0.6);
-
-                    var artworkImage = new ImageView();
-                    ArtworkImageSetter.set(track, artworkImage, 35);
-
-                    var vBox = new VBox();
-                    vBox.setSpacing(3);
-                    vBox.getChildren().addAll(trackTitle, artistName);
-
-                    var pane = new Pane();
-                    HBox.setHgrow(pane, Priority.ALWAYS);
-
-                    var trackTime = new Label(track.length().readable());
-
-                    var hBox = new HBox();
-                    hBox.setSpacing(10);
-                    hBox.setAlignment(Pos.CENTER_LEFT);
-
-                    hBox.getChildren().addAll(artworkImage, vBox, pane, trackTime);
 
                     setOnMouseClicked(mouseEvent -> {
                         if (MouseEventHelper.primaryButtonDoubleClicked(mouseEvent)) {
@@ -66,7 +81,7 @@ class PlayerTrackListViewCellFactory implements Callback<ListView<Track>, ListCe
                         }
                     });
 
-                    setGraphic(hBox);
+                    setGraphic(container);
                 }
             }
 

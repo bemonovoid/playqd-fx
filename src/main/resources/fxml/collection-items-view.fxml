@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import de.jensd.fx.glyphs.fontawesome.FontAwesomeIconView?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<VBox xmlns="http://javafx.com/javafx"
+      xmlns:fx="http://javafx.com/fxml"
+      fx:id="collectionItemsView"
+      fx:controller="io.playqd.controller.collections.CollectionItemsViewController">
+
+    <fx:define>
+        <ContextMenu fx:id="columnContextMenu">
+            <items>
+                <MenuItem text="Configure columns">
+                    <graphic>
+                        <FontAwesomeIconView glyphName="COLUMNS"/>
+                    </graphic>
+                </MenuItem>
+            </items>
+        </ContextMenu>
+    </fx:define>
+
+    <ToolBar>
+        <Label fx:id="titleLabel" style="-fx-font-weight: bold"/>
+        <MenuButton visible="false"/>
+        <Region HBox.hgrow="ALWAYS"/>
+        <HBox alignment="CENTER_LEFT" spacing="5" disable="true">
+            <Label text="Last modified:"/>
+            <Label fx:id="lastModifiedDateLabel"/>
+        </HBox>
+    </ToolBar>
+
+    <TableView fx:id="tableView" VBox.vgrow="ALWAYS">
+        <columns>
+            <TableColumn fx:id="iconCol" reorderable="false" sortable="false" editable="false" maxWidth="33"/>
+            <TableColumn fx:id="titleCol" text="Title" contextMenu="$columnContextMenu"/>
+            <TableColumn fx:id="itemTypeCol" text="Item type" contextMenu="$columnContextMenu"/>
+            <TableColumn fx:id="commentCol" text="Comment" contextMenu="$columnContextMenu"/>
+        </columns>
+    </TableView>
+
+    <HBox>
+        <padding>
+            <Insets top="2" bottom="2" left="5" right="20"/>
+        </padding>
+        <Label fx:id="selectedLabel" opacity="0.6" style="-fx-font-size: 11px;" disable="true"/>
+        <Pane HBox.hgrow="ALWAYS"/>
+        <Label fx:id="detailsLabel" disable="true" opacity="0.6" style="-fx-font-size: 11px;"/>
+    </HBox>
+
+</VBox>
