@@ -1,6 +1,7 @@
 package io.playqd.client;
 
 import io.playqd.config.AppConfig;
+import io.playqd.service.MusicLibrary;
 
 import java.util.concurrent.atomic.AtomicReference;
 
@@ -10,7 +11,10 @@ public class PlayqdClientProvider {
 
     static {
         PLAYQD_CLIENT.set(initialize());
-        AppConfig.getProperties().serverHost().addListener((_, _, _) -> PLAYQD_CLIENT.set(initialize()));
+        AppConfig.getProperties().serverHost().addListener((_, _, _) -> {
+            PLAYQD_CLIENT.set(initialize());
+            MusicLibrary.refresh();
+        });
     }
 
     public static PlayqdClient get() {

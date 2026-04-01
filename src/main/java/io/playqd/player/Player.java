@@ -62,7 +62,7 @@ public class Player {
     }
 
     static void enqueue(TrackListRequest trackListRequest) {
-        var trackRefs = trackRefs(trackListRequest.tracks());
+        var trackRefs = mapTracksToRefs(trackListRequest.tracks());
         if (MEDIA_LIST_PLAYER.list().media() == null) {
             enqueueNewList(trackListRequest);
         } else {
@@ -79,7 +79,7 @@ public class Player {
     private static TrackRef enqueueNewList(TrackListRequest trackListRequest) {
         var index = trackListRequest.firstTrackPosition();
 
-        var trackRefs = trackRefs(trackListRequest.tracks());
+        var trackRefs = mapTracksToRefs(trackListRequest.tracks());
 
         MEDIA_LIST_PLAYER.userData(new ArrayList<>(trackRefs));
 
@@ -270,7 +270,7 @@ public class Player {
         trackRefs.forEach(trackRef -> MEDIA_LIST_PLAYER.list().media().add(trackRef.mrl(), trackRef.options()));
     }
 
-    private static List<TrackRef> trackRefs(List<Track> tracks) {
+    private static List<TrackRef> mapTracksToRefs(List<Track> tracks) {
         return tracks.stream().map(TrackRef::new).toList();
     }
 

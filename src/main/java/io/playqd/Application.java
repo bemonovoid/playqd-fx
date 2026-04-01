@@ -2,8 +2,9 @@ package io.playqd;
 
 import io.playqd.client.PlayqdClientProvider;
 import io.playqd.config.AppConfig;
+import io.playqd.core.ApplicationCloseHandler;
 import io.playqd.core.ApplicationExiter;
-import io.playqd.core.ApplicationStartUpListeners;
+import io.playqd.core.ApplicationTitleUpdateListener;
 import io.playqd.core.ApplicationUncaughtExceptionHandler;
 import io.playqd.dialog.settings.ConfigName;
 import io.playqd.dialog.settings.SettingsDialog;
@@ -58,7 +59,9 @@ public class Application extends javafx.application.Application {
         scene.getStylesheets().addAll("css/glyphs.css", "css/tables.css", "css/music-library.css");
 
         PlatformApi.setHostServices(getHostServices());
-        ApplicationStartUpListeners.register(stage);
+
+        ApplicationTitleUpdateListener.register(stage);
+        ApplicationCloseHandler.register(stage);
 
         stage.setOnShown(_ -> onApplicationIsShown(stage));
 

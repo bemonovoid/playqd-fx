@@ -1,5 +1,6 @@
 package io.playqd.core;
 
+import io.playqd.config.AppConfig;
 import javafx.application.Platform;
 import javafx.stage.Stage;
 
@@ -12,7 +13,6 @@ public class ApplicationExiter {
     }
 
     public void doExit() {
-//        Player.close();
         Platform.exit();
     }
 }

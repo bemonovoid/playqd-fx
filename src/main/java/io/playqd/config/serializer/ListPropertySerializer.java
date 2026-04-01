@@ -16,11 +16,5 @@ public class ListPropertySerializer<T> extends JsonSerializer<ObservableList<T>>
         gen.writeObject(new ArrayList<>(value));
     }
 
-    public static final class BrowserState extends ListPropertySerializer<BrowserState> {
 
-    }
-
-    public static final class TabDetails extends ListPropertySerializer<TabDetails> {
-
-    }
 }

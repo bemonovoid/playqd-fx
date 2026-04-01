@@ -1,6 +1,10 @@
 package io.playqd.core;
 
 import io.playqd.Application;
+import io.playqd.config.AppConfig;
+import io.playqd.data.Track;
+import io.playqd.player.Player;
+import io.playqd.player.PlayerTrackListManager;
 import javafx.stage.Stage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -18,6 +22,7 @@ public class ApplicationCloseHandler {
         primaryStage.setOnCloseRequest(event -> {
             event.consume(); // to prevent automatic window closing
             if (closeConfirmed()) {
+                saveProperties();
                 logOutAndClose.run();
             }
         });
@@ -25,5 +30,19 @@ public class ApplicationCloseHandler {
 
     private static boolean closeConfirmed() {
         return true;
+    }
+
+    private static void saveProperties() {
+        setPlayerStateProperties();
+        AppConfig.saveProperties();
+    }
+
+    private static void setPlayerStateProperties() {
+        var tracklist = PlayerTrackListManager.trackList().stream().map(Track::id).toList();
+        AppConfig.getProperties().player().state().tracklist().clear();
+        AppConfig.getProperties().player().state().tracklist().addAll(tracklist);
+        Player.playingTrack().ifPresentOrElse(track ->
+                AppConfig.getProperties().player().state().lastPlayedTrackId().set(track.id()),
+                () -> AppConfig.getProperties().player().state().lastPlayedTrackId().set(-1));
     }
 }

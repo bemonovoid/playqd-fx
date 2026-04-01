@@ -1,6 +1,8 @@
 package io.playqd.player;
 
+import io.playqd.config.AppConfig;
 import io.playqd.data.Track;
+import io.playqd.service.MusicLibrary;
 import io.playqd.utils.TimeUtils;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
@@ -16,6 +18,7 @@ import org.slf4j.LoggerFactory;
 import java.time.Duration;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 
 public class PlayerTrackListViewController extends PlayerTrackListView {
@@ -86,6 +89,17 @@ public class PlayerTrackListViewController extends PlayerTrackListView {
                                     trackListView.getSelectionModel().select(track);
                                     updateTrackInfoView(track);
                                 })));
+        var lastTracklist = new HashSet<>(AppConfig.getProperties().player().state().tracklist());
+        if (!lastTracklist.isEmpty()) {
+            setItems(MusicLibrary.getTracksById(lastTracklist));
+            var lastPlayedTrackProp = AppConfig.getProperties().player().state().lastPlayedTrackId();
+            if (lastPlayedTrackProp != null) {
+                var lastPlayedTrack = MusicLibrary.getTrackById(lastPlayedTrackProp.get());
+                if (lastPlayedTrack != null && lastTracklist.contains(lastPlayedTrack.id())) {
+                    trackListView.getSelectionModel().select(lastPlayedTrack);
+                }
+            }
+        }
     }
 
     @FXML

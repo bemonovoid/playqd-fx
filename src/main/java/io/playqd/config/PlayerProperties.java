@@ -1,21 +1,18 @@
 package io.playqd.config;
 
-import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-import io.playqd.config.serializer.IntegerPropertySerializer;
-import javafx.beans.property.IntegerProperty;
-import javafx.beans.property.SimpleIntegerProperty;
 
-public record PlayerProperties(@JsonSerialize(using = IntegerPropertySerializer.class) IntegerProperty volume,
-                               DBusProperties dbus) {
+public record PlayerProperties(@JsonProperty("state") PlayerStateProperties state,
+                               @JsonProperty("dbus") DBusProperties dbus) {
 
     public PlayerProperties() {
-        this(0, new DBusProperties());
+        this(new PlayerStateProperties(), new DBusProperties());
     }
 
-    @JsonCreator
-    public PlayerProperties(@JsonProperty("volume") int volume, @JsonProperty("dbus") DBusProperties dbus) {
-        this(new SimpleIntegerProperty(volume), dbus);
-    }
+//    @JsonCreator
+//    public PlayerProperties(@JsonProperty("state") PlayerStateProperties state,
+//                            @JsonProperty("dbus") DBusProperties dbus) {
+//        this(state, dbus);
+//    }
+
 }

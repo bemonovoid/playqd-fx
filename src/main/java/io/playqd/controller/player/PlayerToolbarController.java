@@ -4,6 +4,7 @@ import de.jensd.fx.glyphs.fontawesome.FontAwesomeIcon;
 import de.jensd.fx.glyphs.fontawesome.FontAwesomeIconView;
 import io.playqd.client.ArtworkImages;
 import io.playqd.client.MediaCollectionUtils;
+import io.playqd.config.AppConfig;
 import io.playqd.controller.view.menuitem.CollectionsMenuItems;
 import io.playqd.data.Track;
 import io.playqd.event.MouseEventHelper;
@@ -11,7 +12,8 @@ import io.playqd.player.FetchMode;
 import io.playqd.player.LoopMode;
 import io.playqd.player.Player;
 import io.playqd.service.MusicLibrary;
-import io.playqd.utils.*;
+import io.playqd.utils.ImagePopup;
+import io.playqd.utils.TimeUtils;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
@@ -22,7 +24,6 @@ import org.slf4j.LoggerFactory;
 
 import java.util.Collections;
 import java.util.List;
-import java.util.concurrent.atomic.AtomicReference;
 
 /**
  * //TODO disable slider while on pause
@@ -31,6 +32,7 @@ public class PlayerToolbarController {
 
     private static final Logger LOG = LoggerFactory.getLogger(PlayerToolbarController.class);
 
+    private static final int DEFAULT_VOLUME = 50;
     private static final int DOWN_VOLUME = 30;
 
     @FXML
@@ -191,9 +193,12 @@ public class PlayerToolbarController {
             LOG.info("Player volume = {}", Player.getVolume());
         });
 
-        volumeSlider.setValue(50); //todo get from properties, as the lates volume set form user.
+        var volumeState = AppConfig.getProperties().player().state().volume();
+        var volume = volumeState != null ? volumeState.get() : DEFAULT_VOLUME;
+        volumeSlider.setValue(volume);
+        AppConfig.getProperties().player().state().volume().bind(volumeSlider.valueProperty());
 
-        LOG.info("'audio volume' control initialization completed.");
+        LOG.info("'audio volume' control initialization completed. Volume = {}", volume);
     }
 
     private void initArtworkImageListeners() {

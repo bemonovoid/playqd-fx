@@ -49,7 +49,13 @@ public class ServerConfigView extends VBox implements ConfigView {
 
     @Override
     public void applyUpdates() {
-        AppConfig.getProperties().serverHost().set(serverHostTextFld.getText());
+        if (isServerHostModified()) {
+            AppConfig.getProperties().serverHost().set(serverHostTextFld.getText());
+        }
+    }
+
+    private boolean isServerHostModified() {
+        return !AppConfig.getProperties().serverHost().get().equals(serverHostTextFld.getText());
     }
 
 }

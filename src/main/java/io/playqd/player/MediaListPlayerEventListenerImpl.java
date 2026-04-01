@@ -6,7 +6,7 @@ import uk.co.caprica.vlcj.media.MediaRef;
 import uk.co.caprica.vlcj.player.list.MediaListPlayer;
 import uk.co.caprica.vlcj.player.list.MediaListPlayerEventListener;
 
-public class MediaListPlayerEventListenerImpl implements MediaListPlayerEventListener {
+class MediaListPlayerEventListenerImpl implements MediaListPlayerEventListener {
 
     private static final Logger LOG = LoggerFactory.getLogger(MediaListPlayerEventListenerImpl.class);
 

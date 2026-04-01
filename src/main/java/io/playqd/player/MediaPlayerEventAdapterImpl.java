@@ -29,7 +29,6 @@ class MediaPlayerEventAdapterImpl extends MediaPlayerEventAdapter {
         var trackRef = (TrackRef) mediaPlayer.userData();
         if (trackRef != null) {
             Player.PLAYING_TRACK_PROPERTY.set(trackRef.track());
-//            mprisNotifier.notifyTrackChanged(trackRef);
         }
     }
 
@@ -37,19 +36,16 @@ class MediaPlayerEventAdapterImpl extends MediaPlayerEventAdapter {
     public void playing(MediaPlayer mediaPlayer) {
         Player.PAUSED_PROPERTY.set(false);
         Player.STOPPED_PROPERTY.set(false);
-//        mprisNotifier.notifyIsPlaying();
     }
 
     @Override
     public void paused(MediaPlayer mediaPlayer) {
         Player.PAUSED_PROPERTY.set(true);
-//        mprisNotifier.notifyIsPaused();
     }
 
     @Override
     public void stopped(MediaPlayer mediaPlayer) {
         Player.STOPPED_PROPERTY.set(true);
-//        mprisNotifier.notifyIsStopped();
 
     }
 
@@ -73,6 +69,6 @@ class MediaPlayerEventAdapterImpl extends MediaPlayerEventAdapter {
 
     @Override
     public void volumeChanged(MediaPlayer mediaPlayer, float volume) {
-//        mprisNotifier.notifyVolumeChanged(volume);
+
     }
 }

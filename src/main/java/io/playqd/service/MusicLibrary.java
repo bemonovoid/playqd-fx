@@ -59,6 +59,8 @@ public final class MusicLibrary {
         var itemsBefore = TRACKS_CACHE.size();
         TRACKS_CACHE.clear();
         getTracksFromCache();
+        PLAYLIST_CACHE.clear();
+        COLLECTION_CACHE.clear();
         LIBRARY_REFRESHED_EVENT_PROPERTY.set(new LibraryRefreshedEvent());
         LOG.info("Music library cache was refreshed. Items before: {}, items after: {}",
                 itemsBefore, TRACKS_CACHE.size());
@@ -116,9 +118,13 @@ public final class MusicLibrary {
         return TRACKS_CACHE.computeIfAbsent(id, MusicLibrary::getTrackFromServer);
     }
 
-    public static List<Track> getTracksById(List<Long> ids) {
+    public static List<Track> getTracksById(Collection<Long> ids) {
+        return getTracksById(ids, new TrackFilters());
+    }
+    
+    public static List<Track> getTracksById(Collection<Long> ids, TrackFilters filters) {
         var trackIds = new HashSet<>(ids);
-        return getAllTracksStreamExcludingCueParent()
+        return getAllTracks().stream()
                 .filter(t -> trackIds.contains(t.id()))
                 .toList();
     }
