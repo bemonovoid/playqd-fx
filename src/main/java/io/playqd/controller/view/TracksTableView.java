@@ -1,4 +1,4 @@
-package io.playqd.controller.tracks;
+package io.playqd.controller.view;
 
 import io.playqd.controller.view.menuitem.TrackRowContextMenuItemsFactory;
 import io.playqd.data.PlaylistWithTrackIds;

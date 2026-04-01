@@ -22,6 +22,7 @@ import org.slf4j.LoggerFactory;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicReference;
 
 /**
  * //TODO disable slider while on pause
@@ -51,7 +52,7 @@ public class PlayerToolbarController {
     private void initialize() {
         initArtworkImageListeners();
         initPlayerEventConsumers();
-        initVolumeChangedListeners();
+        initVolumeControl();
         initButtonEventHandlers();
 
         slider.setOnMouseClicked(_ -> {
@@ -149,7 +150,13 @@ public class PlayerToolbarController {
         }
     }
 
-    private void initVolumeChangedListeners() {
+    private void initVolumeControl() {
+        LOG.info("Initializing 'audio volume' control ...");
+
+        var volumeTooltip = new Tooltip();
+        volumeTooltip.setShowDelay(Duration.millis(100));
+        volumeSlider.setTooltip(volumeTooltip);
+
         volumeBtn.setOnAction(_ -> {
             if (Player.getVolume() > 0) {
                 volumeSlider.setDisable(true);
@@ -161,10 +168,6 @@ public class PlayerToolbarController {
                 Player.setVolume((int) volumeSlider.getValue());
             }
         });
-
-        var volumeTooltip = new Tooltip();
-        volumeTooltip.setShowDelay(Duration.millis(100));
-        volumeSlider.setTooltip(volumeTooltip);
 
         volumeSlider.valueProperty().addListener((_, oldValue, newValue) -> {
             var oldVolume = oldValue.intValue();
@@ -184,7 +187,13 @@ public class PlayerToolbarController {
             }
             volumeTooltip.setText(newVolume + "%");
             Player.setVolume(newVolume);
+            LOG.info("Slider volume = {}", newValue);
+            LOG.info("Player volume = {}", Player.getVolume());
         });
+
+        volumeSlider.setValue(50); //todo get from properties, as the lates volume set form user.
+
+        LOG.info("'audio volume' control initialization completed.");
     }
 
     private void initArtworkImageListeners() {

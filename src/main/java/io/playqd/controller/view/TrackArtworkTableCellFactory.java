@@ -1,4 +1,4 @@
-package io.playqd.controller.tracks;
+package io.playqd.controller.view;
 
 import io.playqd.client.ArtworkImages;
 import javafx.scene.control.TableCell;

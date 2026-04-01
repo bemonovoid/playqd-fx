@@ -21,11 +21,11 @@
 
     <GridPane hgap="5" vgap="10">
         <columnConstraints>
-            <ColumnConstraints hgrow="NEVER"/>
+            <ColumnConstraints hgrow="SOMETIMES" minWidth="80"/>
             <ColumnConstraints hgrow="ALWAYS"/>
         </columnConstraints>
         <Label text="Enabled" GridPane.rowIndex="0" GridPane.columnIndex="0"/>
-        <ToggleSwitch selected="true" disable="true" GridPane.rowIndex="0" GridPane.columnIndex="1" GridPane.halignment="RIGHT"/>
+        <ToggleSwitch fx:id="enabledToggle" GridPane.rowIndex="0" GridPane.columnIndex="1" GridPane.halignment="RIGHT"/>
         <Label text="Status:" GridPane.rowIndex="1" GridPane.columnIndex="0"/>
         <Label fx:id="statusLabel" GridPane.rowIndex="1" GridPane.columnIndex="1"/>
         <Label text="Identity:" GridPane.rowIndex="2" GridPane.columnIndex="0"/>

@@ -1,4 +1,4 @@
-package io.playqd.controller.tracks;
+package io.playqd.controller.view;
 
 import io.playqd.fxml.FXMLLoaderUtils;
 import io.playqd.fxml.FXMLResource;
@@ -8,6 +8,7 @@ import javafx.scene.control.Label;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.ToolBar;
 import javafx.scene.layout.HBox;
+import javafx.scene.layout.Pane;
 
 public class TracksTableHeader extends ToolBar {
 

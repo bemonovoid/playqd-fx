@@ -1,8 +1,14 @@
+import org.gradle.internal.os.OperatingSystem
 import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
 
 buildscript {
     ext {
-        javaFxPlatform = project.findProperty("targetPlatform") ?: "win"
+        javaFxPlatform = project.findProperty("targetPlatform") ?: {
+            if (OperatingSystem.current().isWindows()) return "win"
+            if (OperatingSystem.current().isLinux()) return "linux"
+            if (OperatingSystem.current().isMacOsX()) return "osx"
+            return "win"
+        }()
         javaFxSdkHome = javaFxPlatform == "osx" ? "${System.env.JAVAFX_OSX_HOME}" : "${System.env.JAVAFX_HOME}"
         // -PtargetPlatform=mac
     }
@@ -10,6 +16,9 @@ buildscript {
 //        classpath 'com.gradleup.shadow:shadow-gradle-plugin:9.0.0-beta12'
         classpath libs.gradle.shadow.plugin
     }
+    println("JavaFX Build platform: " + System.properties['os.name'])
+    println("JavaFX Application target platform: " + javaFxPlatform)
+    println("JavaFX SDK Home: " + javaFxSdkHome)
 }
 
 plugins {
@@ -22,6 +31,7 @@ plugins {
 
 apply plugin: 'java'
 apply plugin: 'application'
+apply plugin: 'org.openjfx.javafxplugin'
 apply plugin: 'com.gradleup.shadow'
 
 repositories {
@@ -61,7 +71,6 @@ dependencies {
     testRuntimeOnly libs.junit.platform.launcher
     testImplementation libs.junit.jupiter.api
     testImplementation libs.junit.jupiter.engine
-//    testImplementation libs.mockito.core
 }
 
 jar {

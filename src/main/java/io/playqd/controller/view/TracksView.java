@@ -1,4 +1,4 @@
-package io.playqd.controller.tracks;
+package io.playqd.controller.view;
 
 import de.jensd.fx.glyphs.fontawesome.FontAwesomeIcon;
 import de.jensd.fx.glyphs.fontawesome.FontAwesomeIconView;

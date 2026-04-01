@@ -1,11 +1,15 @@
 package io.playqd.client;
 
 import javafx.scene.image.Image;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.HashMap;
 import java.util.Map;
 
 public final class ArtworkImages {
+
+    private static final Logger LOG = LoggerFactory.getLogger(ArtworkImages.class);
 
     private static final String DEFAULT_ARTIST_IMG_URL = "/img/tone.png";
     private static final String DEFAULT_ALBUM_IMG_URL = "/img/no-album-art-3.png";
@@ -66,6 +70,7 @@ public final class ArtworkImages {
             image = new Image(url, size, size, true, true, true);
             return image;
         } catch (IllegalArgumentException e) {
+            LOG.error("Get image failed. {}. {}", url, e.getMessage(), e);
             return null;
         }
     }

@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import io.playqd.controller.tracks.TracksTableFooter?>
-<?import io.playqd.controller.tracks.TracksTableHeader?>
-<?import io.playqd.controller.tracks.TracksTableView?>
+<?import io.playqd.controller.view.TracksTableFooter?>
+<?import io.playqd.controller.view.TracksTableHeader?>
+<?import io.playqd.controller.view.TracksTableView?>
 <?import javafx.scene.layout.VBox?>
 <fx:root xmlns="http://javafx.com/javafx"
          xmlns:fx="http://javafx.com/fxml"

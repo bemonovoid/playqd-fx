@@ -3,7 +3,7 @@ rootProject.name = "playqd-fx"
 dependencyResolutionManagement {
     versionCatalogs {
         libs {
-            version('javafxVersion', '25.0.1')
+            version('javafxVersion', '25.0.2')
             version('javafxpluginVersion', '0.1.0')
             version('controlsfxVersion', '11.2.2')
             version('fontAwesomeVersion', '8.9')

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <?import de.jensd.fx.glyphs.fontawesome.*?>
-<?import javafx.geometry.Insets?>
+<?import javafx.geometry.*?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.image.ImageView?>
 <?import javafx.scene.layout.*?>
@@ -70,8 +70,13 @@
         </VBox>
     </HBox>
 
-    <HBox alignment="CENTER">
-        <Separator orientation="VERTICAL"/>
+    <Separator orientation="VERTICAL">
+        <padding>
+            <Insets left="10"/>
+        </padding>
+    </Separator>
+
+    <HBox alignment="CENTER_LEFT">
         <ToggleButton fx:id="favoriteBtn" focusTraversable="false" style="-fx-background-color: transparent;" minWidth="40">
             <graphic>
                 <FontAwesomeIconView glyphName="STAR_ALT"/>
@@ -96,7 +101,7 @@
             </graphic>
         </Button>
 
-        <Slider fx:id="volumeSlider" maxWidth="100" value="50"/>
+        <Slider fx:id="volumeSlider" maxWidth="100"/>
     </HBox>
 
     <Pane/>

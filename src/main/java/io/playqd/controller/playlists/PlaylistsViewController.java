@@ -1,6 +1,6 @@
 package io.playqd.controller.playlists;
 
-import io.playqd.controller.tracks.TracksView;
+import io.playqd.controller.view.TracksView;
 import io.playqd.controller.view.menuitem.TrackRowContextMenuItemsFactory;
 import io.playqd.data.PlaylistWithTrackIds;
 import io.playqd.player.PlayerTrackListManager;

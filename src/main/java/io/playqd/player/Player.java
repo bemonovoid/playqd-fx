@@ -1,7 +1,6 @@
 package io.playqd.player;
 
 import io.playqd.data.Track;
-import io.playqd.dbus.MprisApplication;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import org.slf4j.Logger;
@@ -40,9 +39,8 @@ public class Player {
         MEDIA_PLAYER_FACTORY = new MediaPlayerFactory();
         MEDIA_PLAYER = MEDIA_PLAYER_FACTORY.mediaPlayers().newMediaPlayer();
         MEDIA_LIST_PLAYER = newMediaListPlayerInstance();
-        var mprisApp = MprisApplication.getInstance();
-        mprisApp.start(MEDIA_PLAYER, MEDIA_LIST_PLAYER);
-        var mediaPlayerEventListener = new MediaPlayerEventAdapterImpl(MEDIA_LIST_PLAYER, mprisApp.getMprisNotifier());
+        MprisApplication.init(MEDIA_PLAYER, MEDIA_LIST_PLAYER).start();
+        var mediaPlayerEventListener = new MediaPlayerEventAdapterImpl(MEDIA_LIST_PLAYER);
         MEDIA_PLAYER.events().addMediaPlayerEventListener(mediaPlayerEventListener);
         addLoggingListeners();
     }
@@ -299,7 +297,6 @@ public class Player {
         if (isPlaying()) {
             stop();
         }
-        MprisApplication.getInstance().close();
         MEDIA_LIST_PLAYER.release();
         MEDIA_PLAYER.release();
         LOG.info("Player was closed.");

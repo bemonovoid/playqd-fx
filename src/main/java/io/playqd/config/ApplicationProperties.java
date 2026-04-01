@@ -9,17 +9,19 @@ import javafx.beans.property.SimpleStringProperty;
 public record ApplicationProperties(@JsonSerialize(using = StringPropertySerializer.class)
                                     SimpleStringProperty serverHost,
                                     UIProperties ui,
-                                    LibraryProperties library) {
+                                    LibraryProperties library,
+                                    PlayerProperties player) {
 
     @JsonCreator
     public ApplicationProperties(@JsonProperty("serverHost") String serverHost,
                                  @JsonProperty("ui") UIProperties ui,
-                                 @JsonProperty("library") LibraryProperties library) {
-        this(new SimpleStringProperty(serverHost), ui, library);
+                                 @JsonProperty("library") LibraryProperties library,
+                                 @JsonProperty("player") PlayerProperties player) {
+        this(new SimpleStringProperty(serverHost), ui, library, player);
     }
 
     public ApplicationProperties() {
-        this("http://localhost:8016", new UIProperties(), new LibraryProperties());
+        this("http://localhost:8016", new UIProperties(), new LibraryProperties(), new PlayerProperties());
     }
 
 }

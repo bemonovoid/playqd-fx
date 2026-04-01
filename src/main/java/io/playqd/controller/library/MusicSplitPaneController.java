@@ -1,6 +1,6 @@
 package io.playqd.controller.library;
 
-import io.playqd.controller.tracks.TracksView;
+import io.playqd.controller.view.TracksView;
 import io.playqd.data.Album;
 import io.playqd.data.Artist;
 import io.playqd.data.Track;
@@ -9,6 +9,7 @@ import io.playqd.utils.FakeIds;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.fxml.FXML;
+import javafx.scene.Node;
 import javafx.scene.control.ListView;
 
 import java.util.*;
