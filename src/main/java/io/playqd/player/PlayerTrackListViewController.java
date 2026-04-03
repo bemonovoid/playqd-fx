@@ -94,10 +94,11 @@ public class PlayerTrackListViewController extends PlayerTrackListView {
             setItems(MusicLibrary.getTracksById(lastTracklist));
             var lastPlayedTrackProp = AppConfig.getProperties().player().state().lastPlayedTrackId();
             if (lastPlayedTrackProp != null) {
-                var lastPlayedTrack = MusicLibrary.getTrackById(lastPlayedTrackProp.get());
-                if (lastPlayedTrack != null && lastTracklist.contains(lastPlayedTrack.id())) {
-                    trackListView.getSelectionModel().select(lastPlayedTrack);
-                }
+                MusicLibrary.findTrackById(lastPlayedTrackProp.get()).ifPresent(lastPlayedTrack -> {
+                    if (lastTracklist.contains(lastPlayedTrack.id())) {
+                        trackListView.getSelectionModel().select(lastPlayedTrack);
+                    }
+                });
             }
         }
     }

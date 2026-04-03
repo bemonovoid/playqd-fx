@@ -18,8 +18,8 @@ public record TrackRef(String mrl, String[] options, Track track) {
     }
 
     private static String[] buildRangeOptions(Track track) {
-        var startTime = track.cueInfo().startTimeInSeconds();
-        var endTime = track.cueInfo().startTimeInSeconds() + track.length().seconds();
+        var startTime = track.startSecond();
+        var endTime = startTime + track.length().seconds();
         var startTimeOption = ":start-time=" + startTime;
         var stopTimeOption = ":stop-time=" + endTime;
         return new String[]{ startTimeOption, stopTimeOption };

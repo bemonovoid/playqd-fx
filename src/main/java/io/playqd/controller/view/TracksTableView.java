@@ -39,6 +39,7 @@ public class TracksTableView extends TableView<TrackModel> {
     private final StringProperty tracksInfoProperty = new SimpleStringProperty("");
     private final ObjectProperty<TrackSelectedRow> rowDoubleClickedProperty = new SimpleObjectProperty<>();
 
+    private TracksDisplayOptions displayOptions;
     private Supplier<TrackRowContextMenuItemsFactory> trackContextMenuItemsFactory;
 
     @FXML
@@ -200,22 +201,33 @@ public class TracksTableView extends TableView<TrackModel> {
     private void initRowFactories() {
         setRowFactory(_ -> {
             var row = new TableRow<TrackModel>();
-            row.setOnMouseClicked(e -> {
-                if (!row.isEmpty()) {
-                    if (MouseEventHelper.primaryButtonDoubleClicked(e)) {
-                        rowDoubleClickedProperty.set(new TrackSelectedRow(row.getIndex(), row.getItem().track()));
-                    } else if (MouseEventHelper.secondaryButtonSingleClicked(e)) {
-                        if (row.getContextMenu() == null) {
-                            var contextMenu = new TrackRowContextMenu(getTrackContextMenuItemsFactory());
-                            contextMenu.setOnHidden(_ -> row.setContextMenu(null)); // to reset a state
-                            row.setContextMenu(contextMenu);
-                            contextMenu.show(row, e.getScreenX(), e.getScreenY());
-                        }
-                    }
-                }
-            });
+            setOnRowMouseClicked(row);
+            setOnRowItemChanged(row);
             return row;
         });
+    }
+
+    private void setOnRowMouseClicked(TableRow<TrackModel> row) {
+        row.setOnMouseClicked(e -> {
+            if (!row.isEmpty()) {
+                if (MouseEventHelper.primaryButtonDoubleClicked(e)) {
+                    rowDoubleClickedProperty.set(new TrackSelectedRow(row.getIndex(), row.getItem().track()));
+                } else if (MouseEventHelper.secondaryButtonSingleClicked(e)) {
+                    if (row.getContextMenu() == null) {
+                        var contextMenu = new TrackRowContextMenu(getTrackContextMenuItemsFactory());
+                        contextMenu.setOnHidden(_ -> row.setContextMenu(null)); // to reset a state
+                        row.setContextMenu(contextMenu);
+                        contextMenu.show(row, e.getScreenX(), e.getScreenY());
+                    }
+                }
+            }
+        });
+    }
+
+    private void setOnRowItemChanged(TableRow<TrackModel> row) {
+//        row.itemProperty().addListener((_, _, newItem) -> {
+//            row.setDisable(true);
+//        });
     }
 
     public void setTrackContextMenuItemsFactory(Supplier<TrackRowContextMenuItemsFactory> factory) {
@@ -232,16 +244,26 @@ public class TracksTableView extends TableView<TrackModel> {
     }
 
     public void showTracks(Supplier<List<Track>> tracksProvider) {
-        showTracks(tracksProvider, null);
+        showTracks(tracksProvider, new TracksDisplayOptions());
     }
 
-    public void showTracks(Supplier<List<Track>> tracksProvider, Comparator<Track> comparator) {
+    public void showTracks(Supplier<List<Track>> tracks, TracksDisplayOptions displayOptions) {
+        showTracks(tracks, displayOptions, null);
+    }
+
+    private void showTracks(Supplier<List<Track>> tracksProvider,
+                            TracksDisplayOptions displayOptions,
+                            Comparator<Track> comparator) {
+        this.displayOptions = displayOptions;
         Platform.runLater(() -> {
             var allTracks = tracksProvider.get();
             if (comparator != null) {
                 allTracks.sort(comparator);
             }
-            var models = allTracks.stream().map(TrackModel::new).toList();
+            var models = allTracks.stream()
+                    .filter(track -> !track.isCueParentTrack())
+                    .map(TrackModel::new)
+                    .toList();
             setUserData(models);
             setItems(FXCollections.observableList(models));
             if (!models.isEmpty()) {

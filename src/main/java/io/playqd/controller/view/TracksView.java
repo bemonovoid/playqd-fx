@@ -4,6 +4,7 @@ import de.jensd.fx.glyphs.fontawesome.FontAwesomeIcon;
 import de.jensd.fx.glyphs.fontawesome.FontAwesomeIconView;
 import io.playqd.controller.library.SearchTextController;
 import io.playqd.controller.library.Searchable;
+import io.playqd.data.Track;
 import io.playqd.dialog.tracks.TracksTableViewColumnsDialog;
 import io.playqd.fxml.FXMLLoaderUtils;
 import io.playqd.fxml.FXMLResource;
@@ -20,6 +21,7 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.function.Consumer;
+import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 public class TracksView extends VBox {
@@ -43,6 +45,14 @@ public class TracksView extends VBox {
         resourceLoader.setRoot(this);
         resourceLoader.setController(this);
         FXMLLoaderUtils.loadObject(resourceLoader, TracksView.class);
+    }
+
+    public void showTracks(Supplier<List<Track>> tracks) {
+        showTracks(tracks, new TracksDisplayOptions());
+    }
+
+    public void showTracks(Supplier<List<Track>> tracks, TracksDisplayOptions displayOptions) {
+        tracksTableView.showTracks(tracks, displayOptions);
     }
 
     @FXML

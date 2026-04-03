@@ -19,6 +19,7 @@ import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import javafx.scene.image.ImageView;
 import javafx.util.Duration;
+import org.controlsfx.control.HyperlinkLabel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -39,7 +40,10 @@ public class PlayerToolbarController {
     private ImageView artworkImageView;
 
     @FXML
-    private Label sliderTitle, timeElapsedLabel, trackTimeLabel;
+    private HyperlinkLabel artistNameLinkLabel;
+
+    @FXML
+    private Label trackTitleLabel, timeElapsedLabel, trackTimeLabel;
 
     @FXML
     private Button playPrevBtn, playBtn, playNextBtn, volumeBtn;
@@ -53,6 +57,7 @@ public class PlayerToolbarController {
     @FXML
     private void initialize() {
         initArtworkImageListeners();
+        initTitleListeners();
         initPlayerEventConsumers();
         initVolumeControl();
         initButtonEventHandlers();
@@ -63,7 +68,7 @@ public class PlayerToolbarController {
                     .ifPresentOrElse(track -> {
                         var parentTrack = MusicLibrary.getTrackById(track.realId());
                         var seekCueTime = slider.getValue() * (track.length().seconds());
-                        var seekParentTime = (track.cueInfo().startTimeInSeconds()) + seekCueTime;
+                        var seekParentTime = (track.startSecond()) + seekCueTime;
                         var seekPosition = seekParentTime / (parentTrack.length().seconds());
                         Player.seek((float) seekPosition);
                     }, () -> Player.seek((float) slider.getValue()));
@@ -221,6 +226,15 @@ public class PlayerToolbarController {
         });
     }
 
+    private void initTitleListeners() {
+        artistNameLinkLabel.setOnAction(_ -> {
+            var track = (Track) artistNameLinkLabel.getUserData();
+            if (track != null) {
+
+            }
+        });
+    }
+
     private void updateArtwork(Track track) {
         var size = 80;
         var image = ArtworkImages.album(track.id(), size);
@@ -240,12 +254,16 @@ public class PlayerToolbarController {
 
     private void updateSliderPosition(double newValue) {
         Player.playingTrack()
-                .filter(track -> track.cueInfo().parentId() == null) //todo ???
+                // cue tracks are supposed to have parent id.
+                // slider position for cue tracks is updated upon time changed callback.
+                .filter(track -> track.parentId() == null)
                 .ifPresent(_ -> slider.setValue(newValue));
     }
 
     private void updateSliderTitle(Track track) {
-        sliderTitle.setText(track.artistName() + " - " + track.title());
+        artistNameLinkLabel.setUserData(track);
+        artistNameLinkLabel.setText("[" + track.artistName() + "]");
+        trackTitleLabel.setText(" - " + track.title());
     }
 
     private void updateTrackTime(Track track) {
@@ -258,7 +276,7 @@ public class PlayerToolbarController {
                     .filter(Track::isCueTrack)
                     .ifPresentOrElse(track -> {
                         // the 'newTime' is relative to parent track
-                        var newCueTimeInMillis = newTime - (((long) track.cueInfo().startTimeInSeconds()) * 1000);
+                        var newCueTimeInMillis = newTime - (((long) track.startSecond()) * 1000);
                         var progress = (double) newCueTimeInMillis / (track.length().seconds() * 1000);
                         slider.setValue(progress);
                         timeElapsedLabel.setText(

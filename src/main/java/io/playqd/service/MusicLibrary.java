@@ -1,5 +1,6 @@
 package io.playqd.service;
 
+import io.playqd.client.ClientException;
 import io.playqd.client.PageRequest;
 import io.playqd.client.PlayqdClient;
 import io.playqd.client.PlayqdClientProvider;
@@ -118,6 +119,14 @@ public final class MusicLibrary {
         return TRACKS_CACHE.computeIfAbsent(id, MusicLibrary::getTrackFromServer);
     }
 
+    public static Result<Track> findTrackById(long id) {
+        try {
+            return Result.success(TRACKS_CACHE.computeIfAbsent(id, MusicLibrary::getTrackFromServer));
+        } catch (ClientException e) {
+            return Result.error(e);
+        }
+    }
+
     public static List<Track> getTracksById(Collection<Long> ids) {
         return getTracksById(ids, new TrackFilters());
     }
@@ -177,7 +186,7 @@ public final class MusicLibrary {
 
     public static List<Track> getCueTracks() {
         return new ArrayList<>(getTracksFromCache().values().stream()
-                .filter(t -> t.cueInfo().parentId() != null)
+                .filter(Track::isCueTrack)
                 .toList());
     }
 

@@ -6,6 +6,7 @@
 <?import javafx.scene.image.ImageView?>
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.text.Font?>
+<?import org.controlsfx.control.HyperlinkLabel?>
 <ToolBar xmlns="http://javafx.com/javafx"
          xmlns:fx="http://javafx.com/fxml"
          fx:controller="io.playqd.controller.player.PlayerToolbarController">
@@ -45,14 +46,19 @@
 
     <HBox HBox.hgrow="ALWAYS">
         <VBox HBox.hgrow="ALWAYS" spacing="1">
-            <Label fx:id="sliderTitle" text="Playing queue is empty">
+            <HBox alignment="CENTER_LEFT">
                 <padding>
                     <Insets left="5" bottom="2"/>
                 </padding>
-                <font>
-                    <Font name="Segoe UI Medium" size="15.0" />
-                </font>
-            </Label>
+                <HyperlinkLabel fx:id="artistNameLinkLabel" style="-fx-font-size: 15">
+
+                </HyperlinkLabel>
+                <Label fx:id="trackTitleLabel" text="Playing queue is empty">
+                    <font>
+                        <Font name="Segoe UI Medium" size="15.0" />
+                    </font>
+                </Label>
+            </HBox>
             <Slider max="1" fx:id="slider" HBox.hgrow="ALWAYS"/>
             <HBox >
                 <Pane HBox.hgrow="ALWAYS"/>

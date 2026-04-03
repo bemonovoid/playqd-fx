@@ -100,6 +100,8 @@ public class MprisApplication {
                     .setMaximumRate(1)
                     .build(APP_BUS_NAME);
 
+            //TODO connection.releasename(APP_BUS_NAME)
+
             removeMediaPlayerEventListener();
             mediaPlayer.events().addMediaPlayerEventListener(
                     vlcEventToMPRISAdapter = new VLCEventToMPRISAdapterImpl(mpris));

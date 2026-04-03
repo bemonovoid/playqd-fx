@@ -37,13 +37,13 @@ public class TracksExplorerViewController {
                 return;
             }
             if (ListItemId.ALL == selectedItem.id()) {
-                tracksTableView.showTracks(MusicLibrary::getAllTracks);
+                tracksView.showTracks(MusicLibrary::getAllTracks);
             } else if (ListItemId.FAVORITES == selectedItem.id()) {
-                tracksTableView.showTracks(MusicLibrary::getFavoriteTracks);
+                tracksView.showTracks(MusicLibrary::getFavoriteTracks);
             } else if (ListItemId.PLAYED == selectedItem.id()) {
-                tracksTableView.showTracks(MusicLibrary::getPlayedTracks);
+                tracksView.showTracks(MusicLibrary::getPlayedTracks);
             } else if (ListItemId.CUE == selectedItem.id()) {
-                tracksTableView.showTracks(MusicLibrary::getCueTracks);
+                tracksView.showTracks(MusicLibrary::getCueTracks);
             }
         });
         listView.getSelectionModel().select(0);
@@ -111,13 +111,13 @@ public class TracksExplorerViewController {
                     case FAVORITES -> {
                         li.countProperty().set(counts.favorites());
                         if (li == getSelectedItem() && tracksUpdatedEvent.type().isLikeOrUnlike()) {
-                            tracksTableView.showTracks(MusicLibrary::getFavoriteTracks);
+                            tracksView.showTracks(MusicLibrary::getFavoriteTracks);
                         }
                     }
                     case PLAYED -> {
                         li.countProperty().set(counts.played());
                         if (li == getSelectedItem() && TrackUpdateType.PLAY_COUNT_INCR == tracksUpdatedEvent.type()) {
-                            tracksTableView.showTracks(MusicLibrary::getPlayedTracks);
+                            tracksView.showTracks(MusicLibrary::getPlayedTracks);
                         }
                     }
                 }
