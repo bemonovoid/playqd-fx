@@ -1,5 +1,6 @@
 package io.playqd.controller;
 
+import io.playqd.controller.view.ObservableProperties;
 import javafx.fxml.FXML;
 import javafx.scene.Node;
 import javafx.scene.control.SplitPane;
@@ -43,12 +44,25 @@ public class ApplicationController {
             if (nodeToShow != null) {
                 if (rootSplitPane.getItems().size() == 1) {
                     rootSplitPane.getItems().addFirst(nodeToShow);
-                } else {
+                } else if (rootSplitPane.getItems().getFirst() != nodeToShow) {
                     rootSplitPane.getItems().set(0, nodeToShow);
                 }
             }
             rootSplitPane.setDividerPositions(0.85);
         });
+
+        ObservableProperties.getAppViewRequestProperty().addListener((_, _, newValue) -> {
+            if (newValue != null) {
+                switch (newValue.view()) {
+                    case MUSIC_LIBRARY -> viewToggleGroup.selectToggle(libraryViewButton);
+                    case COLLECTIONS -> viewToggleGroup.selectToggle(collectionsViewBtn);
+                    case PLAYLISTS -> viewToggleGroup.selectToggle(playlistsViewBtn);
+                    case TRACKS_EXPLORER -> viewToggleGroup.selectToggle(tracksViewButton);
+                    case FOLDERS -> viewToggleGroup.selectToggle(foldersViewButton);
+                }
+            }
+        });
+
         viewToggleGroup.selectToggle(libraryViewButton);
     }
 

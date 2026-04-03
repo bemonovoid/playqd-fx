@@ -1,5 +1,7 @@
 package io.playqd.controller.folders;
 
+import io.playqd.client.MediaCollectionUtils;
+import io.playqd.client.PlayqdApis;
 import io.playqd.controller.view.menuitem.CollectionsMenuItems;
 import io.playqd.data.WatchFolderItem;
 import io.playqd.event.MouseEventHelper;
@@ -8,9 +10,7 @@ import io.playqd.player.PlayerTrackListManager;
 import io.playqd.player.TrackListRequest;
 import io.playqd.service.MusicLibrary;
 import io.playqd.utils.DateUtils;
-import io.playqd.client.MediaCollectionUtils;
 import io.playqd.utils.Numbers;
-import io.playqd.client.PlayqdApis;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ListChangeListener;
@@ -19,6 +19,7 @@ import javafx.scene.control.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.nio.file.Path;
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -64,6 +65,15 @@ public class FolderItemsTableViewController {
             titleLabel.setText(item.path().getParent().toString());
         }
         updateDetailsLabel();
+    }
+
+    void selectItem(Path path) {
+        for (int i = 0; i < tableView.getItems().size(); i++) {
+            var item = tableView.getItems().get(i);
+            if (item.path().equals(path)) {
+                tableView.getSelectionModel().select(i);
+            }
+        }
     }
 
     private void setRowFactory() {

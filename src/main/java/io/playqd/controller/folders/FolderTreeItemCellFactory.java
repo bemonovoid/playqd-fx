@@ -2,8 +2,6 @@ package io.playqd.controller.folders;
 
 import de.jensd.fx.glyphs.fontawesome.FontAwesomeIcon;
 import de.jensd.fx.glyphs.fontawesome.FontAwesomeIconView;
-import io.playqd.client.PlayqdClientProvider;
-import io.playqd.data.ItemType;
 import io.playqd.data.WatchFolderItem;
 import io.playqd.event.MouseEventHelper;
 import javafx.scene.control.*;
@@ -13,7 +11,6 @@ import javafx.scene.layout.VBox;
 import javafx.scene.text.TextAlignment;
 import javafx.util.Callback;
 
-import java.util.Comparator;
 import java.util.function.Supplier;
 
 class FolderTreeItemCellFactory implements Callback<TreeView<WatchFolderItem>, TreeCell<WatchFolderItem>> {
@@ -71,11 +68,7 @@ class FolderTreeItemCellFactory implements Callback<TreeView<WatchFolderItem>, T
                     setOnMouseClicked(mouseEvent -> {
                         if (MouseEventHelper.primaryButtonDoubleClicked(mouseEvent)) {
                             if (getTreeItem().getChildren().isEmpty()) {
-                                var itemsFromServer = PlayqdClientProvider.get()
-                                        .watchFolderChildrenItems(item.id(), ItemType.FOLDER).stream()
-                                        .sorted(Comparator.comparing(WatchFolderItem::name))
-                                        .map(TreeItem::new)
-                                        .toList();
+                                var itemsFromServer = FoldersViewController.getChildrenFromServer(item.id());
                                 getTreeItem().getChildren().setAll(itemsFromServer);
                                 getTreeItem().setExpanded(true);
                             }

@@ -5,7 +5,9 @@ import de.jensd.fx.glyphs.fontawesome.FontAwesomeIconView;
 import io.playqd.client.ArtworkImages;
 import io.playqd.client.MediaCollectionUtils;
 import io.playqd.config.AppConfig;
+import io.playqd.controller.view.ObservableProperties;
 import io.playqd.controller.view.menuitem.CollectionsMenuItems;
+import io.playqd.controller.view.request.MusicLibraryViewRequest;
 import io.playqd.data.Track;
 import io.playqd.event.MouseEventHelper;
 import io.playqd.player.FetchMode;
@@ -226,12 +228,13 @@ public class PlayerToolbarController {
         });
     }
 
-    private void initTitleListeners() {
-        artistNameLinkLabel.setOnAction(_ -> {
+    private void initTitleListeners() {;
+        artistNameLinkLabel.setOnAction(e -> {
             var track = (Track) artistNameLinkLabel.getUserData();
             if (track != null) {
-
+                ObservableProperties.setAppViewRequestProperty(new MusicLibraryViewRequest(track));
             }
+            e.consume();
         });
     }
 

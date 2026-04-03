@@ -1,5 +1,7 @@
 package io.playqd.controller.library;
 
+import io.playqd.controller.view.ApplicationViews;
+import io.playqd.controller.view.ObservableProperties;
 import io.playqd.data.Artist;
 import io.playqd.service.MusicLibrary;
 import io.playqd.utils.FakeIds;
@@ -8,7 +10,6 @@ import io.playqd.utils.SortDirection;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.fxml.FXML;
-import javafx.scene.Node;
 import javafx.scene.control.*;
 import javafx.scene.input.KeyCode;
 import javafx.scene.layout.VBox;
@@ -74,6 +75,7 @@ public class MusicLibraryArtistsController extends MusicSplitPaneController {
         });
 
         initArtistsInfoLabelListener();
+        onViewRequestListener();
 
         MusicLibrary.libraryRefreshedEventProperty().addListener((_, _, _) -> showAllArtists());
 
@@ -260,6 +262,19 @@ public class MusicLibraryArtistsController extends MusicSplitPaneController {
             artistsListView.setUserData(Collections.unmodifiableList(result));
             artistsListView.setItems(FXCollections.observableArrayList(result));
             artistsListView.getSelectionModel().selectFirst();
+        });
+    }
+
+    private void onViewRequestListener() {
+        ObservableProperties.getAppViewRequestProperty().addListener((_, _, newValue) -> {
+            if (newValue != null && ApplicationViews.MUSIC_LIBRARY == newValue.view()) {
+                var viewReq = newValue.musicLibraryViewRequest();
+                for (int i = 0; i < artistsListView.getItems().size(); i++) {
+                    if (artistsListView.getItems().get(i).name().equals(viewReq.track().artistName())) {
+                        artistsListView.getSelectionModel().select(i);
+                    }
+                }
+            }
         });
     }
 

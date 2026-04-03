@@ -25,6 +25,7 @@ public class TrackRowContextMenuItemsFactory {
                 .setSelectedTracks(tracks)
                 .build();
         var collectionMenuItems = new CollectionsMenuItems().build();
+        var showInFolderItems = new ShowInFolderItems().setOnAction(() -> tracks).build();
 
         var items = new ArrayList<>(playMenuItems);
 
@@ -32,15 +33,15 @@ public class TrackRowContextMenuItemsFactory {
         items.addAll(favoritesMenuItems);
         items.add(new SeparatorMenuItem());
         items.addAll(playlistMenuItems);
-        items.add(new SeparatorMenuItem());
         items.addAll(collectionMenuItems);
+        items.add(new SeparatorMenuItem());
+        items.addAll(showInFolderItems);
 
         var cueFileTracks = tracks.stream()
                 .filter(Track::isCueTrack)
                 .map(t -> MusicLibrary.getTrackById(t.realId()))
                 .toList();
         if (!cueFileTracks.isEmpty()) {
-            items.add(new SeparatorMenuItem());
             var cueMenuItems = new CueMenuItems().setSelectedTracks(cueFileTracks).build();
             items.addAll(cueMenuItems);
         }
