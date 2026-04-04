@@ -9,7 +9,6 @@ import io.playqd.utils.FakeIds;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.fxml.FXML;
-import javafx.scene.Node;
 import javafx.scene.control.ListView;
 
 import java.util.*;
@@ -27,7 +26,15 @@ public abstract class MusicSplitPaneController {
     protected TracksView tracksView;
 
     protected void initializeInternal() {
-
+        tracksView.tracksTableView().getColumns().stream()
+                .filter(col ->
+                        col != tracksView.tracksTableView().artworkCol &&
+                        col != tracksView.tracksTableView().trackNumberCol &&
+                        col != tracksView.tracksTableView().titleCol &&
+                        col != tracksView.tracksTableView().timeCol)
+                .forEach(col -> col.setVisible(false));
+        tracksView.tracksTableView().timeCol.setMinWidth(60);
+        tracksView.tracksTableView().timeCol.setMaxWidth(60);
     }
 
     void showAllAlbums() {
@@ -62,24 +69,6 @@ public abstract class MusicSplitPaneController {
     List<Track> getArtistTracks(long trackId) {
         return MusicLibrary.getArtistTracks(trackId).stream()
                 .sorted(Comparator.comparing(Track::title))
-                .collect(Collectors.toCollection(ArrayList::new));
-    }
-
-    List<Track> getAlbumTracks(Album album) {
-
-        var albumTracks = MusicLibrary.getAlbumTracks(album.id());
-
-        return albumTracks.stream()
-                .sorted((t1, t2) -> {
-                    try {
-                        if (t1.number() == null || t2.number() == null) {
-                            return 0;
-                        }
-                        return Integer.compare(Integer.parseInt(t1.number()), Integer.parseInt(t2.number()));
-                    } catch (NumberFormatException e) {
-                        return t1.number().compareTo(t2.number());
-                    }
-                })
                 .collect(Collectors.toCollection(ArrayList::new));
     }
 

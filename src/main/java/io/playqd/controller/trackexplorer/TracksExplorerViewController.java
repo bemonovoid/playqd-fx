@@ -29,7 +29,6 @@ public class TracksExplorerViewController {
         tracksTableView = tracksView.tracksTableView();
 //        tracksTableView.setTrackContextMenuItemsFactory(() -> new TracksExplorerTrackContextMenuConfigurer(this));
         listView.setCellFactory(new TracksExplorerListViewCellFactory());
-        setTracksVisibleColumns();
         setEventHandlers();
         populateListView();
         listView.getSelectionModel().selectedItemProperty().addListener((_, _, selectedItem) -> {
@@ -68,18 +67,6 @@ public class TracksExplorerViewController {
                 new ListItem(ListItemId.FAVORITES, "Favorites", new SimpleIntegerProperty(counts.favorites())),
                 new ListItem(ListItemId.PLAYED, "Played", new SimpleIntegerProperty(counts.played())),
                 new ListItem(ListItemId.CUE, "Cue tracks", new SimpleIntegerProperty(counts.cues())));
-    }
-
-    private void setTracksVisibleColumns() {
-        tracksTableView.artistCol.setVisible(true);
-        tracksTableView.albumCol.setVisible(true);
-        tracksTableView.extensionCol.setVisible(true);
-        tracksTableView.sizeCol.setVisible(true);
-        tracksTableView.ratingCol.setVisible(true);
-        tracksTableView.playCountCol.setVisible(true);
-        tracksTableView.bitsPerSampleCol.setVisible(true);
-        tracksTableView.bitRateCol.setVisible(true);
-        tracksTableView.sampleRateCol.setVisible(true);
     }
 
     private void setEventHandlers() {

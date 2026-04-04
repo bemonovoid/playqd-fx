@@ -97,7 +97,7 @@ public class TracksView extends VBox {
                 return;
             }
             @SuppressWarnings("unchecked")
-            var items = ((List<TrackModel>) tracksTableView.getUserData()).stream()
+            var items = ((List<TrackTableRow>) tracksTableView.getUserData()).stream()
                     .filter(m -> m.track().title().toLowerCase().contains(newInput))
                     .collect(Collectors.toCollection(ArrayList::new));
             LOG.info("Search by: '{}'. Found: {}", newInput, items.size());
@@ -114,7 +114,7 @@ public class TracksView extends VBox {
     private Runnable onSearchTextInputCleared() {
         return () -> {
             @SuppressWarnings("unchecked")
-            var sourceItems = (List<TrackModel>) tracksTableView.getUserData();
+            var sourceItems = (List<TrackTableRow>) tracksTableView.getUserData();
             tracksTableView.setItems(FXCollections.observableArrayList(sourceItems));
             tracksTableView.getSelectionModel().selectFirst();
         };

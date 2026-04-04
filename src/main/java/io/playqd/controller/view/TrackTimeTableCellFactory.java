@@ -1,6 +1,5 @@
 package io.playqd.controller.view;
 
-import io.playqd.data.Track;
 import io.playqd.utils.TimeUtils;
 import javafx.scene.control.TableCell;
 import javafx.scene.control.TableColumn;
@@ -9,10 +8,11 @@ import javafx.util.Callback;
 
 import java.time.Duration;
 
-class TrackTimeTableCellFactory implements Callback<TableColumn<TrackModel, Integer>, TableCell<TrackModel, Integer>> {
+class TrackTimeTableCellFactory
+        implements Callback<TableColumn<TrackTableRow, Integer>, TableCell<TrackTableRow, Integer>> {
 
     @Override
-    public TableCell<TrackModel, Integer> call(TableColumn<TrackModel, Integer> param) {
+    public TableCell<TrackTableRow, Integer> call(TableColumn<TrackTableRow, Integer> param) {
         return new TextFieldTableCell<>() {
 
             @Override

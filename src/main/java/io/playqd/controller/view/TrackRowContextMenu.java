@@ -17,7 +17,7 @@ public class TrackRowContextMenu extends ContextMenu {
         LOG.info("Initialized with {}", menuItemsFactory.getClass().getSimpleName());
     }
 
-    public void show(TableRow<TrackModel> row, double anchorX, double anchorY) {
+    public void show(TableRow<TrackTableRow> row, double anchorX, double anchorY) {
         if (this.menuItemsFactory == null) {
             LOG.warn("'trackContextMenuConfigurer' is null. Context menu will not be shown.");
             return;

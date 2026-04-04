@@ -1,6 +1,8 @@
 package io.playqd.controller.library;
 
 import io.playqd.data.Album;
+import io.playqd.service.MusicLibrary;
+import io.playqd.service.TrackComparators;
 import io.playqd.utils.FakeIds;
 import io.playqd.utils.Numbers;
 import javafx.collections.FXCollections;
@@ -34,7 +36,9 @@ public class MusicLibraryAlbumsController extends MusicLibraryArtistsController 
                 tracksView().clear();
             }
             if (selectedAlbum != null) { // is null when some album is selected but next selection is artist list view
-                tracksView().tracksTableView().showTracks(() -> getAlbumTracks(selectedAlbum));
+                tracksView().tracksTableView().showTracks(
+                        () -> MusicLibrary.getAlbumTracks(selectedAlbum.id()),
+                        TrackComparators.trackInstanceNumberComparator());
             }
         });
         initAlbumsInfoLabelListener();

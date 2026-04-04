@@ -6,6 +6,32 @@ import java.util.Comparator;
 
 public final class TrackComparators {
 
+    public static Comparator<Track> trackInstanceNumberComparator() {
+        return (t1, t2) -> {
+            try {
+                if (t1.number() == null || t2.number() == null) {
+                    return 0;
+                }
+                return Integer.compare(Integer.parseInt(t1.number()), Integer.parseInt(t2.number()));
+            } catch (NumberFormatException e) {
+                return t1.number().compareTo(t2.number());
+            }
+        };
+    }
+
+    public static Comparator<String> trackNumberComparator() {
+        return (n1, n2) -> {
+            try {
+                if (n1 == null || n2 == null) {
+                    return 0;
+                }
+                return Integer.compare(Integer.parseInt(n1), Integer.parseInt(n2));
+            } catch (NumberFormatException e) {
+                return n1.compareTo(n2);
+            }
+        };
+    }
+
     public static Comparator<Track> byRatedDate() {
         return (t1, t2) -> {
             if (t1.rating().ratedDate() != null && t2.rating().ratedDate() != null) {

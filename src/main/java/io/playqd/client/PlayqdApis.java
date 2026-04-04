@@ -20,6 +20,10 @@ public class PlayqdApis {
         return String.format("%s/api/v1/tracks/%s/artwork", baseUrl(), trackId);
     }
 
+    public static String albumFolderImage(long albumId, String imageId) {
+        return String.format("%s/api/v1/folders/albums/%s/images/%s", baseUrl(), albumId, imageId);
+    }
+
     public static String trackCueFile(long trackId) {
         return String.format("%s/api/v1/tracks/%s/cue", baseUrl(), trackId);
     }

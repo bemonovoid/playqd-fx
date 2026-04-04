@@ -10,6 +10,7 @@ import io.playqd.fxml.FXMLResource;
 import io.playqd.player.PlayerTrackListManager;
 import io.playqd.player.TrackListRequest;
 import io.playqd.service.MusicLibrary;
+import io.playqd.service.TrackComparators;
 import io.playqd.utils.Numbers;
 import io.playqd.utils.TimeUtils;
 import javafx.application.Platform;
@@ -23,6 +24,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.time.Duration;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -31,7 +33,7 @@ import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
-public class TracksTableView extends TableView<TrackModel> {
+public class TracksTableView extends TableView<TrackTableRow> {
 
     private static final Logger LOG = LoggerFactory.getLogger(TracksTableView.class);
 
@@ -43,13 +45,16 @@ public class TracksTableView extends TableView<TrackModel> {
     private Supplier<TrackRowContextMenuItemsFactory> trackContextMenuItemsFactory;
 
     @FXML
-    public TableColumn<TrackModel, String> trackNumberCol, titleCol, artistCol, albumCol, filenameCol, sizeCol,
-            genreCol, extensionCol, mimeTypeCol, addedDateCol, lastPlayedDateCol, ratedDateCol;
-    @FXML
-    public TableColumn<TrackModel, Integer> timeCol, ratingCol, playCountCol, sampleRateCol, bitRateCol, bitsPerSampleCol;
+    public TableColumn<TrackTableRow, Long> artworkCol, sizeCol;
 
     @FXML
-    private TableColumn<TrackModel, Long> artworkCol;
+    public TableColumn<TrackTableRow, String> titleCol, trackNumberCol;
+
+    @FXML
+    public TableColumn<TrackTableRow, Integer> timeCol, ratingCol, playCountCol, sampleRateCol, bitRateCol, bitsPerSampleCol;
+
+    @FXML
+    private TableColumn<TrackTableRow, LocalDateTime> ratedDateCol, lastPlayedDateCol, addedDateCol;
 
     @FXML
     public Menu addToPlaylistMenu;
@@ -80,44 +85,37 @@ public class TracksTableView extends TableView<TrackModel> {
     }
 
     private void initColumnComparators() {
+        trackNumberCol.setComparator(TrackComparators.trackNumberComparator());
         timeCol.setComparator(Integer::compareTo);
+        sizeCol.setComparator(Long::compareTo);
         sampleRateCol.setComparator(Integer::compareTo);
+        ratedDateCol.setComparator(LocalDateTime::compareTo);
+        lastPlayedDateCol.setComparator(LocalDateTime::compareTo);
+        addedDateCol.setComparator(Comparator.reverseOrder());
     }
 
     private void intiColumnCellFactories() {
         artworkCol.setCellFactory(new TrackArtworkTableCellFactory());
         bitRateCol.setCellFactory(new NumberFormatTableCellFactory(m -> m.track().audioFormat().bitRate()));
         sampleRateCol.setCellFactory(new NumberFormatTableCellFactory(m -> m.track().audioFormat().sampleRate()));
+        bitsPerSampleCol.setCellFactory(new NumberFormatTableCellFactory(m -> m.track().audioFormat().bitsPerSample()));
+        sizeCol.setCellFactory(new TrackSizeFormatTableCellFactory());
         timeCol.setCellFactory(new TrackTimeTableCellFactory());
+        ratedDateCol.setCellFactory(new TrackDateTypeTableCellFactory());
+        lastPlayedDateCol.setCellFactory(new TrackDateTypeTableCellFactory());
+        addedDateCol.setCellFactory(new TrackDateTypeTableCellFactory());
     }
 
     private void initColumnCellValueFactories() {
-        // Object properties
-        artworkCol.setCellValueFactory(c -> new SimpleObjectProperty<>(c.getValue().track().id()));
-        timeCol.setCellValueFactory(c -> new SimpleObjectProperty<>(c.getValue().track().length().seconds()));
-        bitRateCol.setCellValueFactory(c -> new SimpleObjectProperty<>(c.getValue().track().audioFormat().bitRate()));
-        sampleRateCol.setCellValueFactory(c -> new SimpleObjectProperty<>(c.getValue().track().audioFormat().sampleRate()));
-        bitsPerSampleCol.setCellValueFactory(c -> new SimpleObjectProperty<>(c.getValue().track().audioFormat().bitsPerSample()));
-        // String properties
-        trackNumberCol.setCellValueFactory(c -> new SimpleStringProperty(c.getValue().track().number()));
-        titleCol.setCellValueFactory(c -> new SimpleStringProperty(c.getValue().track().title()));
-        artistCol.setCellValueFactory(c -> new SimpleStringProperty(c.getValue().track().artistName()));
-        albumCol.setCellValueFactory(c -> new SimpleStringProperty(c.getValue().track().albumName()));
-        genreCol.setCellValueFactory(c -> new SimpleStringProperty(c.getValue().track().genre()));
-        filenameCol.setCellValueFactory(c -> new SimpleStringProperty(c.getValue().track().fileAttributes().name()));
-        extensionCol.setCellValueFactory(c -> new SimpleStringProperty(c.getValue().track().fileAttributes().extension()));
-        mimeTypeCol.setCellValueFactory(c -> new SimpleStringProperty(c.getValue().track().audioFormat().mimeType()));
-        ratingCol.setCellValueFactory(c -> c.getValue().rating().asObject());
-        ratedDateCol.setCellValueFactory(c -> c.getValue().ratedDisplayDate());
-        playCountCol.setCellValueFactory(c -> c.getValue().playCount().asObject());
-        lastPlayedDateCol.setCellValueFactory(c -> c.getValue().getLastPlayedDisplayDate());
+        ratingCol.setCellValueFactory(c -> c.getValue().getRating().asObject());
+        ratedDateCol.setCellValueFactory(c -> c.getValue().getRatedDate());
+        playCountCol.setCellValueFactory(c -> c.getValue().getPlayCount().asObject());
+        lastPlayedDateCol.setCellValueFactory(c -> c.getValue().getLastPlayedDate());
 
-        sizeCol.setCellValueFactory(c -> new SimpleStringProperty(c.getValue().fileDisplaySize()));
-        addedDateCol.setCellValueFactory(c -> new SimpleStringProperty(c.getValue().addedToWatchFolderDisplayDate()));
     }
 
     private void initSelectedItemsChangedListener() {
-        getSelectionModel().getSelectedItems().addListener((ListChangeListener<TrackModel>) changed ->
+        getSelectionModel().getSelectedItems().addListener((ListChangeListener<TrackTableRow>) changed ->
                 updateSelectedTracksInfoProperty(changed == null ? Collections.emptyList() : changed.getList()));
     }
 
@@ -127,12 +125,12 @@ public class TracksTableView extends TableView<TrackModel> {
 
     private void initTracksUpdatedListener() {
         // This will only update currently displayed table items. If the items must be removed or added this is to be
-        // done in the class that hold the context about an action, e.g: Unlike a track in favorites view will remove
+        // done in the class that holds the context about an action, e.g: Unlike a track in favorites view will remove
         // an item from table view. This handler is only responsible to update observable properties.
         MusicLibrary.tracksUpdatedEventProperty().addListener((_, _, tracksUpdate) -> {
             var updatedTracks = tracksUpdate.tracks().stream()
                     .collect(Collectors.toMap(Track::id, Function.identity()));
-            for (TrackModel m : getItems()) {
+            for (var m : getItems()) {
                 if (updatedTracks.isEmpty()) {
                     break;
                 }
@@ -145,7 +143,7 @@ public class TracksTableView extends TableView<TrackModel> {
         });
     }
 
-    private void updateSelectedTracksInfoProperty(List<? extends TrackModel> changed) {
+    private void updateSelectedTracksInfoProperty(List<? extends TrackTableRow> changed) {
         var selected = changed == null ? 0 : changed.size();
         var time = "";
         if (selected > 0) {
@@ -156,17 +154,17 @@ public class TracksTableView extends TableView<TrackModel> {
         selectedTracksInfoProperty.set(text);
     }
 
-    private void updateTracksInfoProperty(List<TrackModel> trackModels) {
-        if (trackModels == null || trackModels.isEmpty()) {
+    private void updateTracksInfoProperty(List<TrackTableRow> trackRows) {
+        if (trackRows == null || trackRows.isEmpty()) {
             tracksInfoProperty.set("");
         } else {
             var totalSize = (long) 0;
             var totalLength = (long) 0;
-            for (var m : trackModels) {
+            for (var m : trackRows) {
                 totalSize += m.track().fileAttributes().size();
                 totalLength += m.track().length().seconds();
             }
-            var files = Numbers.format(trackModels.size()) + (trackModels.size() > 1 ? " files" : " file");
+            var files = Numbers.format(trackRows.size()) + (trackRows.size() > 1 ? " files" : " file");
             var sizeFormatted = org.apache.commons.io.FileUtils.byteCountToDisplaySize(totalSize);
             var lengthFormatted = TimeUtils.durationToTimeFormat(Duration.ofSeconds(totalLength));
             tracksInfoProperty.set(String.format("%s, %s, %s", files, sizeFormatted, lengthFormatted));
@@ -181,7 +179,7 @@ public class TracksTableView extends TableView<TrackModel> {
                     if (KeyCode.ENTER == keyCode) {
                         var items = getSelectionModel().getSelectedItems();
                         if (!items.isEmpty()) {
-                            var trackListReq = new TrackListRequest(items.stream().map(TrackModel::track).toList());
+                            var trackListReq = new TrackListRequest(items.stream().map(TrackTableRow::track).toList());
                             PlayerTrackListManager.enqueue(trackListReq);
                         }
                     }
@@ -190,7 +188,7 @@ public class TracksTableView extends TableView<TrackModel> {
                 if (KeyCode.ENTER == keyCode) {
                     var items = getSelectionModel().getSelectedItems();
                     if (!items.isEmpty()) {
-                        var trackListReq = new TrackListRequest(items.stream().map(TrackModel::track).toList());
+                        var trackListReq = new TrackListRequest(items.stream().map(TrackTableRow::track).toList());
                         PlayerTrackListManager.enqueue(trackListReq);
                     }
                 }
@@ -200,14 +198,14 @@ public class TracksTableView extends TableView<TrackModel> {
 
     private void initRowFactories() {
         setRowFactory(_ -> {
-            var row = new TableRow<TrackModel>();
+            var row = new TableRow<TrackTableRow>();
             setOnRowMouseClicked(row);
             setOnRowItemChanged(row);
             return row;
         });
     }
 
-    private void setOnRowMouseClicked(TableRow<TrackModel> row) {
+    private void setOnRowMouseClicked(TableRow<TrackTableRow> row) {
         row.setOnMouseClicked(e -> {
             if (!row.isEmpty()) {
                 if (MouseEventHelper.primaryButtonDoubleClicked(e)) {
@@ -224,7 +222,7 @@ public class TracksTableView extends TableView<TrackModel> {
         });
     }
 
-    private void setOnRowItemChanged(TableRow<TrackModel> row) {
+    private void setOnRowItemChanged(TableRow<TrackTableRow> row) {
 //        row.itemProperty().addListener((_, _, newItem) -> {
 //            row.setDisable(true);
 //        });
@@ -243,12 +241,16 @@ public class TracksTableView extends TableView<TrackModel> {
         getItems().clear();
     }
 
-    public void showTracks(Supplier<List<Track>> tracksProvider) {
-        showTracks(tracksProvider, new TracksDisplayOptions());
+    public void showTracks(Supplier<List<Track>> tracks) {
+        showTracks(tracks, new TracksDisplayOptions());
     }
 
     public void showTracks(Supplier<List<Track>> tracks, TracksDisplayOptions displayOptions) {
         showTracks(tracks, displayOptions, null);
+    }
+
+    public void showTracks(Supplier<List<Track>> tracks, Comparator<Track> comparator) {
+        showTracks(tracks, new TracksDisplayOptions(), comparator);
     }
 
     private void showTracks(Supplier<List<Track>> tracksProvider,
@@ -260,13 +262,13 @@ public class TracksTableView extends TableView<TrackModel> {
             if (comparator != null) {
                 allTracks.sort(comparator);
             }
-            var models = allTracks.stream()
+            var trackRows = allTracks.stream()
                     .filter(track -> !track.isCueParentTrack())
-                    .map(TrackModel::new)
+                    .map(TrackTableRow::new)
                     .toList();
-            setUserData(models);
-            setItems(FXCollections.observableList(models));
-            if (!models.isEmpty()) {
+            setUserData(trackRows);
+            setItems(FXCollections.observableArrayList(trackRows));
+            if (!trackRows.isEmpty()) {
                 scrollTo(0);
             }
         });
@@ -289,11 +291,11 @@ public class TracksTableView extends TableView<TrackModel> {
     }
 
     public List<Track> getSelectedTracks() {
-        return getSelectionModel().getSelectedItems().stream().map(TrackModel::track).toList();
+        return getSelectionModel().getSelectedItems().stream().map(TrackTableRow::track).toList();
     }
 
     public List<Track> getItemsAsTracks() {
-        return getItems().stream().map(TrackModel::track).toList();
+        return getItems().stream().map(TrackTableRow::track).toList();
     }
 
     @FXML

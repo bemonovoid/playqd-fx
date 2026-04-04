@@ -9,12 +9,13 @@ import javafx.util.Callback;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-class TrackArtworkTableCellFactory implements Callback<TableColumn<TrackModel, Long>, TableCell<TrackModel, Long>> {
+class TrackArtworkTableCellFactory
+        implements Callback<TableColumn<TrackTableRow, Long>, TableCell<TrackTableRow, Long>> {
 
     private static final Logger LOG = LoggerFactory.getLogger(TrackArtworkTableCellFactory.class);
 
     @Override
-    public TableCell<TrackModel, Long> call(TableColumn<TrackModel, Long> param) {
+    public TableCell<TrackTableRow, Long> call(TableColumn<TrackTableRow, Long> param) {
 
         return new TextFieldTableCell<>() {
 

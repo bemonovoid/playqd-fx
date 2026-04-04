@@ -308,10 +308,7 @@ public class PlayerToolbarController {
     }
 
     private void showFullSizeImageInPopup() {
-        Player.playingTrack().ifPresent(track -> {
-            var image = ArtworkImages.album(track.id());
-            ImagePopup.show(image, track.artistName() + " - " + track.title());
-        });
+        Player.playingTrack().ifPresent(ImagePopup::show);
     }
 
     private void styleFavouriteButton(boolean isFavorite) {

@@ -37,7 +37,6 @@ public class PlaylistsViewController {
     private void initialize() {
         initPlaylistsInfoLabelListener();
         var tracksTableView = tracksView.tracksTableView();
-        setTracksVisibleColumns();
         initTracksTableViewEventHandlers();
         listView.setCellFactory(new PlaylistsListViewCellFactory());
         initPlaylists();
@@ -72,18 +71,6 @@ public class PlaylistsViewController {
             listView.getItems().addAll(playlists);
         });
         MusicLibrary.getPlaylists();
-    }
-
-    private void setTracksVisibleColumns() {
-        tracksView.tracksTableView().artistCol.setVisible(true);
-        tracksView.tracksTableView().albumCol.setVisible(true);
-        tracksView.tracksTableView().extensionCol.setVisible(true);
-        tracksView.tracksTableView().sizeCol.setVisible(true);
-        tracksView.tracksTableView().ratingCol.setVisible(true);
-        tracksView.tracksTableView().playCountCol.setVisible(true);
-        tracksView.tracksTableView().bitsPerSampleCol.setVisible(true);
-        tracksView.tracksTableView().bitRateCol.setVisible(true);
-        tracksView.tracksTableView().sampleRateCol.setVisible(true);
     }
 
     private void initTracksTableViewEventHandlers() {

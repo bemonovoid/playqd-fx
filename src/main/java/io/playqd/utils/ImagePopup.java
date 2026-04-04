@@ -1,5 +1,7 @@
 package io.playqd.utils;
 
+import io.playqd.controller.gallery.ArtworkGalleryView;
+import io.playqd.data.Track;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
@@ -16,7 +18,26 @@ public final class ImagePopup {
 
     private static final Logger LOG = LoggerFactory.getLogger(ImagePopup.class);
 
-    public static void show(Image image, String title) {
+    public static void show(Track track) {
+        var title = track.artistName() + " - " + track.title();
+        var imageGalleryView = new ArtworkGalleryView(track);
+
+        var screenBounds = Screen.getPrimary().getVisualBounds();
+        var maxWidth = screenBounds.getWidth() * 0.7; // 70% of screen width
+        var maxHeight = screenBounds.getHeight() * 0.7; // 70% of screen height
+
+        var scene = new Scene(imageGalleryView, maxWidth, maxHeight);
+
+        var popupStage = new Stage();
+
+        popupStage.setScene(scene);
+        popupStage.setResizable(true);
+        popupStage.setAlwaysOnTop(true);
+        popupStage.setTitle(title);
+        popupStage.show();
+    }
+
+    public static void show2(Image image, String title) {
         if (image == null) {
             LOG.error("Can't show the popup, image was null.");
             return;

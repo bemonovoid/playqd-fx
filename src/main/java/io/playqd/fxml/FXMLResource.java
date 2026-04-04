@@ -4,6 +4,8 @@ public enum FXMLResource {
 
     APPLICATION("/fxml/application.fxml"),
 
+    ARTWORK_GALLERY_VIEW("/fxml/artwork-gallery-view.fxml"),
+
     TRACKS_VIEW("/fxml/tracks-view.fxml"),
     TRACKS_TABLE_HEADER("/fxml/tracks-table-header.fxml"),
     TRACKS_TABLE_VIEW("/fxml/tracks-table-view.fxml"),

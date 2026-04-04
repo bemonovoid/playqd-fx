@@ -1,6 +1,5 @@
 package io.playqd.controller.view;
 
-import io.playqd.data.Track;
 import io.playqd.utils.Numbers;
 import javafx.scene.control.TableCell;
 import javafx.scene.control.TableColumn;
@@ -9,16 +8,17 @@ import javafx.util.Callback;
 
 import java.util.function.Function;
 
-class NumberFormatTableCellFactory implements Callback<TableColumn<TrackModel, Integer>, TableCell<TrackModel, Integer>> {
+class NumberFormatTableCellFactory
+        implements Callback<TableColumn<TrackTableRow, Integer>, TableCell<TrackTableRow, Integer>> {
 
-    private final Function<TrackModel, Integer> trackNumberValue;
+    private final Function<TrackTableRow, Integer> trackNumberValue;
 
-    NumberFormatTableCellFactory(Function<TrackModel, Integer> trackNumberValue) {
+    NumberFormatTableCellFactory(Function<TrackTableRow, Integer> trackNumberValue) {
         this.trackNumberValue = trackNumberValue;
     }
 
     @Override
-    public TableCell<TrackModel, Integer> call(TableColumn<TrackModel, Integer> param) {
+    public TableCell<TrackTableRow, Integer> call(TableColumn<TrackTableRow, Integer> param) {
         return new TextFieldTableCell<>() {
 
             @Override
