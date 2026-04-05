@@ -24,20 +24,20 @@
         <BorderPane style="-fx-border-width: 0; -fx-background-insets: 0;">
 
             <top>
-                <HBox alignment="CENTER">
-                    <padding>
-                        <Insets top="10"/>
-                    </padding>
-                    <Label fx:id="imageFileName"/>
-                </HBox>
+               <HBox alignment="CENTER">
+                   <padding>
+                       <Insets top="10"/>
+                   </padding>
+                   <Label fx:id="imageFileName" alignment="CENTER"/>
+               </HBox>
             </top>
 
             <center>
                 <HBox alignment="CENTER">
                     <padding>
-                        <Insets top="10"/>
+                        <Insets top="10" left="5" right="5"/>
                     </padding>
-                    <ScrollPane vbarPolicy="NEVER" fitToHeight="true" pannable="true">
+                    <ScrollPane fx:id="thumbnailScrollPane" vbarPolicy="NEVER" fitToHeight="true" pannable="true">
                         <HBox fx:id="thumbnailHBox" spacing="10" alignment="CENTER">
                             <padding>
                                 <Insets topRightBottomLeft="20"/>

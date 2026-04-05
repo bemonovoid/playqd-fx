@@ -271,6 +271,7 @@ public class MusicLibraryArtistsController extends MusicSplitPaneController {
                 var viewReq = newValue.musicLibraryViewRequest();
                 for (int i = 0; i < artistsListView.getItems().size(); i++) {
                     if (artistsListView.getItems().get(i).name().equals(viewReq.track().artistName())) {
+                        artistsListView.scrollTo(i);
                         artistsListView.getSelectionModel().select(i);
                     }
                 }
