@@ -49,7 +49,6 @@ public class PlayerTrackListViewController extends PlayerTrackListView {
 
     @Override
     void setItems(List<Track> tracks) {
-        ;
         trackListView.setCellFactory(new PlayerTrackListViewCellFactory());
         trackListView.setItems((FXCollections.observableArrayList(new ArrayList<>(tracks))));
         trackListView.refresh();
