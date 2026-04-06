@@ -76,7 +76,7 @@ dependencies {
 jar {
     manifest {
         attributes(
-                'Main-Class': 'playqd.Main'
+                'Main-Class': 'io.playqd.Main'
         )
     }
 }
@@ -89,7 +89,7 @@ javafx {
 }
 
 application {
-    mainClass = 'playqd.Main'
+    mainClass = 'io.playqd.Main'
 }
 
 tasks.named('shadowJar', ShadowJar) {

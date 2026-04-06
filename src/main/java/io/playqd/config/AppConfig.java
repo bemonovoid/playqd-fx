@@ -7,9 +7,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.ByteArrayInputStream;
+import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.util.Map;
 
@@ -20,10 +22,17 @@ public class AppConfig {
     private static final String APP_WORK_DIR = ".playqd";
     private static final String PROPERTIES_FILE_NAME = "properties.json";
     private static final ObjectMapper OBJECT_MAPPER;
+    private static final Path WORKING_DIR;
 
     private static ApplicationProperties PROPERTIES;
 
     static {
+        var customWorkDir = System.getProperty("playqd.workdir");
+        if (customWorkDir != null) {
+            WORKING_DIR = getOrCreateDefaultWorkingDir(Paths.get(customWorkDir));
+        } else {
+            WORKING_DIR = getOrCreateDefaultWorkingDir(PlatformApi.getUserHomeDir().resolve(APP_WORK_DIR));
+        }
         OBJECT_MAPPER = new ObjectMapper();
     }
 
@@ -32,8 +41,7 @@ public class AppConfig {
             return PROPERTIES;
         }
         try {
-            var workingDir = getOrCreateDefaultWorkingDir(getWorkingDir());
-            var propertiesFile = getOrCreatePropertiesFile(workingDir);
+            var propertiesFile = getOrCreatePropertiesFile(getWorkingDir());
             if (Files.size(propertiesFile) == 0) {
                 commitPropertiesToFile(new ApplicationProperties());
             }
@@ -107,7 +115,7 @@ public class AppConfig {
     }
 
     public static Path getWorkingDir() {
-        return PlatformApi.getUserHomeDir().resolve(APP_WORK_DIR);
+        return WORKING_DIR;
     }
 
 }

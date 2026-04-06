@@ -5,6 +5,7 @@ import io.playqd.data.Album;
 import io.playqd.data.Artist;
 import io.playqd.data.Track;
 import io.playqd.service.MusicLibrary;
+import io.playqd.service.TrackComparators;
 import io.playqd.utils.FakeIds;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
@@ -68,7 +69,7 @@ public abstract class MusicSplitPaneController {
 
     List<Track> getArtistTracks(long trackId) {
         return MusicLibrary.getArtistTracks(trackId).stream()
-                .sorted(Comparator.comparing(Track::title))
+                .sorted(TrackComparators.byAlbumAndTrackNumber())
                 .collect(Collectors.toCollection(ArrayList::new));
     }
 

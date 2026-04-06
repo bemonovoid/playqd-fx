@@ -8,27 +8,45 @@ public final class TrackComparators {
 
     public static Comparator<Track> trackInstanceNumberComparator() {
         return (t1, t2) -> {
-            try {
-                if (t1.number() == null || t2.number() == null) {
-                    return 0;
-                }
-                return Integer.compare(Integer.parseInt(t1.number()), Integer.parseInt(t2.number()));
-            } catch (NumberFormatException e) {
-                return t1.number().compareTo(t2.number());
+            var t1Num = t1.number() == null ? "0" : t1.number();
+            var t2Num = t2.number() == null ? "0" : t2.number();
+            if (!t1Num.equals("0") && t1Num.length() == 1) {
+                t1Num = "0" +  t1Num;
             }
+            if (!t2Num.equals("0") && t2Num.length() == 1) {
+                t2Num = "0" +  t2Num;
+            }
+            return t1Num.compareTo(t2Num);
+        };
+    }
+
+    public static Comparator<Track> byAlbumAndTrackNumber() {
+        return (t1, t2) -> {
+            var t1Num = t1.number() == null ? "0" : t1.number();
+            var t2Num = t2.number() == null ? "0" : t2.number();
+            if (!t1Num.equals("0") && t1Num.length() == 1) {
+                t1Num = "0" +  t1Num;
+            }
+            if (!t2Num.equals("0") && t2Num.length() == 1) {
+                t2Num = "0" +  t2Num;
+            }
+            var v1 = t1.albumName() + t1Num;
+            var v2 = t2.albumName() + t2Num;
+            return v1.compareTo(v2);
         };
     }
 
     public static Comparator<String> trackNumberComparator() {
         return (n1, n2) -> {
-            try {
-                if (n1 == null || n2 == null) {
-                    return 0;
-                }
-                return Integer.compare(Integer.parseInt(n1), Integer.parseInt(n2));
-            } catch (NumberFormatException e) {
-                return n1.compareTo(n2);
+            var t1Num = n1 == null ? "0" : n1;
+            var t2Num = n2 == null ? "0" : n2;
+            if (!t1Num.equals("0") && t1Num.length() == 1) {
+                t1Num = "0" +  t1Num;
             }
+            if (!t2Num.equals("0") && t2Num.length() == 1) {
+                t2Num = "0" +  t2Num;
+            }
+            return t1Num.compareTo(t2Num);
         };
     }
 
