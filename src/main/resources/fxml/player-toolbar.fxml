@@ -50,9 +50,7 @@
                 <padding>
                     <Insets left="5" bottom="2"/>
                 </padding>
-                <HyperlinkLabel fx:id="artistNameLinkLabel" style="-fx-font-size: 15">
-
-                </HyperlinkLabel>
+                <HyperlinkLabel fx:id="artistNameLinkLabel" style="-fx-font-size: 15"/>
                 <Label fx:id="trackTitleLabel" text="Playing queue is empty">
                     <font>
                         <Font name="Segoe UI Medium" size="15.0" />

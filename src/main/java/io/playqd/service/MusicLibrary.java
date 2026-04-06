@@ -133,7 +133,7 @@ public final class MusicLibrary {
     public static List<Track> getTracksById(Collection<Long> ids) {
         return getTracksById(ids, new TrackFilters());
     }
-    
+
     public static List<Track> getTracksById(Collection<Long> ids, TrackFilters filters) {
         var trackIds = new HashSet<>(ids);
         return getAllTracks().stream()
@@ -220,6 +220,10 @@ public final class MusicLibrary {
         return new ArrayList<>(PLAYLIST_CACHE.values());
     }
 
+    public static List<PlaylistWithTrackIds> findPlaylistsWithTrackId(long trackId) {
+        return getPlaylists().stream().filter(p -> p.trackIds().contains(trackId)).toList();
+    }
+
     public static PlaylistWithTrackIds createPlaylist(String name) {
         return createPlaylist(name, List.of());
     }
@@ -270,6 +274,13 @@ public final class MusicLibrary {
                     .collect(Collectors.toMap(MediaCollection::id, p -> p)));
         }
         return new ArrayList<>(COLLECTION_CACHE.values());
+    }
+
+    public static List<MediaCollection> findCollectionsWithTrackId(long id) {
+        return getCollections().stream()
+                .filter(c -> c.items().stream().
+                        anyMatch(i -> MediaItemType.TRACK == i.itemType() && i.refId().equals("" + id)))
+                .toList();
     }
 
     public static MediaCollection createCollection(String name, List<MediaCollectionItem> items) {
@@ -328,7 +339,7 @@ public final class MusicLibrary {
                 albumTrack.releaseDate(),
                 albumTrack.genre(),
                 albumTrack.artistName(),
-                albumTrack.additionalInfo().addedToWatchFolderDate().toLocalDate(),
+                albumTrack.fileAttributes().createdDate().toLocalDate(),
                 tracks.size(),
                 tracks.stream().mapToInt(t -> t.length().seconds()).sum()
         );

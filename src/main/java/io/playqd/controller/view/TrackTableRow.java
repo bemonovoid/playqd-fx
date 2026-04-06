@@ -85,7 +85,7 @@ public final class TrackTableRow {
     }
 
     public LocalDateTime getAddedDate() {
-        return track.additionalInfo().addedToWatchFolderDate();
+        return track.fileAttributes().createdDate();
     }
 
     public IntegerProperty getPlayCount() {

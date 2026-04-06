@@ -1,20 +1,26 @@
 package io.playqd.player;
 
+import io.playqd.client.ArtworkImages;
 import io.playqd.config.AppConfig;
+import io.playqd.controller.view.ObservableProperties;
+import io.playqd.controller.view.request.CollectionsViewRequest;
+import io.playqd.controller.view.request.FoldersViewRequest;
+import io.playqd.controller.view.request.PlaylistsViewRequest;
 import io.playqd.data.Track;
 import io.playqd.service.MusicLibrary;
+import io.playqd.utils.DateUtils;
 import io.playqd.utils.TimeUtils;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.fxml.FXML;
-import javafx.scene.control.Label;
-import javafx.scene.control.ListView;
-import javafx.scene.control.SelectionMode;
-import javafx.scene.control.Tooltip;
+import javafx.scene.control.*;
+import javafx.scene.image.ImageView;
 import javafx.scene.input.KeyCode;
+import javafx.scene.layout.HBox;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.nio.file.Paths;
 import java.time.Duration;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -29,10 +35,21 @@ public class PlayerTrackListViewController extends PlayerTrackListView {
     private ListView<Track> trackListView;
 
     @FXML
-    private Label trackNameLabel, artistNameLabel, albumNameLabel, albumInfoLabel, fileInfoLabel, fileLocationLabel;
+    private ImageView artistArtImageView, albumArtImageView;
+
+    @FXML
+    private Label artistNameLabel, trackTitleLabel, albumNameLabel, albumDetailsLabel, audioFormatDetailsLabel,
+            libraryDetailsLabel, createdDateLabel, modifiedDateLabel;
+
+    @FXML
+    private Hyperlink locationLabel;
+
+    @FXML
+    private HBox playlistsHBox, collectionsHbox;
 
     @Override
-    void setItems(List<Track> tracks) {;
+    void setItems(List<Track> tracks) {
+        ;
         trackListView.setCellFactory(new PlayerTrackListViewCellFactory());
         trackListView.setItems((FXCollections.observableArrayList(new ArrayList<>(tracks))));
         trackListView.refresh();
@@ -115,11 +132,18 @@ public class PlayerTrackListViewController extends PlayerTrackListView {
         Player.stop();
     }
 
+    @FXML
+    private void showInFolder() {
+        Player.playingTrack()
+                .map(t -> Paths.get(t.fileAttributes().location()))
+                .ifPresent(location -> ObservableProperties.setAppViewRequestProperty(new FoldersViewRequest(location)));
+    }
+
     private void initTooltips() {
-        setTooltip(trackNameLabel);
-        setTooltip(artistNameLabel);
-        setTooltip(albumNameLabel);
-        setTooltip(fileLocationLabel);
+//        setTooltip(trackNameLabel);
+//        setTooltip(artistNameLabel);
+//        setTooltip(albumNameLabel);
+//        setTooltip(fileLocationLabel);
     }
 
     private void setTooltip(Label label) {
@@ -139,21 +163,6 @@ public class PlayerTrackListViewController extends PlayerTrackListView {
                 }
             }
         });
-    }
-
-    private void updateTrackInfoView(Track track) {
-        trackNameLabel.setText(track.title());
-        artistNameLabel.setText(track.artistName());
-        albumNameLabel.setText(track.albumName());
-        albumInfoLabel.setText(track.genre() + ", " + track.releaseDate());
-        fileInfoLabel.setText(
-                track.fileAttributes().extension() + ", " +
-                        track.audioFormat().sampleRate() + " kHz, " +
-                        track.audioFormat().bitsPerSample() + " bits, " +
-                        track.audioFormat().bitRate() + " kbps, " +
-                        org.apache.commons.io.FileUtils.byteCountToDisplaySize(track.fileAttributes().size()) + ", " +
-                        TimeUtils.durationToTimeFormat(Duration.ofSeconds(track.length().seconds())));
-        fileLocationLabel.setText(track.fileAttributes().location());
     }
 
     private void deleteSelectedTracks() {
@@ -179,6 +188,90 @@ public class PlayerTrackListViewController extends PlayerTrackListView {
         });
         trackListView.refresh();
         PlayerTrackListManager.remove(selectedIndices);
+    }
+
+    private void updateTrackInfoView(Track track) {
+        var artistImage = ArtworkImages.artist(track.id(), 25);
+        if (artistImage == null) {
+            artistArtImageView.setImage(ArtworkImages.defaultArtist(25));
+        } else {
+            artistArtImageView.setImage(artistImage);
+            artistImage.errorProperty().addListener((_, _, hasError) -> {
+                if (hasError) {
+                    var defaultImage = ArtworkImages.defaultArtist(25);
+                    ArtworkImages.setArtist(track.id(), defaultImage, 25);
+                    artistArtImageView.setImage(defaultImage);
+                }
+            });
+        }
+
+        artistNameLabel.setText(track.artistName());
+        trackTitleLabel.setText(track.title());
+
+        var albumImage = ArtworkImages.album(track.id(), 25);
+        if (albumImage == null) {
+            albumArtImageView.setImage(ArtworkImages.defaultAlbum(25));
+        } else {
+            albumArtImageView.setImage(albumImage);
+            albumImage.errorProperty().addListener((_, _, hasError) -> {
+                if (hasError) {
+                    var defaultImage = ArtworkImages.defaultAlbum(25);
+                    ArtworkImages.setAlbum(track.id(), defaultImage, 25);
+                    albumArtImageView.setImage(defaultImage);
+                }
+            });
+        }
+        albumNameLabel.setText(track.albumName());
+        albumDetailsLabel.setText(track.genre() + ", " + track.releaseDate());
+
+        libraryDetailsLabel.setText(String.format("play count: %s, reactions: %s",
+                track.playback().count(), track.reaction().name().toLowerCase()));
+
+        audioFormatDetailsLabel.setText(
+                track.fileAttributes().extension() + ", " +
+                        track.audioFormat().sampleRate() + " kHz, " +
+                        track.audioFormat().bitsPerSample() + " bits, " +
+                        track.audioFormat().bitRate() + " kbps, " +
+                        org.apache.commons.io.FileUtils.byteCountToDisplaySize(track.fileAttributes().size()) + ", " +
+                        TimeUtils.durationToTimeFormat(Duration.ofSeconds(track.length().seconds())));
+
+        createdDateLabel.setText(DateUtils.ldFormatted(track.fileAttributes().createdDate().toLocalDate()));
+        if (track.fileAttributes().modifiedDate() != null) {
+            modifiedDateLabel.setText(DateUtils.ldFormatted(track.fileAttributes().modifiedDate().toLocalDate()));
+        } else {
+            modifiedDateLabel.setText("n/a");
+        }
+        locationLabel.setText(track.fileAttributes().location());
+
+        var playlists = MusicLibrary.findPlaylistsWithTrackId(track.id());
+        playlistsHBox.getChildren().clear();
+        if (playlists.isEmpty()) {
+            playlistsHBox.getChildren().addFirst(new Label("n/a"));
+        } else {
+            playlists.stream()
+                    .map(c -> {
+                        var hl = new Hyperlink(c.name());
+                        hl.setOnAction(_ -> ObservableProperties.setAppViewRequestProperty(
+                                new PlaylistsViewRequest(c.id(), track.id())));
+                        return hl;
+                    })
+                    .forEach(playlistsHBox.getChildren()::add);
+        }
+
+        var collections = MusicLibrary.findCollectionsWithTrackId(track.id());
+        collectionsHbox.getChildren().clear();
+        if (collections.isEmpty()) {
+            collectionsHbox.getChildren().addFirst(new Label("n/a"));
+        } else {
+            collections.stream()
+                    .map(c -> {
+                        var hl = new Hyperlink(c.name());
+                        hl.setOnAction(_ -> ObservableProperties.setAppViewRequestProperty(
+                                new CollectionsViewRequest(c.id(), "" + track.id())));
+                        return hl;
+                    })
+                    .forEach(collectionsHbox.getChildren()::add);
+        }
     }
 
 }

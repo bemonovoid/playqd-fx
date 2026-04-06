@@ -4,6 +4,8 @@
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 <?import de.jensd.fx.glyphs.fontawesome.FontAwesomeIconView?>
+<?import javafx.scene.image.ImageView?>
+<?import org.controlsfx.control.HyperlinkLabel?>
 <SplitPane xmlns="http://javafx.com/javafx"
            xmlns:fx="http://javafx.com/fxml"
            dividerPositions="0.75"
@@ -47,17 +49,52 @@
          </padding>
 
          <VBox spacing="3">
-             <Label fx:id="trackNameLabel" style="-fx-font-weight: BOLD; -fx-font-size: 13"/>
-             <Label fx:id="artistNameLabel" style="-fx-font-size: 10"/>
-             <VBox spacing="2">
-                 <Label fx:id="albumNameLabel" style="-fx-font-weight: NORMAL; -fx-font-size: 13"/>
-                 <Label fx:id="albumInfoLabel" style="-fx-font-weight: NORMAL; -fx-font-size: 11"/>
-                  <padding>
-                      <Insets bottom="5"/>
-                  </padding>
-             </VBox>
-             <Label fx:id="fileInfoLabel" style="-fx-font-size: 11"/>
-             <Label fx:id="fileLocationLabel" style="-fx-font-size: 11" wrapText="true"/>
+
+             <GridPane hgap="5" vgap="5">
+                 <columnConstraints>
+                     <ColumnConstraints hgrow="SOMETIMES" minWidth="80"/>
+                     <ColumnConstraints hgrow="ALWAYS"/>
+                 </columnConstraints>
+                 <ImageView fx:id="artistArtImageView" GridPane.rowIndex="0" GridPane.columnIndex="0"/>
+                 <VBox GridPane.rowIndex="0" GridPane.columnIndex="1">
+                     <Label fx:id="artistNameLabel" style="-fx-font-weight: BOLD; -fx-font-size: 13"/>
+                     <Label fx:id="trackTitleLabel" style="-fx-font-size: 10"/>
+                 </VBox>
+                 <ImageView fx:id="albumArtImageView" GridPane.rowIndex="1" GridPane.columnIndex="0"/>
+                 <VBox GridPane.rowIndex="1" GridPane.columnIndex="1">
+                     <Label fx:id="albumNameLabel" style="-fx-font-weight: NORMAL; -fx-font-size: 13"/>
+                     <Label fx:id="albumDetailsLabel" style="-fx-font-weight: NORMAL; -fx-font-size: 11"/>
+                 </VBox>
+                 <Separator GridPane.rowIndex="2" GridPane.columnIndex="0" GridPane.columnSpan="2"/>
+                 <Label text="Library:" GridPane.rowIndex="3" GridPane.columnIndex="0"/>
+                 <Label fx:id="libraryDetailsLabel" GridPane.rowIndex="3" GridPane.columnIndex="1"/>
+                 <Label text="Audio:" GridPane.rowIndex="4" GridPane.columnIndex="0"/>
+                 <Label fx:id="audioFormatDetailsLabel" GridPane.rowIndex="4" GridPane.columnIndex="1"/>
+                 <Separator GridPane.rowIndex="5" GridPane.columnIndex="0" GridPane.columnSpan="2"/>
+                 <Label text="Created:" GridPane.rowIndex="6" GridPane.columnIndex="0"/>
+                 <Label fx:id="createdDateLabel" GridPane.rowIndex="6" GridPane.columnIndex="1"/>
+                 <Label text="Modified:" GridPane.rowIndex="7" GridPane.columnIndex="0"/>
+                 <Label fx:id="modifiedDateLabel" GridPane.rowIndex="7" GridPane.columnIndex="1"/>
+                 <Label text="Location:" GridPane.rowIndex="8" GridPane.columnIndex="0" GridPane.valignment="TOP"/>
+                 <Hyperlink fx:id="locationLabel" GridPane.rowIndex="8" GridPane.columnIndex="1"
+                            wrapText="true" focusTraversable="false" onAction="#showInFolder"/>
+                 <Label text="Playlists:" GridPane.rowIndex="9" GridPane.columnIndex="0"/>
+                 <HBox fx:id="playlistsHBox" spacing="5" alignment="CENTER_LEFT" GridPane.rowIndex="9" GridPane.columnIndex="1"/>
+                 <Label text="Collections:" GridPane.rowIndex="10" GridPane.columnIndex="0"/>
+                 <HBox fx:id="collectionsHbox" spacing="5" alignment="CENTER_LEFT" GridPane.rowIndex="10" GridPane.columnIndex="1"/>
+             </GridPane>
+
+<!--             <Label fx:id="trackNameLabel" style="-fx-font-weight: BOLD; -fx-font-size: 13"/>-->
+<!--             <Label fx:id="artistNameLabel" style="-fx-font-size: 10"/>-->
+<!--             <VBox spacing="2">-->
+<!--                 <Label fx:id="albumNameLabel" style="-fx-font-weight: NORMAL; -fx-font-size: 13"/>-->
+<!--                 <Label fx:id="albumInfoLabel" style="-fx-font-weight: NORMAL; -fx-font-size: 11"/>-->
+<!--                  <padding>-->
+<!--                      <Insets bottom="5"/>-->
+<!--                  </padding>-->
+<!--             </VBox>-->
+<!--             <Label fx:id="fileInfoLabel" style="-fx-font-size: 11"/>-->
+<!--             <Label fx:id="fileLocationLabel" style="-fx-font-size: 11" wrapText="true"/>-->
          </VBox>
 
      </VBox>
