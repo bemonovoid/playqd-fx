@@ -8,9 +8,11 @@ import io.playqd.data.*;
 import io.playqd.data.request.MovePlaylistTracksRequest;
 import io.playqd.data.request.UpdateMediaCollectionRequest;
 import io.playqd.data.request.UpdatePlaylistRequest;
+import io.playqd.data.request.UpdateReactionRequest;
 import io.playqd.event.LibraryRefreshedEvent;
 import io.playqd.event.TrackUpdateType;
 import io.playqd.event.TracksUpdatedEvent;
+import io.playqd.player.Player;
 import javafx.beans.property.ReadOnlyObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.collections.FXCollections;
@@ -53,6 +55,7 @@ public final class MusicLibrary {
                 }
             });
         });
+        Player.onFinished(track -> updatePlayCount(track.id()));
     }
 
     public static void refresh() {
@@ -190,29 +193,23 @@ public final class MusicLibrary {
                 .toList());
     }
 
-    public static List<Track> getFavoriteTracks() {
+    public static List<Track> getReactedTracks(Reaction reaction) {
         return new ArrayList<>(getAllTracksStreamExcludingCueParent()
-                .filter(t -> t.rating() != null)
-                .filter(t -> t.rating().value() > 0)
-                .sorted(TrackComparators.byRatedDate())
+                .filter(t -> Reaction.NONE != reaction && t.reaction() == reaction)
+                .sorted(TrackComparators.byReactionDate())
                 .toList());
     }
 
-    public static void like(List<Long> trackIds) {
-        var tracksUpdated = playqdClient().like(trackIds);
-        updateTrackInCache(tracksUpdated);
-        updateTracksUpdateEventProperty(TrackUpdateType.LIKED, tracksUpdated);
+    public static void updateReaction(Reaction reaction, List<Long> trackIds) {
+        var updatedTracks = playqdClient().updateReaction(new UpdateReactionRequest(reaction, trackIds));
+        updateTrackInCache(updatedTracks);
+        updateTracksUpdateEventProperty(TrackUpdateType.REACTION, updatedTracks);
     }
 
-    public static void unlike(List<Long> trackIds) {
-        var tracksUpdated = playqdClient().unLike(trackIds);
-        updateTrackInCache(tracksUpdated);
-        updateTracksUpdateEventProperty(TrackUpdateType.UNLIKED, tracksUpdated);
-    }
-
-    public static void markAsPlayed(long trackId) {
+    public static void updatePlayCount(long trackId) {
         var trackUpdated = playqdClient().markAsPlayed(trackId);
         updateTrackInCache(List.of(trackUpdated));
+        updateTracksUpdateEventProperty(TrackUpdateType.PLAY_COUNT_INCR, List.of(trackUpdated));
     }
 
     public static List<PlaylistWithTrackIds> getPlaylists() {

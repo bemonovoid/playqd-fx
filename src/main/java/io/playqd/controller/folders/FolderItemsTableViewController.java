@@ -35,7 +35,7 @@ public class FolderItemsTableViewController {
     private TableView<WatchFolderItem> tableView;
 
     @FXML
-    public TableColumn<WatchFolderItem, String> filenameCol, sizeCol, mimeTypeCol, createdDataCol, lastModifiedDataCol;
+    public TableColumn<WatchFolderItem, String> filenameCol, sizeCol, mimeTypeCol, permissionsCol, createdDataCol, lastModifiedDataCol;
 
     @FXML
     private void initialize() {
@@ -51,6 +51,7 @@ public class FolderItemsTableViewController {
         filenameCol.setCellValueFactory(c -> new SimpleStringProperty(c.getValue().name()));
         mimeTypeCol.setCellValueFactory(c -> new SimpleStringProperty(c.getValue().mimeType()));
         sizeCol.setCellValueFactory(c -> new SimpleStringProperty(c.getValue().displaySize()));
+        permissionsCol.setCellValueFactory(c -> new SimpleStringProperty(c.getValue().permissions()));
         createdDataCol.setCellValueFactory(c -> new SimpleStringProperty(c.getValue().createdDate() == null ? "" :
                 DateUtils.ldtFormatted(c.getValue().createdDate())));
         lastModifiedDataCol.setCellValueFactory(c -> new SimpleStringProperty(c.getValue().lastModifiedDate() == null ?

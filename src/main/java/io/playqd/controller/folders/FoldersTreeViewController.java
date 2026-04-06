@@ -47,6 +47,7 @@ public class FoldersTreeViewController {
                 (long) children.size(),
                 "",
                 null,
+                "",
                 Map.of(ItemType.FOLDER, (long) children.size()),
                 null,
                 null));

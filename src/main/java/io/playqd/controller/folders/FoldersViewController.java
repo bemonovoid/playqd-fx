@@ -10,7 +10,6 @@ import javafx.scene.control.TreeItem;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Comparator;
 import java.util.List;
@@ -47,9 +46,9 @@ public class FoldersViewController {
             if (newView != null && ApplicationViews.FOLDERS == newView.view()) {
                 var viewReq = newView.foldersViewRequest();
                 var targetLocation = viewReq.location();
-                var children = foldersTreeViewController.foldersTreeView.getRoot().getChildren();
-                LOG.info("Browsing to location: {}", targetLocation);
-                var found = findTarget(children, targetLocation, Files.isRegularFile(targetLocation));
+                var parent = foldersTreeViewController.foldersTreeView.getRoot();
+                LOG.info("Browsing to location: {}.", targetLocation);
+                var found = findTarget(targetLocation, parent);
                 if (found) {
                     folderItemsTableViewController.selectItem(targetLocation);
                 }
@@ -57,45 +56,47 @@ public class FoldersViewController {
         });
     }
 
-    private boolean findTarget(List<TreeItem<WatchFolderItem>> children,
-                               Path targetPath,
-                               boolean targetIsFile) {
-        if (children.isEmpty()) {
+    private boolean findTarget(Path targetPath, TreeItem<WatchFolderItem> parent) {
+        if (parent == null || parent.getChildren().isEmpty()) {
             return false;
         }
-
-        for (var childItem : children) {
+        for (var childItem : parent.getChildren()) {
             var wfi = childItem.getValue();
             if (wfi == null) {
                 return false;
             }
             if (targetPath.startsWith(wfi.path())) {
-                var targetFound = targetIsFile ? targetPath.getParent().equals(wfi.path()) :
-                        targetPath.equals(wfi.path());
+                var targetFound = targetPath.equals(wfi.path()) || targetPath.getParent().equals(wfi.path());
+                LOG.info("Target location exists: {}.", targetFound);
                 if (targetFound) {
                     foldersTreeViewController.foldersTreeView.getSelectionModel().select(childItem);
                     var selectedIdx = foldersTreeViewController.foldersTreeView.getSelectionModel().getSelectedIndex();
                     foldersTreeViewController.foldersTreeView.scrollTo(selectedIdx);
-                    LOG.info("Target location found.");
                     return true;
                 }
-                LOG.info("Found parent location: {}. Browsing next children ...",  wfi.path());
-                var nextChildren = childItem.getChildren();
-                if (nextChildren.isEmpty()) {
-                    var itemsFromServer = FoldersViewController.getChildrenFromServer(wfi.id());
+
+                if (childItem.getChildren().isEmpty()) {
+                    var itemsFromServer = FoldersViewController.getChildrenFromServer(wfi.id(), ItemType.FOLDER);
                     childItem.getChildren().setAll(itemsFromServer);
                     childItem.setExpanded(true);
-                    nextChildren = childItem.getChildren();
                 }
-                return findTarget(nextChildren, targetPath, targetIsFile);
+
+                LOG.info("Found parent location: {}. Browsing next {} children items ...",
+                        wfi.path(), childItem.getChildren().size());
+
+                return findTarget(targetPath, childItem);
             }
         }
         return false;
     }
 
     static List<TreeItem<WatchFolderItem>> getChildrenFromServer(String parentId) {
+        return getChildrenFromServer(parentId, null);
+    }
+
+    static List<TreeItem<WatchFolderItem>> getChildrenFromServer(String parentId, ItemType itemType) {
         return PlayqdClientProvider.get()
-                .watchFolderChildrenItems(parentId, ItemType.FOLDER).stream()
+                .watchFolderChildrenItems(parentId, itemType).stream()
                 .sorted(Comparator.comparing(WatchFolderItem::name))
                 .map(TreeItem::new)
                 .toList();

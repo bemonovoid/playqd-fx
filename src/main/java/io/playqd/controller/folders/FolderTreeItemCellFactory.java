@@ -2,6 +2,7 @@ package io.playqd.controller.folders;
 
 import de.jensd.fx.glyphs.fontawesome.FontAwesomeIcon;
 import de.jensd.fx.glyphs.fontawesome.FontAwesomeIconView;
+import io.playqd.data.ItemType;
 import io.playqd.data.WatchFolderItem;
 import io.playqd.event.MouseEventHelper;
 import javafx.scene.control.*;
@@ -68,7 +69,8 @@ class FolderTreeItemCellFactory implements Callback<TreeView<WatchFolderItem>, T
                     setOnMouseClicked(mouseEvent -> {
                         if (MouseEventHelper.primaryButtonDoubleClicked(mouseEvent)) {
                             if (getTreeItem().getChildren().isEmpty()) {
-                                var itemsFromServer = FoldersViewController.getChildrenFromServer(item.id());
+                                var itemsFromServer =
+                                        FoldersViewController.getChildrenFromServer(item.id(), ItemType.FOLDER);
                                 getTreeItem().getChildren().setAll(itemsFromServer);
                                 getTreeItem().setExpanded(true);
                             }

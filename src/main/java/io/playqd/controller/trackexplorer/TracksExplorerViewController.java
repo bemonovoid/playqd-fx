@@ -2,6 +2,7 @@ package io.playqd.controller.trackexplorer;
 
 import io.playqd.controller.view.TracksTableView;
 import io.playqd.controller.view.TracksView;
+import io.playqd.data.Reaction;
 import io.playqd.data.Track;
 import io.playqd.event.TrackUpdateType;
 import io.playqd.player.PlayerTrackListManager;
@@ -27,7 +28,6 @@ public class TracksExplorerViewController {
     @FXML
     private void initialize() {
         tracksTableView = tracksView.tracksTableView();
-//        tracksTableView.setTrackContextMenuItemsFactory(() -> new TracksExplorerTrackContextMenuConfigurer(this));
         listView.setCellFactory(new TracksExplorerListViewCellFactory());
         setEventHandlers();
         populateListView();
@@ -37,8 +37,10 @@ public class TracksExplorerViewController {
             }
             if (ListItemId.ALL == selectedItem.id()) {
                 tracksView.showTracks(MusicLibrary::getAllTracks);
-            } else if (ListItemId.FAVORITES == selectedItem.id()) {
-                tracksView.showTracks(MusicLibrary::getFavoriteTracks);
+            } else if (ListItemId.LIKES == selectedItem.id()) {
+                tracksView.showTracks(() -> MusicLibrary.getReactedTracks(Reaction.THUMB_UP));
+            } else if (ListItemId.DISLIKES == selectedItem.id()) {
+                tracksView.showTracks(() -> MusicLibrary.getReactedTracks(Reaction.THUMB_DOWN));
             } else if (ListItemId.PLAYED == selectedItem.id()) {
                 tracksView.showTracks(MusicLibrary::getPlayedTracks);
             } else if (ListItemId.CUE == selectedItem.id()) {
@@ -64,7 +66,8 @@ public class TracksExplorerViewController {
         var counts = getCounts();
         return List.of(
                 new ListItem(ListItemId.ALL, "All", new SimpleIntegerProperty(counts.allTracks())),
-                new ListItem(ListItemId.FAVORITES, "Favorites", new SimpleIntegerProperty(counts.favorites())),
+                new ListItem(ListItemId.LIKES, "Liked", new SimpleIntegerProperty(counts.likes())),
+                new ListItem(ListItemId.DISLIKES, "Disliked", new SimpleIntegerProperty(counts.dislikes())),
                 new ListItem(ListItemId.PLAYED, "Played", new SimpleIntegerProperty(counts.played())),
                 new ListItem(ListItemId.CUE, "Cue tracks", new SimpleIntegerProperty(counts.cues())));
     }
@@ -95,10 +98,16 @@ public class TracksExplorerViewController {
                 switch (li.id()) {
                     case ALL -> li.countProperty().set(counts.allTracks());
                     case CUE -> li.countProperty().set(counts.cues());
-                    case FAVORITES -> {
-                        li.countProperty().set(counts.favorites());
-                        if (li == getSelectedItem() && tracksUpdatedEvent.type().isLikeOrUnlike()) {
-                            tracksView.showTracks(MusicLibrary::getFavoriteTracks);
+                    case LIKES -> {
+                        li.countProperty().set(counts.likes());
+                        if (li == getSelectedItem() && TrackUpdateType.REACTION == tracksUpdatedEvent.type()) {
+                            tracksView.showTracks(() -> MusicLibrary.getReactedTracks(Reaction.THUMB_UP));
+                        }
+                    }
+                    case DISLIKES -> {
+                        li.countProperty().set(counts.dislikes());
+                        if (li == getSelectedItem() && TrackUpdateType.REACTION == tracksUpdatedEvent.type()) {
+                            tracksView.showTracks(() -> MusicLibrary.getReactedTracks(Reaction.THUMB_DOWN));
                         }
                     }
                     case PLAYED -> {
@@ -118,12 +127,16 @@ public class TracksExplorerViewController {
 
     private static Counts getCounts() {
         var tracks = MusicLibrary.getAllTracksExcludingCueParent();
-        var favorites = 0;
+        var likes = 0;
+        var dislikes = 0;
         var played = 0;
         var cues = 0;
         for (Track track : tracks) {
-            if (track.rating() != null && track.rating().value() > 0) {
-                favorites++;
+            if (Reaction.THUMB_UP == track.reaction()) {
+                likes++;
+            }
+            if (Reaction.THUMB_DOWN == track.reaction()) {
+                dislikes++;
             }
             if (track.playback() != null && track.playback().count() > 0) {
                 played++;
@@ -132,10 +145,10 @@ public class TracksExplorerViewController {
                 cues++;
             }
         }
-        return new Counts(tracks.size(), favorites, played, cues);
+        return new Counts(tracks.size(), likes, dislikes, played, cues);
     }
 
-    private record Counts(int allTracks, int favorites, int played, int cues) {
+    private record Counts(int allTracks, int likes, int dislikes, int played, int cues) {
 
     }
 }

@@ -32,6 +32,15 @@ public final class TrackComparators {
         };
     }
 
+    public static Comparator<Track> byReactionDate() {
+        return (t1, t2) -> {
+            if (t1.reactionDate() != null && t2.reactionDate() != null) {
+                return t1.reactionDate().compareTo(t2.reactionDate());
+            }
+            return 0;
+        };
+    }
+
     public static Comparator<Track> byRatedDate() {
         return (t1, t2) -> {
             if (t1.rating().ratedDate() != null && t2.rating().ratedDate() != null) {

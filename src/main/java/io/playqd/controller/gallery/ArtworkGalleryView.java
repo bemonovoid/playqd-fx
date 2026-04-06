@@ -3,13 +3,16 @@ package io.playqd.controller.gallery;
 import io.playqd.client.ArtworkImages;
 import io.playqd.client.PlayqdApis;
 import io.playqd.client.PlayqdClientProvider;
+import io.playqd.controller.view.menuitem.ShowInFolderItems;
 import io.playqd.data.AlbumFolderImageRef;
 import io.playqd.data.Track;
+import io.playqd.event.MouseEventHelper;
 import io.playqd.fxml.FXMLLoaderUtils;
 import io.playqd.fxml.FXMLResource;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
+import javafx.scene.control.ContextMenu;
 import javafx.scene.control.Label;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.image.Image;
@@ -17,8 +20,12 @@ import javafx.scene.image.ImageView;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.StackPane;
+import javafx.stage.WindowEvent;
 import org.apache.commons.io.FileUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -26,9 +33,10 @@ import java.util.concurrent.atomic.AtomicReference;
 
 public class ArtworkGalleryView extends BorderPane {
 
-    private Image artworkImage;
+    private static final Logger LOG = LoggerFactory.getLogger(ArtworkGalleryView.class);
 
     private final Track track;
+    private final Image artworkImage;
     private final AtomicInteger currentIndexRef = new AtomicInteger();
     private final AtomicReference<List<AlbumFolderImageRef>> images = new AtomicReference<>(new ArrayList<>());
 
@@ -69,12 +77,15 @@ public class ArtworkGalleryView extends BorderPane {
                     image = artworkImage;
                 } else {
                     var imageUrl = PlayqdApis.albumFolderImage(track.id(), images.get().get(i).id());
-                    image = new Image(imageUrl, true);
+                    image = new Image(imageUrl, 100, 100, true, true, true);
                 }
                 var imageView = new ImageView(image);
+
                 imageView.setFocusTraversable(false);
-                imageView.setFitWidth(120);
-                imageView.setFitHeight(80);
+                imageView.setFitWidth(100);
+                imageView.setFitHeight(100);
+                imageView.setSmooth(true);
+                imageView.setCache(true);
                 imageView.setPreserveRatio(true);
                 imageView.setUserData(i);
 
@@ -93,6 +104,23 @@ public class ArtworkGalleryView extends BorderPane {
         });
         mainImageView.fitWidthProperty().bind(centerPane.widthProperty().multiply(0.9));
         mainImageView.fitHeightProperty().bind(centerPane.heightProperty().multiply(0.9));
+        mainImageView.setOnMouseClicked(e -> {
+            if (MouseEventHelper.secondaryButtonSingleClicked(e)) {
+                var contextMenu = new ContextMenu();
+                var items = new ShowInFolderItems(() -> {
+                    var userData = mainImageView.getUserData();
+                    mainImageView.fireEvent(new WindowEvent(
+                            mainImageView.getScene().getWindow(), WindowEvent.WINDOW_CLOSE_REQUEST));
+                    if (userData == null) {
+                        return Paths.get(track.fileAttributes().location());
+                    } else {
+                        return Paths.get(userData.toString());
+                    }
+                }).build();
+                contextMenu.getItems().addAll(items);
+                contextMenu.show(mainImageView, e.getScreenX(), e.getScreenY());
+            }
+        });
     }
 
     @FXML
@@ -128,10 +156,16 @@ public class ArtworkGalleryView extends BorderPane {
                 mainImageView.setImage(artworkImage);
                 imageFileName.setText(imageRef.filename());
             } else {
-                var btn = (Button) thumbnailHBox.getChildren().get(currentIndexRef.get());
-                var btmImageView = (ImageView) btn.getGraphic();
-//                var imageUrl = PlayqdApis.albumFolderImage(track.id(), imageRef.id());
-                mainImageView.setImage(btmImageView.getImage());
+                var imageUrl = PlayqdApis.albumFolderImage(track.id(), imageRef.id());
+                var image = new Image(
+                        imageUrl,
+                        centerPane.widthProperty().multiply(0.9).get(),
+                        centerPane.heightProperty().multiply(0.9).get(),
+                        true,
+                        true,
+                        true);
+                mainImageView.setImage(image);
+                mainImageView.setUserData(imageRef.location());
                 imageFileName.setText(imageRef.filename() + " (" + FileUtils.byteCountToDisplaySize(imageRef.size()) + ")");
             }
         }

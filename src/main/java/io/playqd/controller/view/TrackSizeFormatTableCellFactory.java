@@ -22,8 +22,6 @@ class TrackSizeFormatTableCellFactory
                     }
                     var displaySize = getTableRow().getItem().track().fileAttributes().readableSize();
                     setText(displaySize);
-                } else {
-                    setText("n/a");
                 }
             }
         };

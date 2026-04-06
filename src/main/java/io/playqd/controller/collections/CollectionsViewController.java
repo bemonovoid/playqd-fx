@@ -1,12 +1,10 @@
 package io.playqd.controller.collections;
 
 import io.playqd.data.MediaCollection;
-import io.playqd.data.MediaCollectionItem;
 import io.playqd.data.PlaylistWithTrackIds;
 import io.playqd.service.MusicLibrary;
 import javafx.fxml.FXML;
 import javafx.scene.control.ListView;
-import javafx.scene.control.TableView;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -36,6 +34,7 @@ public class CollectionsViewController {
 
     private void initCollections() {
         MusicLibrary.onCollectionsModified((collections) -> {
+            listView.setDisable(false);
             listView.getItems().clear();
             listView.getItems().addAll(collections);
         });

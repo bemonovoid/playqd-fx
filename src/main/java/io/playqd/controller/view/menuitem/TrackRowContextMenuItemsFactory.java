@@ -1,11 +1,13 @@
 package io.playqd.controller.view.menuitem;
 
+import io.playqd.client.MediaCollectionUtils;
 import io.playqd.data.PlaylistWithTrackIds;
 import io.playqd.data.Track;
 import io.playqd.service.MusicLibrary;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.SeparatorMenuItem;
 
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
@@ -18,14 +20,23 @@ public class TrackRowContextMenuItemsFactory {
 
     public List<MenuItem> get(List<Track> tracks) {
         var playMenuItems = new PlayMenuItems().onPlay(() -> tracks).build();
-        var favoritesMenuItems = new FavoritesMenuItems().setOnAction(() -> tracks).build();
+        var favoritesMenuItems = new ReactionsMenuItems().setOnAction(() -> tracks).build();
         var playlistMenuItems = new PlaylistMenuItems()
                 .setThisPlaylist(thisPlaylist)
                 .setPlaylistModifiedCallback(playlistModifiedCallback)
                 .setSelectedTracks(tracks)
                 .build();
-        var collectionMenuItems = new CollectionsMenuItems().build();
-        var showInFolderItems = new ShowInFolderItems().setOnAction(() -> tracks).build();
+        var collectionMenuItems = new CollectionsMenuItems()
+                .onAddItemsToCollection(() -> MediaCollectionUtils.buildTrackItems(tracks))
+                .build();
+        var showInFolderItems = new ShowInFolderItems(() -> {
+            var track = tracks.getFirst();
+            if (track.isCueTrack()) {
+                track = MusicLibrary.getTrackById(track.parentId());
+            }
+            return Paths.get(track.fileAttributes().location());
+        }).build();
+        var shoArtworkGalleryItems = new ShowArtworkGalleryItems(tracks::getFirst).build();
 
         var items = new ArrayList<>(playMenuItems);
 
@@ -36,6 +47,7 @@ public class TrackRowContextMenuItemsFactory {
         items.addAll(collectionMenuItems);
         items.add(new SeparatorMenuItem());
         items.addAll(showInFolderItems);
+        items.addAll(shoArtworkGalleryItems);
 
         var cueFileTracks = tracks.stream()
                 .filter(Track::isCueTrack)

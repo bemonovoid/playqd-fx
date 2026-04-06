@@ -16,7 +16,7 @@ public final class CueMenuItems implements MenuItemsBuilder {
 
     @Override
     public List<MenuItem> build() {
-        var showCueMenuItem = new MenuItem("Open cue file", new FontAwesomeIconView(FontAwesomeIcon.EXTERNAL_LINK));
+        var showCueMenuItem = new MenuItem("Show cue file", new FontAwesomeIconView(FontAwesomeIcon.EXTERNAL_LINK));
         showCueMenuItem.setOnAction(_ -> {
             selectedTracks.stream()
                     .map(t -> PlayqdApis.trackCueFile(t.id()))

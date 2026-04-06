@@ -31,6 +31,7 @@
             <TableColumn fx:id="filenameCol" text="File name" contextMenu="$columnContextMenu"/>
             <TableColumn fx:id="mimeTypeCol" text="Mime type" contextMenu="$columnContextMenu"/>
             <TableColumn fx:id="sizeCol" text="Size" contextMenu="$columnContextMenu"/>
+            <TableColumn fx:id="permissionsCol" text="Permissions" contextMenu="$columnContextMenu"/>
             <TableColumn fx:id="createdDataCol" text="Created date" contextMenu="$columnContextMenu"/>
             <TableColumn fx:id="lastModifiedDataCol" text="Last modified date" contextMenu="$columnContextMenu"/>
         </columns>

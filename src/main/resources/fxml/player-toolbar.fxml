@@ -83,11 +83,18 @@
     </Separator>
 
     <HBox alignment="CENTER_LEFT">
-        <ToggleButton fx:id="favoriteBtn" focusTraversable="false" style="-fx-background-color: transparent;" minWidth="40">
+        <Button fx:id="thumbsUpBtn" focusTraversable="false"
+                      style="-fx-background-color: transparent;" minWidth="40">
             <graphic>
-                <FontAwesomeIconView glyphName="STAR_ALT"/>
+                <FontAwesomeIconView glyphName="THUMBS_ALT_UP"/>
             </graphic>
-        </ToggleButton>
+        </Button>
+        <Button fx:id="thumbsDownBtn" focusTraversable="false"
+                      style="-fx-background-color: transparent;" minWidth="40">
+            <graphic>
+                <FontAwesomeIconView glyphName="THUMBS_ALT_DOWN"/>
+            </graphic>
+        </Button>
         <ToggleButton fx:id="shuffleBtn" focusTraversable="false" style="-fx-background-color: transparent;" minWidth="40">
             <graphic>
                 <FontAwesomeIconView glyphName="RANDOM"/>

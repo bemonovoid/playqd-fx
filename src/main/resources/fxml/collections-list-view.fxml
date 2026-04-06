@@ -6,6 +6,6 @@
           xmlns:fx="http://javafx.com/fxml"
           fx:id="listView"
           fx:controller="io.playqd.controller.collections.CollectionsListViewController"
-          VBox.vgrow="ALWAYS">
+          VBox.vgrow="ALWAYS" disable="true">
 
 </ListView>

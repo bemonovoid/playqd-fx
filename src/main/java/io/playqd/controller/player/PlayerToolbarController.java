@@ -8,6 +8,7 @@ import io.playqd.config.AppConfig;
 import io.playqd.controller.view.ObservableProperties;
 import io.playqd.controller.view.menuitem.CollectionsMenuItems;
 import io.playqd.controller.view.request.MusicLibraryViewRequest;
+import io.playqd.data.Reaction;
 import io.playqd.data.Track;
 import io.playqd.event.MouseEventHelper;
 import io.playqd.player.FetchMode;
@@ -51,7 +52,10 @@ public class PlayerToolbarController {
     private Button playPrevBtn, playBtn, playNextBtn, volumeBtn;
 
     @FXML
-    private ToggleButton favoriteBtn, repeatBtn, shuffleBtn;
+    private Button thumbsUpBtn, thumbsDownBtn;
+
+    @FXML
+    private ToggleButton repeatBtn, shuffleBtn;
 
     @FXML
     private Slider slider, volumeSlider;
@@ -99,13 +103,29 @@ public class PlayerToolbarController {
     }
 
     private void initButtonEventHandlers() {
-        favoriteBtn.selectedProperty().addListener((_, _, selected) -> {
-            if (selected) {
-                Player.playingTrack().ifPresent(track -> MusicLibrary.like(List.of(track.id())));
-            } else {
-                Player.playingTrack().ifPresent(track -> MusicLibrary.unlike(List.of(track.id())));
-            }
-            styleFavouriteButton(selected);
+        thumbsUpBtn.setOnAction(_ -> {
+            removeThumbsUpReactionBtnStyle();
+            removeThumbsDownReactionBtnStyle();
+            Player.playingTrack().ifPresent(track -> {
+                var trackFromLibrary = MusicLibrary.getTrackById(track.id());
+                var newReaction = Reaction.THUMB_UP == trackFromLibrary.reaction() ? Reaction.NONE : Reaction.THUMB_UP;
+                MusicLibrary.updateReaction(newReaction, List.of(track.id()));
+                if (Reaction.NONE != newReaction) {
+                    setThumbsUpReactionBtnStyle();
+                }
+            });
+        });
+        thumbsDownBtn.setOnAction(_ -> {
+            removeThumbsUpReactionBtnStyle();
+            removeThumbsDownReactionBtnStyle();
+            Player.playingTrack().ifPresent(track -> {
+                var trackFromLibrary = MusicLibrary.getTrackById(track.id());
+                var newReaction = Reaction.THUMB_DOWN == trackFromLibrary.reaction() ? Reaction.NONE : Reaction.THUMB_DOWN;
+                MusicLibrary.updateReaction(newReaction, List.of(track.id()));
+                if (Reaction.NONE != newReaction) {
+                    setThumbsDownReactionBtnStyle();
+                }
+            });
         });
         shuffleBtn.selectedProperty().addListener((_, _, selected) -> {
             if (selected) {
@@ -134,18 +154,17 @@ public class PlayerToolbarController {
     private void initPlayerEventConsumers() {
         Player.onPlayingTrackChanged(track ->
                 Platform.runLater(() -> {
+                    updateArtwork(track);
                     updatePlayButton(false);
                     updateSliderTitle(track);
                     updateTrackTime(track);
-                    updateFunctionButtons(track);
-                    updateArtwork(track);
+                    updateReactionButtonOnTrackChanged(track);
                 }));
         Player.onStopped((stopped) -> {
             if (stopped) {
                 Platform.runLater(this::handleTrackStopped);
             }
         });
-//        Player.onFinished((track) -> Platform.runLater(() -> handleTrackFinished(track)));
         Player.onPositionChanged(this::updateSliderPosition);
         Player.onPaused(this::updatePlayButton);
         Player.onTimeChanged(newTime -> Platform.runLater(() -> updateTrackPlayingTime(newTime)));
@@ -228,7 +247,7 @@ public class PlayerToolbarController {
         });
     }
 
-    private void initTitleListeners() {;
+    private void initTitleListeners() {
         artistNameLinkLabel.setOnAction(e -> {
             var track = (Track) artistNameLinkLabel.getUserData();
             if (track != null) {
@@ -273,6 +292,16 @@ public class PlayerToolbarController {
         trackTimeLabel.setText(TimeUtils.durationToTimeFormat(java.time.Duration.ofSeconds(track.length().seconds())));
     }
 
+    private void updateReactionButtonOnTrackChanged(Track track) {
+        removeThumbsUpReactionBtnStyle();
+        removeThumbsDownReactionBtnStyle();
+        if (Reaction.THUMB_UP == track.reaction()) {
+            setThumbsUpReactionBtnStyle();
+        } else if (Reaction.THUMB_DOWN == track.reaction()) {
+            setThumbsDownReactionBtnStyle();
+        }
+    }
+
     private void updateTrackPlayingTime(long newTime) {
         if (newTime > 1000) {
             Player.playingTrack()
@@ -289,18 +318,6 @@ public class PlayerToolbarController {
         }
     }
 
-    private void updateFunctionButtons(Track track) {
-        styleFavouriteButton(track.rating().value() > 0);
-    }
-
-    private void handleTrackFinished(Track track) {
-        handleTrackStopped();
-        Platform.runLater(() -> {
-            MusicLibrary.markAsPlayed(track.id());
-        });
-        Player.playNext();
-    }
-
     private void handleTrackStopped() {
         slider.setValue(0);
         timeElapsedLabel.setText("0:00");
@@ -311,13 +328,29 @@ public class PlayerToolbarController {
         Player.playingTrack().ifPresent(ImagePopup::show);
     }
 
-    private void styleFavouriteButton(boolean isFavorite) {
-        var icon = new FontAwesomeIconView(FontAwesomeIcon.STAR);
-        if (isFavorite) {
-            icon.setStyle("-fx-fill: #2ec1e3");
-        } else {
-            icon = new FontAwesomeIconView(FontAwesomeIcon.STAR_ALT);
-        }
-        favoriteBtn.setGraphic(icon);
+    private void setThumbsUpReactionBtnStyle() {
+        var icon = (FontAwesomeIconView) thumbsUpBtn.getGraphic();
+        icon.setStyle("-fx-fill: #00d000");
+    }
+
+    private void setThumbsDownReactionBtnStyle() {
+        var icon = (FontAwesomeIconView) thumbsDownBtn.getGraphic();
+        icon.setStyle("-fx-fill: #ff6703");
+    }
+
+    private void removeThumbsUpReactionBtnStyle() {
+        removeThumbsUpReactionBtnStyle((FontAwesomeIconView) thumbsUpBtn.getGraphic());
+    }
+
+    private void removeThumbsDownReactionBtnStyle() {
+        removeThumbsDownReactionBtnStyle((FontAwesomeIconView) thumbsDownBtn.getGraphic());
+    }
+
+    private void removeThumbsUpReactionBtnStyle(FontAwesomeIconView icon) {
+        icon.setStyle(icon.getStyle().replace("-fx-fill: #00d000", ""));
+    }
+
+    private void removeThumbsDownReactionBtnStyle(FontAwesomeIconView icon) {
+        icon.setStyle(icon.getStyle().replace("-fx-fill: #ff6703", ""));
     }
 }

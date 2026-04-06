@@ -4,10 +4,12 @@ public enum ListItemId {
 
     ALL,
 
-    FAVORITES,
+    LIKES,
+
+    DISLIKES,
 
     PLAYED,
 
-    CUE;
+    CUE
 
 }

@@ -1,14 +1,18 @@
 package io.playqd.controller.collections;
 
+import io.playqd.controller.view.TrackRowContextMenu;
+import io.playqd.controller.view.TrackSelectedRow;
+import io.playqd.controller.view.TrackTableRow;
 import io.playqd.data.MediaCollection;
 import io.playqd.data.MediaCollectionItem;
+import io.playqd.event.MouseEventHelper;
+import io.playqd.player.PlayerTrackListManager;
+import io.playqd.player.TrackListRequest;
+import io.playqd.service.MusicLibrary;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.collections.FXCollections;
 import javafx.fxml.FXML;
-import javafx.scene.control.Label;
-import javafx.scene.control.SelectionMode;
-import javafx.scene.control.TableColumn;
-import javafx.scene.control.TableView;
+import javafx.scene.control.*;
 
 import java.time.format.DateTimeFormatter;
 
@@ -28,6 +32,7 @@ public class CollectionItemsViewController {
         initTableProperties();
         intiColumnCellFactories();
         initColumnCellValueFactories();
+        initRowFactory();
     }
 
     private void initTableProperties() {
@@ -46,11 +51,60 @@ public class CollectionItemsViewController {
         commentCol.setCellValueFactory(c -> new SimpleObjectProperty<>(c.getValue().comment()));
     }
 
+    private void initRowFactory() {
+        tableView.setRowFactory(_ -> {
+            var row = new TableRow<MediaCollectionItem>();
+            setOnRowMouseClicked(row);
+            return row;
+        });
+    }
+
+    private void setOnRowMouseClicked(TableRow<MediaCollectionItem> row) {
+        row.setOnMouseClicked(e -> {
+            if (!row.isEmpty()) {
+                if (MouseEventHelper.primaryButtonDoubleClicked(e)) {
+                    var selectedItem = row.getItem();
+                    onItemDoubleClicked(selectedItem);
+                } else if (MouseEventHelper.secondaryButtonSingleClicked(e)) {
+                    if (row.getContextMenu() == null) {
+//                        var contextMenu = new TrackRowContextMenu(getTrackContextMenuItemsFactory());
+//                        contextMenu.setOnHidden(_ -> row.setContextMenu(null)); // to reset a state
+//                        row.setContextMenu(contextMenu);
+//                        contextMenu.show(row, e.getScreenX(), e.getScreenY());
+                    }
+                }
+            }
+        });
+    }
+
+    private void onItemDoubleClicked(MediaCollectionItem item) {
+        switch (item.itemType()) {
+            case ARTIST -> {
+            }
+            case ALBUM -> {
+            }
+            case TRACK -> {
+                var trackId = Long.parseLong(item.refId());
+                PlayerTrackListManager.enqueue(new TrackListRequest(MusicLibrary.getTrackById(trackId)));
+            }
+            case PLAYLIST -> {
+            }
+            case ARTWORK -> {
+            }
+            case CUE_FILE -> {
+            }
+            case FILE -> {
+            }
+        }
+    }
+
     void showItems(MediaCollection collection) {
+        tableView.setDisable(collection.items().isEmpty());
         updateTableHeader(collection);
         tableView.setUserData(collection.items());
         tableView.setItems(FXCollections.observableList(collection.items()));
         tableView.scrollTo(0);
+
     }
 
     private void updateTableHeader(MediaCollection collection) {
