@@ -10,7 +10,7 @@ public class PlayerTrackListManager {
     private static PlayerTrackListView PLAYER_TRACK_LIST_VIEW;
 
     /**
-     * Replaces current list (if exists) with the new list and starts playing from the given index
+     * Replaces current list (if exists) with the new list and starts playing from the given index if requested
      */
     public static void enqueue(TrackListRequest request) {
         PLAYER_TRACK_LIST_VIEW.setItems(request.tracks());

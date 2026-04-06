@@ -58,7 +58,9 @@ public class Player {
 
     static void enqueueAndPlay(TrackListRequest trackListRequest) {
         var playTrackRef = enqueueNewList(trackListRequest);
-        play(trackListRequest.firstTrackPosition(), playTrackRef);
+        if (trackListRequest.autoPlay()) {
+            play(trackListRequest.firstTrackPosition(), playTrackRef);
+        }
     }
 
     static void enqueue(TrackListRequest trackListRequest) {

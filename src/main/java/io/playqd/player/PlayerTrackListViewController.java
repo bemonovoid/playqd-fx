@@ -93,7 +93,6 @@ public class PlayerTrackListViewController extends PlayerTrackListView {
     private void initialize() {
         trackListView.getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
         PlayerTrackListManager.setPlayerTrackListView(this);
-        initTooltips();
         setOnKeyPressedHandlers();
         Player.onPlayingTrackChanged(playingTrack ->
                 Platform.runLater(() ->
@@ -107,15 +106,22 @@ public class PlayerTrackListViewController extends PlayerTrackListView {
                                 })));
         var lastTracklist = new HashSet<>(AppConfig.getProperties().player().state().tracklist());
         if (!lastTracklist.isEmpty()) {
-            setItems(MusicLibrary.getTracksById(lastTracklist));
-            var lastPlayedTrackProp = AppConfig.getProperties().player().state().lastPlayedTrackId();
-            if (lastPlayedTrackProp != null) {
-                MusicLibrary.findTrackById(lastPlayedTrackProp.get()).ifPresent(lastPlayedTrack -> {
-                    if (lastTracklist.contains(lastPlayedTrack.id())) {
-                        trackListView.getSelectionModel().select(lastPlayedTrack);
+            var tracks = MusicLibrary.getTracksById(lastTracklist);
+            var lastPlayedTrackIdProp = AppConfig.getProperties().player().state().lastPlayedTrackId();
+            var startIdx = 0;
+            if (lastPlayedTrackIdProp != null) {
+                var lastPlayedTrackId = lastPlayedTrackIdProp.get();
+                for (int i = 0; i < tracks.size(); i++) {
+                    if (tracks.get(i).id() == lastPlayedTrackId) {
+                        startIdx = i;
+                        break;
                     }
-                });
+                }
             }
+            PlayerTrackListManager.enqueue(new TrackListRequest(startIdx, tracks, false));
+            trackListView.getSelectionModel().select(startIdx);
+            updateTrackInfoView(tracks.get(startIdx));
+            //TODO update player toolbar
         }
     }
 
@@ -136,13 +142,6 @@ public class PlayerTrackListViewController extends PlayerTrackListView {
         Player.playingTrack()
                 .map(t -> Paths.get(t.fileAttributes().location()))
                 .ifPresent(location -> ObservableProperties.setAppViewRequestProperty(new FoldersViewRequest(location)));
-    }
-
-    private void initTooltips() {
-//        setTooltip(trackNameLabel);
-//        setTooltip(artistNameLabel);
-//        setTooltip(albumNameLabel);
-//        setTooltip(fileLocationLabel);
     }
 
     private void setTooltip(Label label) {
@@ -223,8 +222,8 @@ public class PlayerTrackListViewController extends PlayerTrackListView {
         albumNameLabel.setText(track.albumName());
         albumDetailsLabel.setText(track.genre() + ", " + track.releaseDate());
 
-        libraryDetailsLabel.setText(String.format("play count: %s, reactions: %s",
-                track.playback().count(), track.reaction().name().toLowerCase()));
+        libraryDetailsLabel.setText(String.format("id: %s, cue: %s, play count: %s, reactions: %s",
+                track.id(), track.isCueTrack(), track.playback().count(), track.reaction().name().toLowerCase()));
 
         audioFormatDetailsLabel.setText(
                 track.fileAttributes().extension() + ", " +
@@ -240,7 +239,12 @@ public class PlayerTrackListViewController extends PlayerTrackListView {
         } else {
             modifiedDateLabel.setText("n/a");
         }
-        locationLabel.setText(track.fileAttributes().location());
+
+        var location = track.fileAttributes().location();
+        if (track.isCueTrack()) {
+            location = MusicLibrary.getTrackById(track.parentId()).fileAttributes().location();
+        }
+        locationLabel.setText(location);
 
         var playlists = MusicLibrary.findPlaylistsWithTrackId(track.id());
         playlistsHBox.getChildren().clear();

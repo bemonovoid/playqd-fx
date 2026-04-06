@@ -4,7 +4,11 @@ import io.playqd.data.Track;
 
 import java.util.List;
 
-public record TrackListRequest(int firstTrackPosition, List<Track> tracks) {
+public record TrackListRequest(int firstTrackPosition, List<Track> tracks, boolean autoPlay) {
+
+    public TrackListRequest(int firstTrackPosition, List<Track> tracks) {
+        this(firstTrackPosition, tracks, true);
+    }
 
     public TrackListRequest(Track track) {
         this(List.of(track));
