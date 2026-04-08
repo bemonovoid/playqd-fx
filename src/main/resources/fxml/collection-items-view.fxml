@@ -4,6 +4,7 @@
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
+<?import javafx.scene.control.cell.PropertyValueFactory?>
 <VBox xmlns="http://javafx.com/javafx"
       xmlns:fx="http://javafx.com/fxml"
       fx:id="collectionItemsView"
@@ -31,12 +32,34 @@
         </HBox>
     </ToolBar>
 
-    <TableView fx:id="tableView" VBox.vgrow="ALWAYS">
+    <TableView fx:id="tableView" VBox.vgrow="ALWAYS" editable="true">
         <columns>
             <TableColumn fx:id="iconCol" reorderable="false" sortable="false" editable="false" maxWidth="33"/>
-            <TableColumn fx:id="titleCol" text="Title" contextMenu="$columnContextMenu"/>
-            <TableColumn fx:id="itemTypeCol" text="Item type" contextMenu="$columnContextMenu"/>
-            <TableColumn fx:id="commentCol" text="Comment" contextMenu="$columnContextMenu"/>
+            <TableColumn fx:id="titleCol" text="Title" contextMenu="$columnContextMenu" editable="false">
+                <cellValueFactory>
+                    <PropertyValueFactory property="title"/>
+                </cellValueFactory>
+            </TableColumn>
+            <TableColumn fx:id="itemTypeCol" text="Item type" contextMenu="$columnContextMenu" editable="false">
+                <cellValueFactory>
+                    <PropertyValueFactory property="itemType"/>
+                </cellValueFactory>
+            </TableColumn>
+            <TableColumn fx:id="commentCol" text="Comment" contextMenu="$columnContextMenu" editable="true">
+                <cellValueFactory>
+                    <PropertyValueFactory property="comment"/>
+                </cellValueFactory>
+            </TableColumn>
+            <TableColumn fx:id="refIdCol" text="Ref id" contextMenu="$columnContextMenu" editable="false">
+                <cellValueFactory>
+                    <PropertyValueFactory property="refId"/>
+                </cellValueFactory>
+            </TableColumn>
+            <TableColumn fx:id="createdDateCol" text="Created date" contextMenu="$columnContextMenu" editable="false">
+                <cellValueFactory>
+                    <PropertyValueFactory property="createdDate"/>
+                </cellValueFactory>
+            </TableColumn>
         </columns>
     </TableView>
 

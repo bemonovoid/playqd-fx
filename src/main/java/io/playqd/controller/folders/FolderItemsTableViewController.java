@@ -1,14 +1,15 @@
 package io.playqd.controller.folders;
 
-import io.playqd.client.MediaCollectionUtils;
 import io.playqd.client.PlayqdApis;
 import io.playqd.controller.view.menuitem.CollectionsMenuItems;
+import io.playqd.data.NewMediaCollectionItem;
 import io.playqd.data.WatchFolderItem;
 import io.playqd.event.MouseEventHelper;
 import io.playqd.platform.PlatformApi;
 import io.playqd.player.PlayerTrackListManager;
 import io.playqd.player.TrackListRequest;
 import io.playqd.service.MusicLibrary;
+import io.playqd.utils.ClipboardHelper;
 import io.playqd.utils.DateUtils;
 import io.playqd.utils.Numbers;
 import javafx.beans.property.SimpleStringProperty;
@@ -29,13 +30,16 @@ public class FolderItemsTableViewController {
     private static final Logger LOG = LoggerFactory.getLogger(FolderItemsTableViewController.class);
 
     @FXML
+    private Button clipboardBtn;
+
+    @FXML
     private Label titleLabel, selectedLabel, detailsLabel;
 
     @FXML
     private TableView<WatchFolderItem> tableView;
 
     @FXML
-    public TableColumn<WatchFolderItem, String> filenameCol, sizeCol, mimeTypeCol, permissionsCol, createdDataCol, lastModifiedDataCol;
+    public TableColumn<WatchFolderItem, String> filenameCol, sizeCol, mimeTypeCol, permissionsCol, createdDateCol, lastModifiedDateCol;
 
     @FXML
     private void initialize() {
@@ -52,10 +56,15 @@ public class FolderItemsTableViewController {
         mimeTypeCol.setCellValueFactory(c -> new SimpleStringProperty(c.getValue().mimeType()));
         sizeCol.setCellValueFactory(c -> new SimpleStringProperty(c.getValue().displaySize()));
         permissionsCol.setCellValueFactory(c -> new SimpleStringProperty(c.getValue().permissions()));
-        createdDataCol.setCellValueFactory(c -> new SimpleStringProperty(c.getValue().createdDate() == null ? "" :
+        createdDateCol.setCellValueFactory(c -> new SimpleStringProperty(c.getValue().createdDate() == null ? "" :
                 DateUtils.ldtFormatted(c.getValue().createdDate())));
-        lastModifiedDataCol.setCellValueFactory(c -> new SimpleStringProperty(c.getValue().lastModifiedDate() == null ?
+        lastModifiedDateCol.setCellValueFactory(c -> new SimpleStringProperty(c.getValue().lastModifiedDate() == null ?
                 "" : DateUtils.ldtFormatted(c.getValue().lastModifiedDate())));
+    }
+
+    @FXML
+    private void copyLocationToClipboard() {
+        ClipboardHelper.putString(titleLabel.getText());
     }
 
     void setItems(List<WatchFolderItem> items) {
@@ -103,7 +112,7 @@ public class FolderItemsTableViewController {
                         var collectionsMenuItems = new CollectionsMenuItems()
                                 .onAddItemsToCollection(() -> {
                                     var selectedItems = tableView.getSelectionModel().getSelectedItems();
-                                    return selectedItems.stream().map(MediaCollectionUtils::buildCollectionItem).toList();
+                                    return selectedItems.stream().map(NewMediaCollectionItem::create).toList();
                                 })
                                 .build();
                         var contextMenu = new ContextMenu();

@@ -139,9 +139,10 @@ public class PlayerTrackListViewController extends PlayerTrackListView {
 
     @FXML
     private void showInFolder() {
-        Player.playingTrack()
-                .map(t -> Paths.get(t.fileAttributes().location()))
-                .ifPresent(location -> ObservableProperties.setAppViewRequestProperty(new FoldersViewRequest(location)));
+        var locationStr = locationLabel.getText();
+        if (locationStr != null && !locationStr.isEmpty()) {
+            ObservableProperties.setAppViewRequestProperty(new FoldersViewRequest(Paths.get(locationStr)));
+        }
     }
 
     private void setTooltip(Label label) {

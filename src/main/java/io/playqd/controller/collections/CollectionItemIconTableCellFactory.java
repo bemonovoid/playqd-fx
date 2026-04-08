@@ -2,12 +2,11 @@ package io.playqd.controller.collections;
 
 import de.jensd.fx.glyphs.fontawesome.FontAwesomeIcon;
 import de.jensd.fx.glyphs.fontawesome.FontAwesomeIconView;
+import io.playqd.client.ArtworkImages;
 import io.playqd.client.PlayqdClientProvider;
-import io.playqd.data.MediaCollectionItem;
 import io.playqd.data.MediaItemType;
 import io.playqd.data.WatchFolderItem;
 import io.playqd.platform.PlatformApi;
-import io.playqd.client.ArtworkImages;
 import javafx.scene.control.TableCell;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.cell.TextFieldTableCell;
@@ -17,12 +16,12 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 class CollectionItemIconTableCellFactory
-        implements Callback<TableColumn<MediaCollectionItem, String>, TableCell<MediaCollectionItem, String>> {
+        implements Callback<TableColumn<CollectionItemRow, String>, TableCell<CollectionItemRow, String>> {
 
     private static final Logger LOG = LoggerFactory.getLogger(CollectionItemIconTableCellFactory.class);
 
     @Override
-    public TableCell<MediaCollectionItem, String> call(TableColumn<MediaCollectionItem, String> param) {
+    public TableCell<CollectionItemRow, String> call(TableColumn<CollectionItemRow, String> param) {
 
         return new TextFieldTableCell<>() {
 
@@ -37,7 +36,7 @@ class CollectionItemIconTableCellFactory
 
                 if (item != null && !isEmpty()) {
                     setText(null);
-                    var collectionItem = getTableRow().getItem();
+                    var collectionItem = getTableRow().getItem().item();
                     if (MediaItemType.ARTWORK == collectionItem.itemType() ||
                             MediaItemType.TRACK == collectionItem.itemType()) {
                         try {

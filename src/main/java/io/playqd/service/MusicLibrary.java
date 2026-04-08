@@ -1,14 +1,8 @@
 package io.playqd.service;
 
-import io.playqd.client.ClientException;
-import io.playqd.client.PageRequest;
-import io.playqd.client.PlayqdClient;
-import io.playqd.client.PlayqdClientProvider;
+import io.playqd.client.*;
 import io.playqd.data.*;
-import io.playqd.data.request.MovePlaylistTracksRequest;
-import io.playqd.data.request.UpdateMediaCollectionRequest;
-import io.playqd.data.request.UpdatePlaylistRequest;
-import io.playqd.data.request.UpdateReactionRequest;
+import io.playqd.data.request.*;
 import io.playqd.event.LibraryRefreshedEvent;
 import io.playqd.event.TrackUpdateType;
 import io.playqd.event.TracksUpdatedEvent;
@@ -59,15 +53,14 @@ public final class MusicLibrary {
     }
 
     public static void refresh() {
-        LOG.info("Refreshing library cache ...");
-        var itemsBefore = TRACKS_CACHE.size();
-        TRACKS_CACHE.clear();
-        getTracksFromCache();
-        PLAYLIST_CACHE.clear();
+        LOG.info("Refreshing library caches: collections, playlists, tracks, images ...");
         COLLECTION_CACHE.clear();
+        PLAYLIST_CACHE.clear();
+        TRACKS_CACHE.clear();
+        ArtworkImages.clearCaches();
+        getAllTracks();
+        LOG.info("Music library caches were refreshed.");
         LIBRARY_REFRESHED_EVENT_PROPERTY.set(new LibraryRefreshedEvent());
-        LOG.info("Music library cache was refreshed. Items before: {}, items after: {}",
-                itemsBefore, TRACKS_CACHE.size());
     }
 
     public static ReadOnlyObjectProperty<LibraryRefreshedEvent> libraryRefreshedEventProperty() {
@@ -270,7 +263,7 @@ public final class MusicLibrary {
 
     public static List<MediaCollection> getCollections() {
         if (COLLECTION_CACHE.isEmpty()) {
-            COLLECTION_CACHE.putAll(playqdClient().getCollections().stream()
+            COLLECTION_CACHE.putAll(playqdClient().collections().getAll().stream()
                     .collect(Collectors.toMap(MediaCollection::id, p -> p)));
         }
         return new ArrayList<>(COLLECTION_CACHE.values());
@@ -283,26 +276,37 @@ public final class MusicLibrary {
                 .toList();
     }
 
-    public static MediaCollection createCollection(String name, List<MediaCollectionItem> items) {
-        var collection = playqdClient().createCollection(name, items);
+    public static MediaCollection createCollection(String name, List<NewMediaCollectionItem> items) {
+        var collection = playqdClient().collections().create(name, items);
         COLLECTION_CACHE.put(collection.id(), collection);
         return collection;
     }
 
     public static MediaCollection updateCollection(long id, String newName) {
-        var updated = playqdClient().updateCollection(new UpdateMediaCollectionRequest(id, newName));
+        var updated = playqdClient().collections().update(new UpdateMediaCollectionRequest(id, newName));
         COLLECTION_CACHE.put(updated.id(), updated);
         return updated;
     }
 
-    public static MediaCollection addItemsToCollection(long id, List<MediaCollectionItem> items) {
-        var collection = playqdClient().addItems(id, items);
+    public static void updateCollectionItemComment(long id, String comment) {
+        var request = new UpdateMediaCollectionItemRequest(comment);
+        var updated = PlayqdClientProvider.get().collections().updateItem(id, request);
+        COLLECTION_CACHE.put(updated.id(), updated);
+    }
+
+    public static MediaCollection addItemsToCollection(long id, List<NewMediaCollectionItem> items) {
+        var collection = playqdClient().collections().addItems(id, items);
         COLLECTION_CACHE.put(id, collection);
         return collection;
     }
 
+    public static void deleteCollectionItems(long id, List<Long> itemIds) {
+        playqdClient().collections().deleteItems(itemIds);
+        COLLECTION_CACHE.put(id, playqdClient().collections().get(id));
+    }
+
     public static void deleteCollection(long id) {
-        playqdClient().deleteCollection(id);
+        playqdClient().collections().delete(id);
         COLLECTION_CACHE.remove(id);
     }
 

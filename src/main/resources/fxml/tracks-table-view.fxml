@@ -36,21 +36,27 @@
             </cellValueFactory>
         </TableColumn>
 
-        <TableColumn fx:id="titleCol" text="Title" contextMenu="$columnContextMenu">
-            <cellValueFactory>
-                <PropertyValueFactory property="title"/>
-            </cellValueFactory>
-        </TableColumn>
-
         <TableColumn fx:id="artistCol" text="Artist" contextMenu="$columnContextMenu">
             <cellValueFactory>
                 <PropertyValueFactory property="artist"/>
             </cellValueFactory>
         </TableColumn>
 
+        <TableColumn fx:id="titleCol" text="Title" contextMenu="$columnContextMenu">
+            <cellValueFactory>
+                <PropertyValueFactory property="title"/>
+            </cellValueFactory>
+        </TableColumn>
+
         <TableColumn fx:id="albumCol" text="Album" contextMenu="$columnContextMenu">
             <cellValueFactory>
                 <PropertyValueFactory property="album"/>
+            </cellValueFactory>
+        </TableColumn>
+
+        <TableColumn fx:id="genreCol" text="Genre" contextMenu="$columnContextMenu">
+            <cellValueFactory>
+                <PropertyValueFactory property="genre"/>
             </cellValueFactory>
         </TableColumn>
 
@@ -63,12 +69,6 @@
         <TableColumn fx:id="sizeCol" text="Size" contextMenu="$columnContextMenu">
             <cellValueFactory>
                 <PropertyValueFactory property="size"/>
-            </cellValueFactory>
-        </TableColumn>
-
-        <TableColumn fx:id="genreCol" text="Genre" contextMenu="$columnContextMenu">
-            <cellValueFactory>
-                <PropertyValueFactory property="genre"/>
             </cellValueFactory>
         </TableColumn>
 

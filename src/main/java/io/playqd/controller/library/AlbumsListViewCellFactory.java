@@ -21,7 +21,7 @@ import org.slf4j.LoggerFactory;
 
 import java.time.Duration;
 
-public class AlbumsListViewCellFactory implements Callback<ListView<Album>, ListCell<Album>> {
+class AlbumsListViewCellFactory implements Callback<ListView<Album>, ListCell<Album>> {
 
     private static final Logger LOG = LoggerFactory.getLogger(AlbumsListViewCellFactory.class);
 

@@ -1,4 +1,4 @@
-package io.playqd.controller.library;
+package io.playqd.controller.search;
 
 import javafx.beans.property.SimpleListProperty;
 import javafx.collections.FXCollections;

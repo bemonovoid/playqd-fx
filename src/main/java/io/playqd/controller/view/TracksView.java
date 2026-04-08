@@ -2,8 +2,8 @@ package io.playqd.controller.view;
 
 import de.jensd.fx.glyphs.fontawesome.FontAwesomeIcon;
 import de.jensd.fx.glyphs.fontawesome.FontAwesomeIconView;
-import io.playqd.controller.library.SearchTextController;
-import io.playqd.controller.library.Searchable;
+import io.playqd.controller.search.SearchTextController;
+import io.playqd.controller.search.Searchable;
 import io.playqd.data.Track;
 import io.playqd.dialog.tracks.TracksTableViewColumnsDialog;
 import io.playqd.fxml.FXMLLoaderUtils;

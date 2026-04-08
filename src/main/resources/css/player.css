@@ -1,0 +1,8 @@
+.progression-slider .track {
+    -fx-background-color: linear-gradient(to right, #336699 0%, #C92A2AB0 var(progress), #d3d3d3 var(progress), #d3d3d3 100%);
+}
+
+.progression-slider:focused {
+    -fx-faint-focus-color: transparent;
+    -fx-focus-color: #C92A2AB0;
+}

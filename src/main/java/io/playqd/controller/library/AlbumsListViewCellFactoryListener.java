@@ -4,22 +4,22 @@ import io.playqd.data.Album;
 import io.playqd.player.PlayerTrackListManager;
 import io.playqd.player.TrackListRequest;
 
-public class AlbumsListViewCellFactoryListener {
+class AlbumsListViewCellFactoryListener {
 
-    private final MusicSplitPaneController musicSplitPaneController;
+    private final MusicLibraryViewController musicLibraryViewController;
 
-    public AlbumsListViewCellFactoryListener(MusicSplitPaneController musicSplitPaneController) {
-        this.musicSplitPaneController = musicSplitPaneController;
+    AlbumsListViewCellFactoryListener(MusicLibraryViewController musicLibraryViewController) {
+        this.musicLibraryViewController = musicLibraryViewController;
     }
 
-    public void onAllArtistAlbumsClicked(long artistId) {
-        musicSplitPaneController.tracksView().tracksTableView()
-                .showTracks(() -> musicSplitPaneController.getArtistTracks(artistId));
+    void onAllArtistAlbumsClicked(long artistId) {
+        musicLibraryViewController.tracksView().tracksTableView()
+                .showTracks(() -> musicLibraryViewController.getArtistTracks(artistId));
     }
 
-    public void onAlbumDoubleClicked(Album album) {
+    void onAlbumDoubleClicked(Album album) {
         var trackListReq = new TrackListRequest(
-                musicSplitPaneController.tracksView().tracksTableView().getItemsAsTracks());
+                musicLibraryViewController.tracksView().tracksTableView().getItemsAsTracks());
         PlayerTrackListManager.enqueue(trackListReq);
     }
 }

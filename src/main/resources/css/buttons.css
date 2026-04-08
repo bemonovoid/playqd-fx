@@ -1,0 +1,17 @@
+.icon-button {
+    -fx-background-color: transparent;
+    -fx-background-insets: 0;
+    /*-fx-padding: 5px; !* Adjust padding as needed *!*/
+}
+
+/* Change color when hovered */
+.icon-button:hover {
+    -fx-background-color: rgba(0, 0, 0, 0.1); /* Light gray highlight */
+}
+
+/* Change color or scale when clicked */
+.icon-button:pressed {
+    -fx-background-color: rgba(0, 0, 0, 0.2);
+    -fx-scale-x: 0.95;
+    -fx-scale-y: 0.95;
+}

@@ -1,8 +1,5 @@
 package io.playqd.controller.collections;
 
-import io.playqd.controller.view.TrackRowContextMenu;
-import io.playqd.controller.view.TrackSelectedRow;
-import io.playqd.controller.view.TrackTableRow;
 import io.playqd.data.MediaCollection;
 import io.playqd.data.MediaCollectionItem;
 import io.playqd.event.MouseEventHelper;
@@ -13,6 +10,7 @@ import javafx.beans.property.SimpleObjectProperty;
 import javafx.collections.FXCollections;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
+import javafx.scene.control.cell.TextFieldTableCell;
 
 import java.time.format.DateTimeFormatter;
 
@@ -22,10 +20,10 @@ public class CollectionItemsViewController {
     private Label titleLabel, lastModifiedDateLabel, selectedLabel, detailsLabel;
 
     @FXML
-    private TableView<MediaCollectionItem> tableView;
+    private TableView<CollectionItemRow> tableView;
 
     @FXML
-    private TableColumn<MediaCollectionItem, String> iconCol, titleCol, itemTypeCol, commentCol;
+    private TableColumn<CollectionItemRow, String> iconCol, commentCol;
 
     @FXML
     private void initialize() {
@@ -33,6 +31,7 @@ public class CollectionItemsViewController {
         intiColumnCellFactories();
         initColumnCellValueFactories();
         initRowFactory();
+        setOnEditCommit();
     }
 
     private void initTableProperties() {
@@ -42,35 +41,43 @@ public class CollectionItemsViewController {
 
     private void intiColumnCellFactories() {
         iconCol.setCellFactory(new CollectionItemIconTableCellFactory());
+        commentCol.setCellFactory(TextFieldTableCell.forTableColumn());
     }
 
     private void initColumnCellValueFactories() {
-        iconCol.setCellValueFactory(c -> new SimpleObjectProperty<>(""));
-        titleCol.setCellValueFactory(c -> new SimpleObjectProperty<>(c.getValue().title()));
-        itemTypeCol.setCellValueFactory(c -> new SimpleObjectProperty<>(c.getValue().itemType().name()));
-        commentCol.setCellValueFactory(c -> new SimpleObjectProperty<>(c.getValue().comment()));
+        iconCol.setCellValueFactory(_ -> new SimpleObjectProperty<>(""));
+        commentCol.setCellValueFactory(c -> c.getValue().getComment());
     }
 
     private void initRowFactory() {
         tableView.setRowFactory(_ -> {
-            var row = new TableRow<MediaCollectionItem>();
+            var row = new TableRow<CollectionItemRow>();
             setOnRowMouseClicked(row);
             return row;
         });
     }
 
-    private void setOnRowMouseClicked(TableRow<MediaCollectionItem> row) {
+    private void setOnEditCommit() {
+        commentCol.setOnEditCommit(event -> {
+            var newComment = event.getNewValue();
+            var rowItem = event.getRowValue();
+            MusicLibrary.updateCollectionItemComment(event.getRowValue().item().id(), newComment);
+            rowItem.setComment(newComment);
+        });
+    }
+
+    private void setOnRowMouseClicked(TableRow<CollectionItemRow> row) {
         row.setOnMouseClicked(e -> {
             if (!row.isEmpty()) {
                 if (MouseEventHelper.primaryButtonDoubleClicked(e)) {
-                    var selectedItem = row.getItem();
+                    var selectedItem = row.getItem().item();
                     onItemDoubleClicked(selectedItem);
                 } else if (MouseEventHelper.secondaryButtonSingleClicked(e)) {
                     if (row.getContextMenu() == null) {
-//                        var contextMenu = new TrackRowContextMenu(getTrackContextMenuItemsFactory());
-//                        contextMenu.setOnHidden(_ -> row.setContextMenu(null)); // to reset a state
-//                        row.setContextMenu(contextMenu);
-//                        contextMenu.show(row, e.getScreenX(), e.getScreenY());
+                        var contextMenu = new CollectionItemRowContextMenu(row);
+                        contextMenu.setOnHidden(_ -> row.setContextMenu(null)); // to reset a state
+                        row.setContextMenu(contextMenu);
+                        contextMenu.show(row, e.getScreenX(), e.getScreenY());
                     }
                 }
             }
@@ -102,9 +109,13 @@ public class CollectionItemsViewController {
         tableView.setDisable(collection.items().isEmpty());
         updateTableHeader(collection);
         tableView.setUserData(collection.items());
-        tableView.setItems(FXCollections.observableList(collection.items()));
+        tableView.setItems(FXCollections.observableList(
+                collection.items().stream().map(CollectionItemRow::new).toList()));
         tableView.scrollTo(0);
+    }
 
+    long getCollectionId() {
+        return tableView.getItems().isEmpty() ? -1 : tableView.getItems().getFirst().item().collectionId();
     }
 
     private void updateTableHeader(MediaCollection collection) {

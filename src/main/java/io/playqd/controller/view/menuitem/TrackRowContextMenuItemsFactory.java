@@ -1,6 +1,6 @@
 package io.playqd.controller.view.menuitem;
 
-import io.playqd.client.MediaCollectionUtils;
+import io.playqd.data.NewMediaCollectionItem;
 import io.playqd.data.PlaylistWithTrackIds;
 import io.playqd.data.Track;
 import io.playqd.service.MusicLibrary;
@@ -27,7 +27,7 @@ public class TrackRowContextMenuItemsFactory {
                 .setSelectedTracks(tracks)
                 .build();
         var collectionMenuItems = new CollectionsMenuItems()
-                .onAddItemsToCollection(() -> MediaCollectionUtils.buildTrackItems(tracks))
+                .onAddItemsToCollection(() -> NewMediaCollectionItem.create(tracks))
                 .build();
         var showInFolderItems = new ShowInFolderItems(() -> {
             var track = tracks.getFirst();

@@ -7,15 +7,15 @@
 <?import javafx.scene.layout.*?>
 <SplitPane xmlns="http://javafx.com/javafx"
            xmlns:fx="http://javafx.com/fxml"
-           fx:id="musicSplitPane"
-           fx:controller="io.playqd.controller.library.MusicLibraryController"
+           fx:id="musicLibraryView"
+           fx:controller="io.playqd.controller.library.MusicLibraryViewController"
            dividerPositions="0.2, 0.4">
 
     <VBox VBox.vgrow="ALWAYS">
 
         <ToolBar>
 
-            <MenuButton text="Artists" fx:id="sortArtistsMenuBtn" style="-fx-background-color: transparent;">
+            <MenuButton text="Artists" style="-fx-background-color: transparent;">
                 <fx:define>
                     <ToggleGroup fx:id="sortArtistsByToggleGroup"/>
                     <ToggleGroup fx:id="sortArtistsDirectionToggleGroup"/>

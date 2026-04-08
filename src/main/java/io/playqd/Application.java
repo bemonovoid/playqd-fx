@@ -56,7 +56,8 @@ public class Application extends javafx.application.Application {
         stage.setTitle(TITLE);
         stage.setScene(scene);
         stage.setMaximized(true);
-        scene.getStylesheets().addAll("css/glyphs.css", "css/tables.css", "css/music-library.css");
+        scene.getStylesheets().addAll(
+                "css/glyphs.css", "css/tables.css", "css/music-library.css", "css/player.css", "css/buttons.css");
 
         PlatformApi.setHostServices(getHostServices());
 

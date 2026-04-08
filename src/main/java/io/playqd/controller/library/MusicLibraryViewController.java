@@ -1,9 +1,17 @@
 package io.playqd.controller.library;
 
+import io.playqd.controller.search.SearchTextController;
+import io.playqd.controller.search.Searchable;
 import io.playqd.controller.view.ApplicationViews;
 import io.playqd.controller.view.ObservableProperties;
+import io.playqd.controller.view.TracksView;
+import io.playqd.data.Album;
 import io.playqd.data.Artist;
+import io.playqd.data.Track;
+import io.playqd.player.PlayerTrackListManager;
+import io.playqd.player.TrackListRequest;
 import io.playqd.service.MusicLibrary;
+import io.playqd.service.TrackComparators;
 import io.playqd.utils.FakeIds;
 import io.playqd.utils.Numbers;
 import io.playqd.utils.SortDirection;
@@ -16,26 +24,34 @@ import javafx.scene.layout.VBox;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.List;
+import java.util.*;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
-public class MusicLibraryArtistsController extends MusicSplitPaneController {
+public class MusicLibraryViewController {
 
-    private static final Logger LOG = LoggerFactory.getLogger(MusicLibraryArtistsController.class);
+    private static final Logger LOG = LoggerFactory.getLogger(MusicLibraryViewController.class);
 
-    private final Searchable searchable = new SearchTextController();
+    private final Searchable artistSearchable = new SearchTextController();
+
+    private final Searchable albumSearchable = new SearchTextController();
 
     @FXML
-    private Label artistsSearchLabel;
+    private VBox azVBox;
 
     @FXML
-    private MenuButton sortArtistsMenuBtn;
+    private Label artistsSearchLabel, albumsSearchLabel, artistsInfoLabel, albumsInfoLabel;
+
+    @FXML
+    private ListView<Artist> artistsListView;
+
+    @FXML
+    private ListView<Album> albumsListView;
+
+    @FXML
+    protected TracksView tracksView;
 
     @FXML
     private ToggleGroup sortArtistsByToggleGroup, sortArtistsDirectionToggleGroup;
@@ -44,18 +60,29 @@ public class MusicLibraryArtistsController extends MusicSplitPaneController {
     private MenuItem sortArtistsByName, sortArtistsByAlbCount, sortArtistsByTracksCount, sortArtistsAsc, sortArtistsDesc;
 
     @FXML
-    private VBox azVBox;
+    private void initialize() {
+        initArtistsView();
+        initAlbumsView();
+        initTracksView();
+        tracksView().tracksTableView().rowDoubleClickedProperty().addListener((_, _, row) -> {
+            if (row != null) {
+                var trackListReq = new TrackListRequest(row.index(), tracksView().tracksTableView().getItemsAsTracks());
+                PlayerTrackListManager.enqueue(trackListReq);
+            }
+        });
 
-    @FXML
-    private Label artistsInfoLabel;
 
-    protected void initializeInternal() {
-        super.initializeInternal();
+        onViewRequestedExternally();
+        MusicLibrary.libraryRefreshedEventProperty().addListener((_, _, _) -> showAllArtists());
+
+    }
+
+    private void initArtistsView() {
         initToggleGroupsListeners();
-        buildAzColumn();
+        AzItemsBuilder.build(azVBox, this::filterByCharGroup);
         artistsListView.getStyleClass().add("artists-list-view");
 
-        searchable.initialize(artistsListView, onSearchTextInputChanged(), onSearchTextInputCleared());
+        artistSearchable.initialize(artistsListView, onArtistSearchTextInputChanged(), onArtistSearchTextInputCleared());
 
         artistsListView.getSelectionModel().selectedItemProperty().addListener((_, oldArtist, selectedArtist) -> {
             if (oldArtist != null && selectedArtist == null) {
@@ -75,33 +102,35 @@ public class MusicLibraryArtistsController extends MusicSplitPaneController {
         });
 
         initArtistsInfoLabelListener();
-        onViewRequestListener();
-
-        MusicLibrary.libraryRefreshedEventProperty().addListener((_, _, _) -> showAllArtists());
 
         showAllArtists();
     }
 
-    private void buildAzColumn() {
-        var children = azVBox.getChildren();
-        var all = new Hyperlink("All");
-        all.setStyle("-fx-font-size: 10");
-        all.setOnAction(_ -> filterByCharGroup(KeyCode.ESCAPE));
-        children.add(all);
-        for (char c = 'A'; c <= 'Z'; c++) {
-            var str = Character.toString(c);
-            var hl = new Hyperlink(str);
-            hl.setStyle("-fx-font-size: 10");
-            hl.setOnAction(_ -> filterByCharGroup(KeyCode.valueOf(str)));
-            children.add(hl);
-        }
-        var numbers = new Hyperlink("0-9");
-        numbers.setStyle("-fx-font-size: 10");
-        numbers.setOnAction(_ -> filterByCharGroup(KeyCode.DIGIT1));
-        var misc = new Hyperlink("!#?");
-        misc.setStyle("-fx-font-size: 10");
-        misc.setOnAction(_ -> filterByCharGroup(KeyCode.STAR));
-        children.addAll(numbers, misc);
+    private void initAlbumsView() {
+        albumSearchable.initialize(albumsListView, onSearchTextInputChanged(), onSearchTextInputCleared());
+        albumsListView.getSelectionModel().selectedItemProperty().addListener((_, oldAlbum, selectedAlbum) -> {
+            if (oldAlbum != null && selectedAlbum == null) {
+                tracksView().clear();
+            }
+            if (selectedAlbum != null) { // is null when some album is selected but next selection is artist list view
+                tracksView().tracksTableView().showTracks(
+                        () -> MusicLibrary.getAlbumTracks(selectedAlbum.id()),
+                        TrackComparators.trackInstanceNumberComparator());
+            }
+        });
+        initAlbumsInfoLabelListener();
+    }
+
+    private void initTracksView() {
+        tracksView.tracksTableView().getColumns().stream()
+                .filter(col ->
+                        col != tracksView.tracksTableView().artworkCol &&
+                                col != tracksView.tracksTableView().trackNumberCol &&
+                                col != tracksView.tracksTableView().titleCol &&
+                                col != tracksView.tracksTableView().timeCol)
+                .forEach(col -> col.setVisible(false));
+        tracksView.tracksTableView().timeCol.setMinWidth(60);
+        tracksView.tracksTableView().timeCol.setMaxWidth(60);
     }
 
     private void filterByCharGroup(KeyCode keyCode) {
@@ -175,7 +204,7 @@ public class MusicLibraryArtistsController extends MusicSplitPaneController {
         artistsListView.setItems(FXCollections.observableArrayList(sortedItems));
     }
 
-    private Consumer<String> onSearchTextInputChanged() {
+    private Consumer<String> onArtistSearchTextInputChanged() {
         return newInput -> {
             artistsListView.getSelectionModel().clearSelection();
             if (newInput.isEmpty()) {
@@ -237,7 +266,7 @@ public class MusicLibraryArtistsController extends MusicSplitPaneController {
         return items.size();
     }
 
-    private Runnable onSearchTextInputCleared() {
+    private Runnable onArtistSearchTextInputCleared() {
         return () -> {
             @SuppressWarnings("unchecked")
             var sourceItems = (List<Artist>) artistsListView.getUserData();
@@ -265,7 +294,7 @@ public class MusicLibraryArtistsController extends MusicSplitPaneController {
         });
     }
 
-    private void onViewRequestListener() {
+    private void onViewRequestedExternally() {
         ObservableProperties.getAppViewRequestProperty().addListener((_, _, newValue) -> {
             if (newValue != null && ApplicationViews.MUSIC_LIBRARY == newValue.view()) {
                 var viewReq = newValue.musicLibraryViewRequest();
@@ -281,5 +310,122 @@ public class MusicLibraryArtistsController extends MusicSplitPaneController {
 
     static Artist createFakeAllArtistsArtist(int totalArtists) {
         return new Artist(FakeIds.ALL_ARTIST, "All Artists", totalArtists, -1);
+    }
+
+    void showAllAlbums() {
+        Platform.runLater(() -> {
+            var albums = MusicLibrary.getAllAlbums();
+            var albumsGroupedByArtist = albums.stream().collect(Collectors.groupingBy(Album::artistName));
+            var albumsListViewItems = new ArrayList<Album>(albums.size() + albumsGroupedByArtist.size());
+            albumsGroupedByArtist.entrySet().stream()
+                    .sorted(Map.Entry.comparingByKey())
+                    .forEach(entry -> {
+                        var headerAlbum = createFakeArtistAlbumsAlbum(entry.getValue().getFirst());
+                        albumsListViewItems.add(headerAlbum);
+                        albumsListViewItems.addAll(entry.getValue());
+                    });
+            albumsListView.setUserData(Collections.unmodifiableList(albumsListViewItems));
+            albumsListView.setItems(FXCollections.observableArrayList(albumsListViewItems));
+        });
+    }
+
+    void showArtistAlbums(Artist selectedArtist) {
+        Platform.runLater(() -> {
+            var albums = MusicLibrary.getArtistAlbums(selectedArtist.id());
+            var albumsListViewItems = new ArrayList<Album>(albums.size() + 1);
+            var headerAlbum = createFakeArtistAlbumsAlbum(albums.getFirst());
+            albumsListViewItems.add(headerAlbum);
+            albumsListViewItems.addAll(albums);
+            albumsListView.setItems(FXCollections.observableArrayList(albumsListViewItems));
+            tracksView.tracksTableView().showTracks(() -> getArtistTracks(selectedArtist.id()));
+        });
+    }
+
+    List<Track> getArtistTracks(long trackId) {
+        return MusicLibrary.getArtistTracks(trackId).stream()
+                .sorted(TrackComparators.byAlbumAndTrackNumber())
+                .collect(Collectors.toCollection(ArrayList::new));
+    }
+
+    void clearAlbumsList() {
+        albumsListView.getItems().clear();
+    }
+
+    private Consumer<String> onSearchTextInputChanged() {
+        return newInput -> {
+            albumsListView.getSelectionModel().clearSelection();
+            if (newInput.isEmpty()) {
+                albumsSearchLabel.setText("");
+                albumsSearchLabel.setVisible(false);
+                return;
+            }
+            @SuppressWarnings("unchecked")
+            var itemsStream = ((List<Album>) albumsListView.getUserData()).stream()
+                    .filter(album -> !album.name().equals(FakeIds.ALL_ARTIST_ALBUMS_NAME))
+                    .filter(album -> album.name().toLowerCase().contains(newInput));
+            var selectedArtist = getSelectedArtist();
+            if (FakeIds.ALL_ARTIST != selectedArtist.id()) {
+                itemsStream = itemsStream.filter(album -> selectedArtist.name().equals(album.artistName()));
+            }
+            var items = new ArrayList<>(itemsStream.toList());
+            LOG.info("Search by: '{}'. Found: {}", newInput, items.size());
+            items.sort(Comparator.comparing(a -> a.name().toLowerCase()));
+            albumsListView.setItems(FXCollections.observableArrayList(items));
+            albumsListView.getSelectionModel().selectFirst();
+            if (!albumsSearchLabel.isVisible()) {
+                albumsSearchLabel.setVisible(true);
+            }
+            albumsSearchLabel.setText(newInput);
+        };
+    }
+
+    private Runnable onSearchTextInputCleared() {
+        return () -> {
+            @SuppressWarnings("unchecked")
+            var sourceItems = (List<Album>) albumsListView.getUserData();
+            var selectedArtist = getSelectedArtist();
+            if (FakeIds.ALL_ARTIST != selectedArtist.id()) {
+                sourceItems = sourceItems.stream()
+                        .filter(album -> selectedArtist.name().equals(album.artistName()))
+                        .toList();
+            }
+            albumsListView.setItems(FXCollections.observableArrayList(sourceItems));
+            albumsListView.getSelectionModel().selectFirst();
+        };
+    }
+
+    private void initAlbumsInfoLabelListener() {
+        albumsInfoLabel.setDisable(true);
+        albumsInfoLabel.setStyle("-fx-font-size: 11px;");
+        albumsInfoLabel.setOpacity(0.6);
+        albumsListView.itemsProperty().addListener((_, _, newItems) -> {
+            if (newItems == null || newItems.isEmpty()) {
+                albumsInfoLabel.setText("");
+            } else {
+                var albumsText = newItems.size() > 1 ? "albums" : "album";
+                albumsInfoLabel.setText(Numbers.format(newItems.size()) + " " + albumsText);
+            }
+        });
+    }
+
+    protected final Artist getSelectedArtist() {
+        return artistsListView.getSelectionModel().getSelectedItem();
+    }
+
+    protected final ListView<Album> getAlbumsListView() {
+        return albumsListView;
+    }
+
+    protected final TracksView tracksView() {
+        return tracksView;
+    }
+
+    protected final Album getSelectedAlbum() {
+        return getAlbumsListView().getSelectionModel().getSelectedItem();
+    }
+
+    static Album createFakeArtistAlbumsAlbum(Album artistAlbum) {
+        return new Album(
+                artistAlbum.id(), FakeIds.ALL_ARTIST_ALBUMS_NAME, "", "", artistAlbum.artistName(), null, 0, 0);
     }
 }

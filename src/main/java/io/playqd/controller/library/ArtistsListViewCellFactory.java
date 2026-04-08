@@ -11,7 +11,7 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.util.Callback;
 
-public class ArtistsListViewCellFactory implements Callback<ListView<Artist>, ListCell<Artist>> {
+class ArtistsListViewCellFactory implements Callback<ListView<Artist>, ListCell<Artist>> {
 
     @Override
     public ListCell<Artist> call(ListView<Artist> artistListView) {

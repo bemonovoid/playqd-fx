@@ -21,6 +21,13 @@ public final class ArtworkImages {
     private static final Map<Integer, Image> DEFAULT_ARTIST_IMAGES = new HashMap<>();
     private static final Map<Integer, Image> DEFAULT_ALBUM_IMAGES = new HashMap<>();
 
+    public static void clearCaches() {
+        DEFAULT_ARTIST_IMAGES.clear();
+        DEFAULT_ALBUM_IMAGES.clear();
+        ARTIST_IMAGES.clear();
+        ALBUM_IMAGES.clear();
+    }
+
     public static Image artist(long artistId) {
         return getImage(PlayqdApis.artistArtwork(artistId), -1);
     }

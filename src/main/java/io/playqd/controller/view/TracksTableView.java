@@ -25,10 +25,7 @@ import org.slf4j.LoggerFactory;
 
 import java.time.Duration;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.List;
+import java.util.*;
 import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
@@ -40,6 +37,9 @@ public class TracksTableView extends TableView<TrackTableRow> {
     private final StringProperty selectedTracksInfoProperty = new SimpleStringProperty("");
     private final StringProperty tracksInfoProperty = new SimpleStringProperty("");
     private final ObjectProperty<TrackSelectedRow> rowDoubleClickedProperty = new SimpleObjectProperty<>();
+
+    private static final Set<String> DEFAULT_VISIBLE_COLS = Set.of("artworkCol", "titleCol", "trackNumberCol",
+            "albumCol", "genreCol", "artistCol", "extensionCol", "sizeCol", "timeCol");
 
     private TracksDisplayOptions displayOptions;
     private Supplier<TrackRowContextMenuItemsFactory> trackContextMenuItemsFactory;
@@ -77,6 +77,7 @@ public class TracksTableView extends TableView<TrackTableRow> {
         initTracksUpdatedListener();
         initKeyEventListeners();
         initRowFactories();
+        setVisibleColumns();
     }
 
     private void initTableProperties() {
@@ -203,6 +204,12 @@ public class TracksTableView extends TableView<TrackTableRow> {
             setOnRowItemChanged(row);
             return row;
         });
+    }
+
+    private void setVisibleColumns() {
+        getColumns().stream()
+                .filter(c -> !DEFAULT_VISIBLE_COLS.contains(c.getId()))
+                .forEach(c -> c.setVisible(false));
     }
 
     private void setOnRowMouseClicked(TableRow<TrackTableRow> row) {

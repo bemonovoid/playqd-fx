@@ -3,11 +3,11 @@ package io.playqd.controller.player;
 import de.jensd.fx.glyphs.fontawesome.FontAwesomeIcon;
 import de.jensd.fx.glyphs.fontawesome.FontAwesomeIconView;
 import io.playqd.client.ArtworkImages;
-import io.playqd.client.MediaCollectionUtils;
 import io.playqd.config.AppConfig;
 import io.playqd.controller.view.ObservableProperties;
 import io.playqd.controller.view.menuitem.CollectionsMenuItems;
 import io.playqd.controller.view.request.MusicLibraryViewRequest;
+import io.playqd.data.NewMediaCollectionItem;
 import io.playqd.data.Reaction;
 import io.playqd.data.Track;
 import io.playqd.event.MouseEventHelper;
@@ -21,6 +21,7 @@ import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import javafx.scene.image.ImageView;
+import javafx.scene.input.MouseEvent;
 import javafx.util.Duration;
 import org.controlsfx.control.HyperlinkLabel;
 import org.slf4j.Logger;
@@ -29,9 +30,6 @@ import org.slf4j.LoggerFactory;
 import java.util.Collections;
 import java.util.List;
 
-/**
- * //TODO disable slider while on pause
- */
 public class PlayerToolbarController {
 
     private static final Logger LOG = LoggerFactory.getLogger(PlayerToolbarController.class);
@@ -78,6 +76,15 @@ public class PlayerToolbarController {
                         var seekPosition = seekParentTime / (parentTrack.length().seconds());
                         Player.seek((float) seekPosition);
                     }, () -> Player.seek((float) slider.getValue()));
+        });
+        slider.addEventFilter(MouseEvent.MOUSE_DRAGGED, MouseEvent::consume);
+        slider.getStyleClass().add("progression-slider");
+        slider.valueProperty().addListener((_, _, newValue) -> {
+            var percentage = newValue.doubleValue() * 100;
+            var style = String.format("-fx-background-color: linear-gradient(to right, #C92A2AB0 %f%%, #d3d3d3 %f%%);",
+                    percentage, percentage
+            );
+            slider.lookup(".track").setStyle(style);
         });
     }
 
@@ -237,7 +244,7 @@ public class PlayerToolbarController {
             } else if (MouseEventHelper.secondaryButtonSingleClicked(mouseEvent)) {
                 var collectionsMenuItems = new CollectionsMenuItems()
                         .onAddItemsToCollection(() -> Player.playingTrack()
-                                .map(track -> List.of(MediaCollectionUtils.buildAlbumArtworkItem(track)))
+                                .map(track -> List.of(NewMediaCollectionItem.createForAlbumArtwork(track)))
                                 .orElse(Collections.emptyList()))
                         .build();
                 var contextMenu = new ContextMenu();

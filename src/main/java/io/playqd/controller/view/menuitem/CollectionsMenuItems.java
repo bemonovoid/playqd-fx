@@ -3,7 +3,7 @@ package io.playqd.controller.view.menuitem;
 import de.jensd.fx.glyphs.fontawesome.FontAwesomeIcon;
 import de.jensd.fx.glyphs.fontawesome.FontAwesomeIconView;
 import io.playqd.controller.collections.CollectionDialog;
-import io.playqd.data.MediaCollectionItem;
+import io.playqd.data.NewMediaCollectionItem;
 import io.playqd.service.MusicLibrary;
 import javafx.scene.control.Menu;
 import javafx.scene.control.MenuItem;
@@ -14,9 +14,9 @@ import java.util.function.Supplier;
 
 public final class CollectionsMenuItems implements MenuItemsBuilder {
 
-    private Supplier<List<MediaCollectionItem>> itemsSupplier = Collections::emptyList;
+    private Supplier<List<NewMediaCollectionItem>> itemsSupplier = Collections::emptyList;
 
-    public CollectionsMenuItems onAddItemsToCollection(Supplier<List<MediaCollectionItem>> itemsSupplier) {
+    public CollectionsMenuItems onAddItemsToCollection(Supplier<List<NewMediaCollectionItem>> itemsSupplier) {
         this.itemsSupplier = itemsSupplier;
         return this;
     }

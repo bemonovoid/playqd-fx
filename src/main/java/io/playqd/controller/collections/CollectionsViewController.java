@@ -37,6 +37,12 @@ public class CollectionsViewController {
             listView.setDisable(false);
             listView.getItems().clear();
             listView.getItems().addAll(collections);
+            if (collectionItemsViewController.getCollectionId() > 0) {
+                collections.stream()
+                        .filter(c -> c.id() == collectionItemsViewController.getCollectionId())
+                        .findFirst()
+                        .ifPresent(c -> collectionItemsViewController.showItems(c));
+            }
         });
         MusicLibrary.getCollections();
     }

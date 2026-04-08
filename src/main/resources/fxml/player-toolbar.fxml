@@ -7,6 +7,7 @@
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.text.Font?>
 <?import org.controlsfx.control.HyperlinkLabel?>
+<?import java.lang.String?>
 <ToolBar xmlns="http://javafx.com/javafx"
          xmlns:fx="http://javafx.com/fxml"
          fx:controller="io.playqd.controller.player.PlayerToolbarController">
@@ -27,51 +28,61 @@
 
         <Button fx:id="playPrevBtn" onAction="#playPrevious" style="-fx-background-color: transparent">
             <graphic>
-                <FontAwesomeIconView glyphName="STEP_BACKWARD" glyphSize="16"/>
+                <FontAwesomeIconView glyphName="STEP_BACKWARD" glyphSize="15"/>
             </graphic>
+            <styleClass>
+                <String fx:value="icon-button" />
+            </styleClass>
         </Button>
 
         <Button fx:id="playBtn" onAction="#play" style="-fx-background-color: transparent;" minWidth="40">
             <graphic>
                 <FontAwesomeIconView glyphName="PAUSE" glyphSize="20"/>
             </graphic>
+            <styleClass>
+                <String fx:value="icon-button" />
+            </styleClass>
         </Button>
 
         <Button fx:id="playNextBtn" onAction="#playNext" style="-fx-background-color: transparent">
             <graphic>
-                <FontAwesomeIconView glyphName="STEP_FORWARD" glyphSize="16"/>
+                <FontAwesomeIconView glyphName="STEP_FORWARD" glyphSize="15"/>
             </graphic>
+            <styleClass>
+                <String fx:value="icon-button" />
+            </styleClass>
         </Button>
     </HBox>
 
     <HBox HBox.hgrow="ALWAYS">
+
         <VBox HBox.hgrow="ALWAYS" spacing="1">
+
             <HBox alignment="CENTER_LEFT">
                 <padding>
-                    <Insets left="5" bottom="2"/>
+                    <Insets left="2" bottom="2"/>
                 </padding>
-                <HyperlinkLabel fx:id="artistNameLinkLabel" style="-fx-font-size: 15"/>
-                <Label fx:id="trackTitleLabel" text="Playing queue is empty">
+                <HyperlinkLabel text="Player - " fx:id="artistNameLinkLabel" style="-fx-font-size: 15"/>
+                <Label fx:id="trackTitleLabel" text=" queue is empty">
                     <font>
                         <Font name="Segoe UI Medium" size="15.0" />
                     </font>
                 </Label>
             </HBox>
-            <Slider max="1" fx:id="slider" HBox.hgrow="ALWAYS"/>
-            <HBox >
-                <Pane HBox.hgrow="ALWAYS"/>
+
+            <HBox alignment="CENTER_LEFT" HBox.hgrow="ALWAYS">
+                <Slider max="1" fx:id="slider" HBox.hgrow="ALWAYS" focusTraversable="false"/>
+                <HBox spacing="5" alignment="CENTER" minWidth="100">
+                    <padding>
+                        <Insets left="10" right="10"/>
+                    </padding>
+                    <Label fx:id="timeElapsedLabel" text="0:00"/>
+                    <Label text=" / "/>
+                    <Label fx:id="trackTimeLabel" text="0:00"/>
+                </HBox>
             </HBox>
         </VBox>
-        <VBox alignment="CENTER">
-            <padding>
-                <Insets left="15"/>
-            </padding>
-            <HBox>
-                <Label fx:id="timeElapsedLabel" text="0:00"/>
-                <Label text=" / "/>
-                <Label fx:id="trackTimeLabel" text="0:00"/>
-            </HBox>
-        </VBox>
+
     </HBox>
 
     <Separator orientation="VERTICAL">
