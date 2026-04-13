@@ -76,7 +76,7 @@ public class PlaylistsViewController {
     private void initTracksTableViewEventHandlers() {
         tracksView.tracksTableView().rowDoubleClickedProperty().addListener((_, _, row) -> {
             if (row != null) {
-                PlayerTrackListManager.enqueue(new TrackListRequest(row.track()));
+                PlayerTrackListManager.enqueueAndPlay(new TrackListRequest(row.track()));
             }
         });
     }

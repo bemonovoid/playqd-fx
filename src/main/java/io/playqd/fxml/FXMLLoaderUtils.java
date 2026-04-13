@@ -12,7 +12,7 @@ public final class FXMLLoaderUtils {
 
     private static final Logger LOG = LoggerFactory.getLogger(FXMLLoaderUtils.class);
 
-    public static final String APPLICATION_PATH = "/fxml/application/application.fxml";
+    public static final String APPLICATION_PATH = "/fxml/application/mini-application.fxml";
 
     public static Parent loadParent() {
         return load(APPLICATION_PATH);

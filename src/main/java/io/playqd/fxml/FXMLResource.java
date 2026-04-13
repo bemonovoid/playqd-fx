@@ -3,6 +3,7 @@ package io.playqd.fxml;
 public enum FXMLResource {
 
     APPLICATION("/fxml/application.fxml"),
+    APPLICATION_MINI("/fxml/mini/mini-application.fxml"),
 
     ARTWORK_GALLERY_VIEW("/fxml/artwork-gallery-view.fxml"),
 

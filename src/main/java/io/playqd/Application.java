@@ -35,7 +35,17 @@ public class Application extends javafx.application.Application {
 
     @Override
     public void start(Stage primaryStage) throws Exception {
-        startInStage(primaryStage);
+//        startInStage(primaryStage);
+        startMiniInStage(primaryStage);
+    }
+
+    private void startMiniInStage(Stage stage) throws Exception {
+        var fxmlLoader = FXMLLoaderUtils.resourceLoader(FXMLResource.APPLICATION_MINI);
+        var scene = new Scene(fxmlLoader.load());
+        stage.setTitle(TITLE);
+        scene.getStylesheets().addAll("css/buttons.css", "css/mini/mini-player.css");
+        stage.setScene(scene);
+        stage.show();
     }
 
     private void startInStage(Stage stage) throws Exception {

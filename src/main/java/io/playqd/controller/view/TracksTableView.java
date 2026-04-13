@@ -181,7 +181,7 @@ public class TracksTableView extends TableView<TrackTableRow> {
                         var items = getSelectionModel().getSelectedItems();
                         if (!items.isEmpty()) {
                             var trackListReq = new TrackListRequest(items.stream().map(TrackTableRow::track).toList());
-                            PlayerTrackListManager.enqueue(trackListReq);
+                            PlayerTrackListManager.enqueueAndPlay(trackListReq);
                         }
                     }
                 }
@@ -190,7 +190,7 @@ public class TracksTableView extends TableView<TrackTableRow> {
                     var items = getSelectionModel().getSelectedItems();
                     if (!items.isEmpty()) {
                         var trackListReq = new TrackListRequest(items.stream().map(TrackTableRow::track).toList());
-                        PlayerTrackListManager.enqueue(trackListReq);
+                        PlayerTrackListManager.enqueueAndPlay(trackListReq);
                     }
                 }
             }

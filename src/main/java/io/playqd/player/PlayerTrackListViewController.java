@@ -92,7 +92,7 @@ public class PlayerTrackListViewController extends PlayerTrackListView {
     @FXML
     private void initialize() {
         trackListView.getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
-        PlayerTrackListManager.setPlayerTrackListView(this);
+//        PlayerTrackListManager.setPlayerTrackListView(this);
         setOnKeyPressedHandlers();
         Player.onPlayingTrackChanged(playingTrack ->
                 Platform.runLater(() ->
@@ -118,10 +118,11 @@ public class PlayerTrackListViewController extends PlayerTrackListView {
                     }
                 }
             }
-            PlayerTrackListManager.enqueue(new TrackListRequest(startIdx, tracks, false));
+            PlayerTrackListManager.enqueueAndPlay(new TrackListRequest(startIdx, tracks, false));
             trackListView.getSelectionModel().select(startIdx);
             updateTrackInfoView(tracks.get(startIdx));
             //TODO update player toolbar
+            //TODO handle last played track(s) do no exist
         }
     }
 

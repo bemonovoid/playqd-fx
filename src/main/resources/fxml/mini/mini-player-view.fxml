@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.control.Slider?>
+<?import javafx.scene.control.Button?>
+<?import de.jensd.fx.glyphs.fontawesome.FontAwesomeIconView?>
+<?import javafx.geometry.Insets?>
+<?import java.lang.String?>
+<?import javafx.scene.layout.StackPane?>
+<?import javafx.scene.control.ToggleButton?>
+<VBox xmlns="http://javafx.com/javafx"
+      xmlns:fx="http://javafx.com/fxml"
+      spacing="10"
+      fx:id="miniPlayerView"
+      fx:controller="io.playqd.mini.controller.MiniPlayerViewController">
+
+    <padding>
+        <Insets top="15"/>
+    </padding>
+
+    <HBox alignment="CENTER_LEFT" spacing="10">
+        <ImageView fx:id="artworkImageView" fitWidth="65" fitHeight="65"/>
+        <VBox>
+            <Label fx:id="artistNameLabel" styleClass="artist-label"/>
+            <Label fx:id="trackNameLabel" styleClass="track-label"/>
+        </VBox>
+    </HBox>
+
+    <HBox spacing="10" alignment="CENTER">
+        <Label fx:id="timeElapsedLabel" text="0:00" styleClass="player-time-label"/>
+        <Slider fx:id="trackSlider" HBox.hgrow="ALWAYS" focusTraversable="false" max="1">
+            <styleClass>
+                <String fx:value="progression-slider"/>
+            </styleClass>
+        </Slider>
+        <Label fx:id="trackLengthLabel" text="5:19" styleClass="player-time-label"/>
+    </HBox>
+
+    <StackPane>
+        <HBox fx:id="leftControls" alignment="CENTER_LEFT" spacing="15" pickOnBounds="false">
+            <ToggleButton fx:id="toggleQueueView" focusTraversable="false">
+                <graphic>
+                    <FontAwesomeIconView glyphName="LIST" glyphSize="14"/>
+                </graphic>
+                <styleClass>
+                    <String fx:value="icon-button"/>
+                    <String fx:value="icon-toggle-button"/>
+                </styleClass>
+            </ToggleButton>
+        </HBox>
+        <HBox fx:id="centerControls" alignment="CENTER" spacing="15" pickOnBounds="false">
+            <Button styleClass="icon-button" focusTraversable="false">
+                <graphic>
+                    <FontAwesomeIconView glyphName="RANDOM" glyphSize="14" style="-fx-fill: #666"/>
+                </graphic>
+            </Button>
+            <Button fx:id="playPrevBtn" styleClass="icon-button" focusTraversable="false">
+                <graphic>
+                    <FontAwesomeIconView glyphName="STEP_BACKWARD" glyphSize="14" style="-fx-fill: #666"/>
+                </graphic>
+            </Button>
+            <Button fx:id="playBtn" styleClass="icon-button" focusTraversable="false">
+                <graphic>
+                    <FontAwesomeIconView glyphName="PLAY" glyphSize="22"/>
+                </graphic>
+            </Button>
+            <Button fx:id="playNextBtn" styleClass="icon-button" focusTraversable="false">
+                <graphic>
+                    <FontAwesomeIconView glyphName="STEP_FORWARD" glyphSize="14" style="-fx-fill: #666"/>
+                </graphic>
+            </Button>
+
+            <Button styleClass="icon-button" focusTraversable="false" style="-fx-fill: #666">
+                <graphic>
+                    <FontAwesomeIconView glyphName="REPEAT" glyphSize="14" style="-fx-fill: #666"/>
+                </graphic>
+            </Button>
+        </HBox>
+        <HBox fx:id="rightControls" alignment="CENTER_RIGHT" spacing="15" pickOnBounds="false">
+
+        </HBox>
+
+    </StackPane>
+
+</VBox>

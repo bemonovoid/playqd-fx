@@ -1,0 +1,72 @@
+.search-input-scope-label {
+    -fx-background-color: #dee2e6;
+    -fx-text-fill: #495057;
+    /* Vertical padding (0px) should be smaller than horizontal (8px) */
+    -fx-padding: 0 8 0 8;
+    -fx-background-radius: 100;
+    -fx-font-size: 11px;
+    -fx-font-family: "Segoe UI", sans-serif;
+}
+.artist-label {
+    -fx-font-size: 12px;
+    -fx-text-fill: #aaa;
+}
+
+.track-label {
+    -fx-font-size: 18px;
+    -fx-text-fill: black;
+    -fx-font-weight: bold;
+}
+
+.player-time-label {
+    -fx-font-size: 10px;
+    -fx-text-fill: #888;
+}
+
+.progression-slider .track {
+    -fx-background-color: linear-gradient(to right, #336699 0%, #C92A2AB0 var(progress), #d3d3d3 var(progress), #d3d3d3 100%);
+}
+
+.progression-slider:focused {
+    -fx-faint-focus-color: transparent;
+    -fx-focus-color: #C92A2AB0;
+}
+
+/* 1. Hide the Column Header Area */
+.library-item-table .column-header-background {
+    -fx-max-height: 0;
+    -fx-pref-height: 0;
+    -fx-min-height: 0;
+    -fx-visibility: hidden;
+}
+
+/* 2. Hide Table Grid Lines */
+.library-item-table .table-cell {
+    -fx-border-color: transparent;
+    -fx-background-color: transparent;
+}
+
+/* 3. Remove the outer border of the table (Optional) */
+.library-item-table {
+    -fx-background-color: transparent;
+    -fx-background-insets: 0;
+}
+
+.library-item-table .table-row-cell, .table-row-cell:odd {
+    -fx-background-color: white;
+}
+
+.library-item-table .table-row-cell:filled:selected {
+    -fx-background-color: -fx-selection-bar;
+    /*-fx-background-color: -fx-accent; !* Use this if you want the standard blue highlight *!*/
+    -fx-background-color: #84bef1; /* Use this if you want the standard blue highlight */
+}
+
+.library-item-table .scroll-bar:vertical {
+    -fx-min-width: 5;
+    -fx-max-width: 5;
+}
+
+.library-item-table .scroll-bar .thumb {
+    -fx-background-radius: 5;
+}

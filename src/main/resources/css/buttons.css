@@ -6,7 +6,7 @@
 
 /* Change color when hovered */
 .icon-button:hover {
-    -fx-background-color: rgba(0, 0, 0, 0.1); /* Light gray highlight */
+    -fx-background-color: rgba(0, 0, 0, 0.1);
 }
 
 /* Change color or scale when clicked */
@@ -14,4 +14,14 @@
     -fx-background-color: rgba(0, 0, 0, 0.2);
     -fx-scale-x: 0.95;
     -fx-scale-y: 0.95;
+}
+
+.icon-toggle-button:selected {
+    -fx-background-color: rgba(0, 0, 0, 0.2);
+    -fx-text-fill: white;
+}
+
+/* Optional: Change the color when hovering while selected */
+.icon-toggle-button:selected:hover {
+    -fx-background-color: rgba(0, 0, 0, 0.1);
 }

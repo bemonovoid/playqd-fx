@@ -27,17 +27,18 @@ public final class PlayMenuItems implements MenuItemsBuilder {
         var playMenuItem = new MenuItem(
                 "Play now", FontAwesomeIconFactory.get().createIcon(FontAwesomeIcon.PLAY));
 
-        playMenuItem.setOnAction(_ -> PlayerTrackListManager.enqueue(new TrackListRequest(tracks)));
+        playMenuItem.setOnAction(_ -> PlayerTrackListManager.enqueueAndPlay(new TrackListRequest(tracks)));
 
-        var queueNextMenuItem = new MenuItem(
-                "Queue next", FontAwesomeIconFactory.get().createIcon(FontAwesomeIcon.ANGLE_DOWN));
-        queueNextMenuItem.setOnAction(_ -> PlayerTrackListManager.addNext(tracks));
+//        var queueNextMenuItem = new MenuItem(
+//                "Queue next", FontAwesomeIconFactory.get().createIcon(FontAwesomeIcon.ANGLE_DOWN));
+//        queueNextMenuItem.setOnAction(_ -> PlayerTrackListManager.addNext(tracks));
+//
+//        var queueLastMenuItem = new MenuItem(
+//                "Queue last", FontAwesomeIconFactory.get().createIcon(FontAwesomeIcon.ANGLE_DOUBLE_DOWN));
+//        queueLastMenuItem.setOnAction(_ -> PlayerTrackListManager.addLast(tracks));
 
-        var queueLastMenuItem = new MenuItem(
-                "Queue last", FontAwesomeIconFactory.get().createIcon(FontAwesomeIcon.ANGLE_DOUBLE_DOWN));
-        queueLastMenuItem.setOnAction(_ -> PlayerTrackListManager.addLast(tracks));
-
-        var menuItems = List.of(playMenuItem, queueNextMenuItem, queueLastMenuItem);
+//        var menuItems = List.of(playMenuItem, queueNextMenuItem, queueLastMenuItem);
+        var menuItems = List.of(playMenuItem);
 
         if (tracks.isEmpty()) {
             menuItems.forEach(mi -> mi.setDisable(true));

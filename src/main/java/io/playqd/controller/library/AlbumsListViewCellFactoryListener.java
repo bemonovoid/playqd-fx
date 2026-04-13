@@ -20,6 +20,6 @@ class AlbumsListViewCellFactoryListener {
     void onAlbumDoubleClicked(Album album) {
         var trackListReq = new TrackListRequest(
                 musicLibraryViewController.tracksView().tracksTableView().getItemsAsTracks());
-        PlayerTrackListManager.enqueue(trackListReq);
+        PlayerTrackListManager.enqueueAndPlay(trackListReq);
     }
 }
