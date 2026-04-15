@@ -5,7 +5,7 @@ dependencyResolutionManagement {
         libs {
             version('javafxVersion', '25.0.2')
             version('javafxpluginVersion', '0.1.0')
-            version('controlsfxVersion', '11.2.2')
+            version('controlsfxVersion', '11.2.3')
             version('fontAwesomeVersion', '8.9')
 
             version('gradleShadowPluginVersion', '9.0.0-beta12')

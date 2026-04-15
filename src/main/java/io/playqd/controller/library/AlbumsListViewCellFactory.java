@@ -2,7 +2,7 @@ package io.playqd.controller.library;
 
 import io.playqd.data.Album;
 import io.playqd.event.MouseEventHelper;
-import io.playqd.client.ArtworkImages;
+import io.playqd.client.Images;
 import io.playqd.utils.FakeIds;
 import io.playqd.utils.TimeUtils;
 import javafx.geometry.Insets;
@@ -107,15 +107,15 @@ class AlbumsListViewCellFactory implements Callback<ListView<Album>, ListCell<Al
                         return;
                     }
 
-                    var image = ArtworkImages.album(album.id(), IMAGE_SIZE);
+                    var image = Images.album(album.id(), IMAGE_SIZE);
                     if (image == null) {
-                        imageView.setImage(ArtworkImages.defaultAlbum(IMAGE_SIZE));
+                        imageView.setImage(Images.defaultAlbum(IMAGE_SIZE));
                     } else {
                         imageView.setImage(image);
                         image.errorProperty().addListener((_, _, hasError) -> {
                             if (hasError) {
-                                var defaultImage = ArtworkImages.defaultAlbum(IMAGE_SIZE);
-                                ArtworkImages.setAlbum(album.id(), defaultImage, IMAGE_SIZE);
+                                var defaultImage = Images.defaultAlbum(IMAGE_SIZE);
+                                Images.setAlbum(album.id(), defaultImage, IMAGE_SIZE);
                                 imageView.setImage(defaultImage);
                             }
                         });

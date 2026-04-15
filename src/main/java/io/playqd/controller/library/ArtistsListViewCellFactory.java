@@ -1,7 +1,7 @@
 package io.playqd.controller.library;
 
 import io.playqd.data.Artist;
-import io.playqd.client.ArtworkImages;
+import io.playqd.client.Images;
 import javafx.geometry.Pos;
 import javafx.scene.control.Label;
 import javafx.scene.control.ListCell;
@@ -42,21 +42,21 @@ class ArtistsListViewCellFactory implements Callback<ListView<Artist>, ListCell<
                     setGraphic(null);
                 } else {
                     if (item.id() > 0) {
-                        var image = ArtworkImages.artist(item.id(), 35);
+                        var image = Images.artist(item.id(), 35);
                         if (image != null) {
                             artistImageView.setImage(image);
                             image.errorProperty().addListener((_, _, hasError) -> {
                                 if (hasError) {
-                                    var defaultImage = ArtworkImages.defaultArtist(35);
-                                    ArtworkImages.setArtist(item.id(), defaultImage, 35);
+                                    var defaultImage = Images.defaultArtist(35);
+                                    Images.setArtist(item.id(), defaultImage, 35);
                                     artistImageView.setImage(defaultImage);
                                 }
                             });
                         } else {
-                            artistImageView.setImage(ArtworkImages.defaultArtist(35));
+                            artistImageView.setImage(Images.defaultArtist(35));
                         }
                     } else {
-                        artistImageView.setImage(ArtworkImages.allArtistsImage());
+                        artistImageView.setImage(Images.allArtistsImage());
                     }
 
                     var countText = item.albumsCount() > 1 ? " albums" : " album";

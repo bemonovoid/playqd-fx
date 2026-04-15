@@ -7,13 +7,9 @@
     -fx-font-size: 11px;
     -fx-font-family: "Segoe UI", sans-serif;
 }
-.artist-label {
-    -fx-font-size: 12px;
-    -fx-text-fill: #aaa;
-}
 
 .track-label {
-    -fx-font-size: 18px;
+    -fx-font-size: 20px;
     -fx-text-fill: black;
     -fx-font-weight: bold;
 }
@@ -69,4 +65,30 @@
 
 .library-item-table .scroll-bar .thumb {
     -fx-background-radius: 5;
+}
+
+.nav-context-menu {
+    -fx-min-width: 175px;
+    -fx-pref-width: 175px;
+}
+
+.hyper-link-as-label {
+    -fx-text-fill: black;         /* Set to your label color */
+    -fx-underline: false;        /* Removes the default underline */
+    -fx-border-color: transparent; /* Removes the dotted border */
+    -fx-padding: 0;
+}
+
+.hyper-link-as-label:visited {
+    -fx-text-fill: black;         /* Keeps color same after click */
+}
+
+.hyper-link-as-label:focused {
+    -fx-border-color: transparent; /* Ensures no border appears on click */
+    -fx-border-style: none;
+}
+
+/* Hover state: This is where we bring the underline back */
+.hyper-link-as-label:hover {
+    -fx-underline: true;
 }

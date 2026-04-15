@@ -13,17 +13,23 @@ public final class ItemsViewConfigurerFactory {
     public static ItemsViewConfigurer get(Class<? extends LibraryItemRow> type, MiniLibraryItemsViewController controller) {
 
         if (ArtistItemRow.class == type) {
-            return CONFIGURERS.computeIfAbsent(type, _ -> new ArtistsItemsViewConfigurer(controller));
+            return CONFIGURERS.computeIfAbsent(type, _ -> new ArtistsViewConfigurer(controller));
         } else if (ArtistAlbumItemRow.class == type) {
-            return CONFIGURERS.computeIfAbsent(type, _ -> new ArtistAlbumsItemsViewConfigurer(controller));
+            return CONFIGURERS.computeIfAbsent(type, _ -> new ArtistAlbumsViewConfigurer(controller));
         } else if (AlbumItemRow.class == type) {
-            return CONFIGURERS.computeIfAbsent(type, _ -> new AlbumsItemsViewConfigurer(controller));
+            return CONFIGURERS.computeIfAbsent(type, _ -> new AlbumsViewConfigurer(controller));
+        } else if (ArtistTrackItemRow.class == type) {
+            return CONFIGURERS.computeIfAbsent(type, _ -> new ArtistTracksViewConfigurer(controller));
         } else if (AlbumTrackItemRow.class == type) {
-            return CONFIGURERS.computeIfAbsent(type, _ -> new AlbumTracksItemsViewConfigurer(controller));
+            return CONFIGURERS.computeIfAbsent(type, _ -> new AlbumTracksViewConfigurer(controller));
         } else if (QueuedTrackItemRow.class == type) {
-            return CONFIGURERS.computeIfAbsent(type, _ -> new QueuedTracksItemsViewConfigurer(controller));
+            return CONFIGURERS.computeIfAbsent(type, _ -> new QueuedTracksViewConfigurer(controller));
+        } else if (PlaylistTrackItemRow.class == type) {
+            return CONFIGURERS.computeIfAbsent(type, _ -> new PlaylistTracksViewConfigurer(controller));
         } else if (TrackItemRow.class == type) {
-            return CONFIGURERS.computeIfAbsent(type, _ -> new TracksItemsViewConfigurer(controller));
+            return CONFIGURERS.computeIfAbsent(type, _ -> new TracksViewConfigurer(controller));
+        } else if (PlaylistItemRow.class == type) {
+            return CONFIGURERS.computeIfAbsent(type, _ -> new PlaylistsViewConfigurer(controller));
         } else {
             throw new IllegalStateException("Unsupported type " + type);
         }

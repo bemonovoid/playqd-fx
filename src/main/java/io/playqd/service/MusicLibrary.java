@@ -33,7 +33,7 @@ public final class MusicLibrary {
     private static final SimpleObjectProperty<TracksUpdatedEvent> TRACKS_UPDATED_EVENT_PROPERTY =
             new SimpleObjectProperty<>();
 
-    private static final ObservableMap<Long, PlaylistWithTrackIds> PLAYLIST_CACHE =
+    private static final ObservableMap<Long, Playlist> PLAYLIST_CACHE =
             FXCollections.observableMap(new HashMap<>());
 
     private static final ObservableMap<Long, MediaCollection> COLLECTION_CACHE =
@@ -57,7 +57,7 @@ public final class MusicLibrary {
         COLLECTION_CACHE.clear();
         PLAYLIST_CACHE.clear();
         TRACKS_CACHE.clear();
-        ArtworkImages.clearCaches();
+        Images.clearCaches();
         getAllTracks();
         LOG.info("Music library caches were refreshed.");
         LIBRARY_REFRESHED_EVENT_PROPERTY.set(new LibraryRefreshedEvent());
@@ -71,8 +71,8 @@ public final class MusicLibrary {
         return TRACKS_UPDATED_EVENT_PROPERTY;
     }
 
-    public static void onPlaylistsModified(Consumer<List<PlaylistWithTrackIds>> callback) {
-        PLAYLIST_CACHE.addListener((MapChangeListener<? super Long, ? super PlaylistWithTrackIds>) _ ->
+    public static void onPlaylistsModified(Consumer<List<Playlist>> callback) {
+        PLAYLIST_CACHE.addListener((MapChangeListener<? super Long, ? super Playlist>) _ ->
                 callback.accept(new ArrayList<>(PLAYLIST_CACHE.values())));
     }
 
@@ -205,29 +205,33 @@ public final class MusicLibrary {
         updateTracksUpdateEventProperty(TrackUpdateType.PLAY_COUNT_INCR, List.of(trackUpdated));
     }
 
-    public static List<PlaylistWithTrackIds> getPlaylists() {
+    public static List<Playlist> getPlaylists() {
         if (PLAYLIST_CACHE.isEmpty()) {
             PLAYLIST_CACHE.putAll(playqdClient().getPlaylists().stream()
-                    .collect(Collectors.toMap(PlaylistWithTrackIds::id, p -> p)));
+                    .collect(Collectors.toMap(Playlist::id, p -> p)));
         }
         return new ArrayList<>(PLAYLIST_CACHE.values());
     }
 
-    public static List<PlaylistWithTrackIds> findPlaylistsWithTrackId(long trackId) {
-        return getPlaylists().stream().filter(p -> p.trackIds().contains(trackId)).toList();
+    public static List<Playlist> findPlaylistsWithTrackId(long trackId) {
+        return getPlaylists().stream().filter(p -> p.tracks().stream().anyMatch(t -> t.id() == trackId)).toList();
     }
 
-    public static PlaylistWithTrackIds createPlaylist(String name) {
+    public static Playlist createPlaylist(String name) {
         return createPlaylist(name, List.of());
     }
 
-    public static PlaylistWithTrackIds createPlaylist(String name, List<Long> trackIds) {
+    public static Playlist createPlaylist(String name, List<Long> trackIds) {
         var playlist = playqdClient().createPlaylist(name, trackIds);
         PLAYLIST_CACHE.put(playlist.id(), playlist);
         return playlist;
     }
 
-    public static PlaylistWithTrackIds addTracksToPlaylist(long id, List<Long> trackIds) {
+    public static Playlist getPlaylist(long id) {
+        return PLAYLIST_CACHE.computeIfAbsent(id, _ -> playqdClient().getPlaylist(id));
+    }
+
+    public static Playlist addTracksToPlaylist(long id, List<Long> trackIds) {
         var playlist = playqdClient().addTracksToPlaylist(id, trackIds);
         PLAYLIST_CACHE.put(playlist.id(), playlist);
         return playlist;
@@ -239,7 +243,7 @@ public final class MusicLibrary {
         PLAYLIST_CACHE.put(toPlaylistId, playqdClient().getPlaylist(toPlaylistId));
     }
 
-    public static PlaylistWithTrackIds removeTracksFromPlaylist(long id, List<Long> trackIds) {
+    public static Playlist removeTracksFromPlaylist(long id, List<Long> trackIds) {
         var playlist = playqdClient().removeTracksFromPlaylist(id, trackIds);
         PLAYLIST_CACHE.put(playlist.id(), playlist);
         return playlist;
@@ -255,7 +259,7 @@ public final class MusicLibrary {
         ids.forEach(PLAYLIST_CACHE::remove);
     }
 
-    public static PlaylistWithTrackIds updatePlaylist(long id, String newName) {
+    public static Playlist updatePlaylist(long id, String newName) {
         var updated = playqdClient().updatePlaylist(new UpdatePlaylistRequest(id, newName));
         PLAYLIST_CACHE.put(updated.id(), updated);
         return updated;

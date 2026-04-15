@@ -2,7 +2,7 @@ package io.playqd.controller.player;
 
 import de.jensd.fx.glyphs.fontawesome.FontAwesomeIcon;
 import de.jensd.fx.glyphs.fontawesome.FontAwesomeIconView;
-import io.playqd.client.ArtworkImages;
+import io.playqd.client.Images;
 import io.playqd.config.AppConfig;
 import io.playqd.controller.view.ObservableProperties;
 import io.playqd.controller.view.menuitem.CollectionsMenuItems;
@@ -236,7 +236,7 @@ public class PlayerToolbarController {
 
     private void initArtworkImageListeners() {
         artworkImageView.setOnMouseClicked(mouseEvent -> {
-            if (ArtworkImages.isDefaultImage(artworkImageView.getImage().getUrl())) {
+            if (Images.isDefaultImage(artworkImageView.getImage().getUrl())) {
                 return;
             }
             if (MouseEventHelper.primaryButtonDoubleClicked(mouseEvent)) {
@@ -266,15 +266,15 @@ public class PlayerToolbarController {
 
     private void updateArtwork(Track track) {
         var size = 80;
-        var image = ArtworkImages.album(track.id(), size);
+        var image = Images.album(track.id(), size);
         if (image == null) {
-            artworkImageView.setImage(ArtworkImages.defaultAlbum(size));
+            artworkImageView.setImage(Images.defaultAlbum(size));
         } else {
             artworkImageView.setImage(image);
             image.errorProperty().addListener((_, _, hasError) -> {
                 if (hasError) {
-                    var defaultImage = ArtworkImages.defaultAlbum(size);
-                    ArtworkImages.setAlbum(track.id(), defaultImage, size);
+                    var defaultImage = Images.defaultAlbum(size);
+                    Images.setAlbum(track.id(), defaultImage, size);
                     artworkImageView.setImage(defaultImage);
                 }
             });

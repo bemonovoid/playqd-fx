@@ -2,7 +2,7 @@ package io.playqd.controller.collections;
 
 import de.jensd.fx.glyphs.fontawesome.FontAwesomeIcon;
 import de.jensd.fx.glyphs.fontawesome.FontAwesomeIconView;
-import io.playqd.client.ArtworkImages;
+import io.playqd.client.Images;
 import io.playqd.client.PlayqdClientProvider;
 import io.playqd.data.MediaItemType;
 import io.playqd.data.WatchFolderItem;
@@ -42,15 +42,15 @@ class CollectionItemIconTableCellFactory
                         try {
                             var trackId = collectionItem.refId() != null ? Long.parseLong(collectionItem.refId()) : -1;
                             if (trackId > 0) {
-                                var image = ArtworkImages.album(trackId, IMAGE_SIZE);
+                                var image = Images.album(trackId, IMAGE_SIZE);
                                 if (image == null) {
-                                    imageView.setImage(ArtworkImages.defaultAlbum(IMAGE_SIZE));
+                                    imageView.setImage(Images.defaultAlbum(IMAGE_SIZE));
                                 } else {
                                     imageView.setImage(image);
                                     image.errorProperty().addListener((_, _, hasError) -> {
                                         if (hasError) {
-                                            var defaultImage = ArtworkImages.defaultAlbum(IMAGE_SIZE);
-                                            ArtworkImages.setAlbum(trackId, defaultImage, IMAGE_SIZE);
+                                            var defaultImage = Images.defaultAlbum(IMAGE_SIZE);
+                                            Images.setAlbum(trackId, defaultImage, IMAGE_SIZE);
                                             imageView.setImage(defaultImage);
                                         }
                                     });

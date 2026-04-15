@@ -3,10 +3,14 @@ package io.playqd.mini.controller.configurer;
 import de.jensd.fx.glyphs.fontawesome.FontAwesomeIcon;
 import de.jensd.fx.glyphs.fontawesome.FontAwesomeIconView;
 import io.playqd.data.Track;
+import io.playqd.mini.controller.ItemsTableColumnIds;
 import io.playqd.mini.controller.MiniLibraryItemsViewController;
-import io.playqd.mini.controller.factories.TrackImageTableCellFactory;
+import io.playqd.mini.controller.NavigableItemsResolver;
+import io.playqd.mini.controller.factories.*;
 import io.playqd.mini.controller.item.LibraryItemRow;
 import io.playqd.mini.controller.item.TrackItemRow;
+import io.playqd.mini.controller.item.contextmenu.ContextMenuItemsBuilder;
+import io.playqd.mini.controller.navigator.ItemsDescriptor;
 import io.playqd.player.PlayerTrackListManager;
 import io.playqd.player.TrackListRequest;
 import io.playqd.utils.TimeUtils;
@@ -22,31 +26,30 @@ import org.slf4j.LoggerFactory;
 
 import java.text.NumberFormat;
 import java.time.Duration;
+import java.util.List;
 
-public sealed class TracksItemsViewConfigurer extends DefaultItemsViewConfigurer
-        permits AlbumTracksItemsViewConfigurer, QueuedTracksItemsViewConfigurer {
+public sealed class TracksViewConfigurer extends DefaultItemsViewConfigurer permits
+        ArtistTracksViewConfigurer,
+        AlbumTracksViewConfigurer,
+        QueuedTracksViewConfigurer,
+        PlaylistTracksViewConfigurer {
 
-    private final static Logger LOG = LoggerFactory.getLogger(TracksItemsViewConfigurer.class);
+    private final static Logger LOG = LoggerFactory.getLogger(TracksViewConfigurer.class);
 
-    public TracksItemsViewConfigurer(MiniLibraryItemsViewController controller) {
+    public TracksViewConfigurer(MiniLibraryItemsViewController controller) {
         super(controller);
     }
 
     @Override
     public void configureColumns(TableView<LibraryItemRow> tableView) {
+        super.configureColumns(tableView);
         tableView.getColumns()
                 .forEach(col -> {
-                    if (col.getId().equals("imageCol")) {
-                        @SuppressWarnings("unchecked")
-                        var imageCol = (TableColumn<LibraryItemRow, Long>) col;
-                        imageCol.setCellFactory(new TrackImageTableCellFactory());
-                    } else if (col.getId().equals("miscValueCol")) {
+                    if (col.getId().equals(ItemsTableColumnIds.MISC_VALUE_COL)) {
                         col.setVisible(true);
-                        col.setMinWidth(55);
-                        col.setMaxWidth(55);
                         @SuppressWarnings("unchecked")
-                        var miscValueCole = (TableColumn<LibraryItemRow, String>) col;
-                        miscValueCole.setCellValueFactory(c -> c.getValue().getMiscValue());
+                        var miscValueCol = (TableColumn<LibraryItemRow, String>) col;
+                        miscValueCol.setCellValueFactory(c -> c.getValue().getMiscValue());
                     }
                 });
     }
@@ -75,7 +78,7 @@ public sealed class TracksItemsViewConfigurer extends DefaultItemsViewConfigurer
     }
 
     @Override
-    public void onItemMouseDoubleClicked(LibraryItemRow item) {
+    public void onRowOpened(LibraryItemRow item) {
         if (item instanceof TrackItemRow trackItemRow) {
             PlayerTrackListManager.enqueueAndPlay(new TrackListRequest(trackItemRow.getSource()));
         } else {
@@ -84,8 +87,31 @@ public sealed class TracksItemsViewConfigurer extends DefaultItemsViewConfigurer
     }
 
     @Override
-    protected void configureHeaderLeft(TableView<LibraryItemRow> tableView, HBox headerLeft) {
-        headerLeft.getChildren().clear();
+    public List<MenuItem> configureContextMenuItems(List<LibraryItemRow> selectedItems) {
+        var items = selectedItems.stream().map(i -> (Track) i.getSource()).toList();
+        return ContextMenuItemsBuilder.newBuilder()
+                .playMenuItems(items)
+                .playlistMenuItems(items)
+                .build();
+    }
+
+    @Override
+    protected ImageTableCellFactory geImageTableCellFactory() {
+        return new TrackImageTableCellFactory();
+    }
+
+    @Override
+    protected DescriptionTableCellFactory getDescriptionTableCellFactory() {
+        return new HyperLinkTableCellFactory(NavigableItemsResolver::resolveArtistAlbums);
+    }
+
+    @Override
+    protected MiscValueTableCellFactory getMiscValueTableCellFactory() {
+        return null;
+    }
+
+    @Override
+    protected void configureHeaderLeft(ItemsDescriptor itemsDescriptor, HBox headerLeft) {
         headerLeft.getChildren().add(new Label("Tracks:"));
     }
 

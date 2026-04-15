@@ -2,7 +2,7 @@ package io.playqd.player;
 
 import io.playqd.data.Track;
 import io.playqd.event.MouseEventHelper;
-import io.playqd.client.ArtworkImages;
+import io.playqd.client.Images;
 import javafx.geometry.Pos;
 import javafx.scene.control.Label;
 import javafx.scene.control.ListCell;
@@ -57,15 +57,15 @@ class PlayerTrackListViewCellFactory implements Callback<ListView<Track>, ListCe
                     setText(null);
                     setGraphic(null);
                 } else {
-                    var image = ArtworkImages.album(track.id(), 25);
+                    var image = Images.album(track.id(), 25);
                     if (image == null) {
-                        imageView.setImage(ArtworkImages.defaultAlbum(25));
+                        imageView.setImage(Images.defaultAlbum(25));
                     } else {
                         imageView.setImage(image);
                         image.errorProperty().addListener((_, _, hasError) -> {
                             if (hasError) {
-                                var defaultImage = ArtworkImages.defaultAlbum(25);
-                                ArtworkImages.setAlbum(track.id(), defaultImage, 25);
+                                var defaultImage = Images.defaultAlbum(25);
+                                Images.setAlbum(track.id(), defaultImage, 25);
                                 imageView.setImage(defaultImage);
                             }
                         });

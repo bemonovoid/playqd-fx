@@ -10,6 +10,7 @@ import io.playqd.dialog.settings.ConfigName;
 import io.playqd.dialog.settings.SettingsDialog;
 import io.playqd.fxml.FXMLLoaderUtils;
 import io.playqd.fxml.FXMLResource;
+import io.playqd.mini.controller.Accelerators;
 import io.playqd.platform.PlatformApi;
 import io.playqd.service.MusicLibraryScanServiceManager;
 import javafx.scene.Scene;
@@ -45,6 +46,8 @@ public class Application extends javafx.application.Application {
         stage.setTitle(TITLE);
         scene.getStylesheets().addAll("css/buttons.css", "css/mini/mini-player.css");
         stage.setScene(scene);
+        Accelerators.initialize(scene);
+        ApplicationTitleUpdateListener.register(stage);
         stage.show();
     }
 

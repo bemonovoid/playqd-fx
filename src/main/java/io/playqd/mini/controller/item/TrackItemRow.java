@@ -3,7 +3,8 @@ package io.playqd.mini.controller.item;
 import io.playqd.data.Track;
 import javafx.beans.property.SimpleStringProperty;
 
-public sealed class TrackItemRow extends LibraryItemRow permits AlbumTrackItemRow, QueuedTrackItemRow {
+public sealed class TrackItemRow extends LibraryItemRow
+        permits ArtistTrackItemRow, AlbumTrackItemRow, QueuedTrackItemRow, PlaylistTrackItemRow {
 
     private final Track track;
 

@@ -24,12 +24,12 @@ public sealed class AlbumItemRow extends LibraryItemRow permits ArtistAlbumItemR
 
     @Override
     public String getDescription() {
-        var tracksCount = album.tracksCount();
-        return String.format("%s, %s", album.releaseDate(), album.genre());
+        return album.artistName();
     }
 
     @Override
     public Album getSource() {
         return album;
     }
+
 }

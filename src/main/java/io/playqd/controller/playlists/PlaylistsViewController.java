@@ -2,7 +2,8 @@ package io.playqd.controller.playlists;
 
 import io.playqd.controller.view.TracksView;
 import io.playqd.controller.view.menuitem.TrackRowContextMenuItemsFactory;
-import io.playqd.data.PlaylistWithTrackIds;
+import io.playqd.data.Playlist;
+import io.playqd.data.PlaylistTrack;
 import io.playqd.player.PlayerTrackListManager;
 import io.playqd.player.TrackListRequest;
 import io.playqd.service.MusicLibrary;
@@ -25,7 +26,7 @@ public class PlaylistsViewController {
     private static final Logger LOG = LoggerFactory.getLogger(PlaylistsViewController.class);
 
     @FXML
-    private ListView<PlaylistWithTrackIds> listView;
+    private ListView<Playlist> listView;
 
     @FXML
     private TracksView tracksView;
@@ -44,14 +45,14 @@ public class PlaylistsViewController {
             if (selectedPlaylist == null) {
                 return;
             }
-            tracksTableView.showTracks(() -> MusicLibrary.getTracksById(selectedPlaylist.trackIds()));
+            tracksTableView.showTracks(() -> MusicLibrary.getTracksById(selectedPlaylist.tracks().stream().map(PlaylistTrack::id).toList()));
             updateTrackViewHeader(selectedPlaylist);
         });
 
         tracksTableView.setTrackContextMenuItemsFactory(() -> {
             var factory = new TrackRowContextMenuItemsFactory();
             factory.setPlaylistModifiedCallback(modifiedPlaylist -> {
-                tracksTableView.showTracks(() -> MusicLibrary.getTracksById(modifiedPlaylist.trackIds()));
+                tracksTableView.showTracks(() -> MusicLibrary.getTracksById(modifiedPlaylist.tracks().stream().map(PlaylistTrack::id).toList()));
             });
             factory.setThisPlaylist(this::getSelectedPlaylist);
             return factory;
@@ -94,7 +95,7 @@ public class PlaylistsViewController {
     @FXML
     private void showConfirmDeleteEmptyPlaylists() {
         var emptyPlaylistIds = MusicLibrary.getPlaylists().stream()
-                .filter(p -> p.trackIds().isEmpty()).map(PlaylistWithTrackIds::id).toList();
+                .filter(p -> p.tracks().isEmpty()).map(Playlist::id).toList();
         if (emptyPlaylistIds.isEmpty()) {
             LOG.warn("Empty playlists were not found. Nothing to delete.");
         } else {
@@ -112,7 +113,7 @@ public class PlaylistsViewController {
     }
 
     private void initPlaylistsInfoLabelListener() {
-        listView.getItems().addListener((ListChangeListener<PlaylistWithTrackIds>) changed -> {
+        listView.getItems().addListener((ListChangeListener<Playlist>) changed -> {
             if (changed.getList() == null || changed.getList().isEmpty()) {
                 playlistsInfoLabel.setText("");
             } else {
@@ -122,7 +123,7 @@ public class PlaylistsViewController {
         });
     }
 
-    private void updateTrackViewHeader(PlaylistWithTrackIds playlist) {
+    private void updateTrackViewHeader(Playlist playlist) {
         tracksView.tracksTableHeader().setTitle("Playlist: " + playlist.name());
         var lmdLabel = new Label("Last modified: ");
         var lmdLabelValue = new Label(playlist.lastModifiedDate().format(DateTimeFormatter.ofPattern("dd/MM/yyyy")));
@@ -133,7 +134,7 @@ public class PlaylistsViewController {
         tracksView.tracksTableHeader().setDetails(hBox);
     }
 
-    public PlaylistWithTrackIds getSelectedPlaylist() {
+    public Playlist getSelectedPlaylist() {
         return listView.getSelectionModel().getSelectedItem();
     }
 

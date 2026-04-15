@@ -52,10 +52,24 @@ public final class ItemsNavigator {
     }
 
     public NavigableItems getCurrentState() {
+        if (isEmpty()) {
+            return null;
+        }
         return history.get(currentIndex);
+    }
+
+    public boolean isEmpty() {
+        return currentIndex < 0 || history.isEmpty();
     }
 
     public List<NavigableItems> getReadOnlyNavigableItems() {
         return Collections.unmodifiableList(history);
+    }
+
+    public void clearAllButCurrent() {
+        var current = getCurrentState();
+        history.clear();
+        addState(current);
+        onItemsNavigationChanged.run();
     }
 }

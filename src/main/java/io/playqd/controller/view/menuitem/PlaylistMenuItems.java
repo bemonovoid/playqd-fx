@@ -3,7 +3,7 @@ package io.playqd.controller.view.menuitem;
 import de.jensd.fx.glyphs.fontawesome.FontAwesomeIcon;
 import de.jensd.fx.glyphs.fontawesome.FontAwesomeIconView;
 import io.playqd.controller.playlists.PlaylistDialog;
-import io.playqd.data.PlaylistWithTrackIds;
+import io.playqd.data.Playlist;
 import io.playqd.data.Track;
 import io.playqd.service.MusicLibrary;
 import javafx.scene.control.Menu;
@@ -19,8 +19,8 @@ import java.util.function.Supplier;
 public class PlaylistMenuItems implements MenuItemsBuilder {
 
     private List<Track> selectedTracks = Collections.emptyList();
-    private Supplier<PlaylistWithTrackIds> thisPlaylistSupplier = () -> null;
-    private Consumer<PlaylistWithTrackIds> playlistModifiedCallback = pl -> {};
+    private Supplier<Playlist> thisPlaylistSupplier = () -> null;
+    private Consumer<Playlist> playlistModifiedCallback = pl -> {};
 
     public PlaylistMenuItems setSelectedTracks(List<Track> selectedTracks) {
         if (selectedTracks != null) {
@@ -29,14 +29,14 @@ public class PlaylistMenuItems implements MenuItemsBuilder {
         return this;
     }
 
-    public PlaylistMenuItems setThisPlaylist(Supplier<PlaylistWithTrackIds> thisPlaylistSupplier) {
+    public PlaylistMenuItems setThisPlaylist(Supplier<Playlist> thisPlaylistSupplier) {
         if (thisPlaylistSupplier != null) {
             this.thisPlaylistSupplier = thisPlaylistSupplier;
         }
         return this;
     }
 
-    public PlaylistMenuItems setPlaylistModifiedCallback(Consumer<PlaylistWithTrackIds> playlistModifiedCallback) {
+    public PlaylistMenuItems setPlaylistModifiedCallback(Consumer<Playlist> playlistModifiedCallback) {
         if (playlistModifiedCallback != null) {
             this.playlistModifiedCallback = playlistModifiedCallback;
         }
@@ -90,7 +90,7 @@ public class PlaylistMenuItems implements MenuItemsBuilder {
         return menuItems;
     }
 
-    private List<MenuItem> buildPlaylistItemMenuItems(Consumer<PlaylistWithTrackIds> playlistConsumer) {
+    private List<MenuItem> buildPlaylistItemMenuItems(Consumer<Playlist> playlistConsumer) {
         return MusicLibrary.getPlaylists().stream()
                 .filter(pl -> {
                     var thisPlaylist = thisPlaylistSupplier.get();

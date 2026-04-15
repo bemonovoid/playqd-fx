@@ -1,12 +1,21 @@
 package io.playqd.mini.controller.navigator;
 
-@FunctionalInterface
+import io.playqd.mini.controller.item.AlbumItemRow;
+import io.playqd.mini.controller.item.LibraryItemRow;
+import io.playqd.mini.controller.item.TrackItemRow;
+
 public interface ItemsDescriptor {
 
-    String get();
+    String path();
+
+    LibraryItemRow parent();
 
     default boolean isEmpty() {
-        return get() == null || get().isEmpty();
+        return path() == null || path().isEmpty();
+    }
+
+    default boolean hasParent() {
+        return parent() != null;
     }
 
     default boolean isPresent() {
@@ -14,43 +23,75 @@ public interface ItemsDescriptor {
     }
 
     static ItemsDescriptor forArtists() {
-        return () -> "artists";
+        return new ItemDescriptorImpl("artists", null);
     }
 
-    static ItemsDescriptor forArtistAlbums(String artistName) {
-        return () -> String.format("artists/%s/albums", artistName);
+    static ItemsDescriptor forPlaylists() {
+        return new ItemDescriptorImpl("playlists", null);
     }
 
-    static ItemsDescriptor forArtistTracks(String artistName) {
-        return () -> String.format("artists/%s/tracks", artistName);
+    static ItemsDescriptor forTracks() {
+        return new ItemDescriptorImpl("tracks", null);
     }
 
-    static ItemsDescriptor forAlbumTracks(String artistName, String albumName) {
-        return () -> String.format("artists/%s/albums/%s/tracks", artistName, albumName);
+    static ItemsDescriptor forPlaylistTracks(LibraryItemRow parent) {
+        return new ItemDescriptorImpl(String.format("playlists/%s", parent.getName()), parent);
+    }
+
+    static ItemsDescriptor forArtistAlbums(LibraryItemRow parent) {
+        var artistName = parent.getName();
+        if (parent instanceof AlbumItemRow item) {
+            artistName = item.getSource().artistName();
+        } else if (parent instanceof TrackItemRow item) {
+            artistName = item.getSource().artistName();
+        }
+        return new ItemDescriptorImpl(String.format("artists/%s/albums", artistName), parent);
+    }
+
+    static ItemsDescriptor forArtistTracks(LibraryItemRow parent) {
+        var artistName = parent.getName();
+        if (parent instanceof AlbumItemRow item) {
+            artistName = item.getSource().artistName();
+        } else if (parent instanceof TrackItemRow item) {
+            artistName = item.getSource().artistName();
+        }
+        return new ItemDescriptorImpl(String.format("artists/%s/tracks", artistName), parent);
+    }
+
+    static ItemsDescriptor forAlbumTracks(AlbumItemRow parent) {
+        var path = String.format("artists/%s/albums/%s/tracks", parent.getSource().artistName(), parent.getName());
+        return new ItemDescriptorImpl(path, parent);
     }
 
     static ItemsDescriptor forSearchArtists(String searchInput) {
         if (searchInput.isEmpty()) {
-            return () -> "[search]/artists/*";
+            return new ItemDescriptorImpl("[search]/artists/*", null);
         }
-        return () -> String.format("[search]/artists/name/?contains=%s", searchInput);
+        return new ItemDescriptorImpl(String.format("[search]/artists/name/?contains=%s", searchInput), null);
     }
 
-    static  ItemsDescriptor forSearchAlbums(String searchInput) {
+    static ItemsDescriptor forSearchAlbums(String searchInput) {
         if (searchInput.isEmpty()) {
-            return () -> "[search]/albums/*";
+            return new ItemDescriptorImpl("[search]/albums/*", null);
         }
-        return () -> String.format("[search]/albums/name/?contains=%s", searchInput);
+        return new ItemDescriptorImpl(String.format("[search]/albums/name/?contains=%s", searchInput), null);
     }
 
-    static  ItemsDescriptor forSearchTracks(String searchInput) {
+    static ItemsDescriptor forSearchTracks(String searchInput) {
         if (searchInput.isEmpty()) {
-            return () -> "[search]/tracks/*";
+            return new ItemDescriptorImpl("[search]/tracks/*", null);
         }
-        return () -> String.format("[search]/tracks/name/?contains=%s", searchInput);
+        return new ItemDescriptorImpl(String.format("[search]/tracks/name/?contains=%s", searchInput), null);
+    }
+
+    static ItemsDescriptor forSearchPlaylists(String searchInput) {
+        if (searchInput.isEmpty()) {
+            return new ItemDescriptorImpl("[search]/playlists/*", null);
+        }
+        return new ItemDescriptorImpl(String.format("[search]/playlists/name/?contains=%s", searchInput), null);
     }
 
     static ItemsDescriptor empty() {
-        return () -> "";
+        return new ItemDescriptorImpl("", null);
     }
 }

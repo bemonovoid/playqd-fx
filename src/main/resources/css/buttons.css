@@ -1,6 +1,8 @@
 .icon-button {
     -fx-background-color: transparent;
     -fx-background-insets: 0;
+    -fx-alignment: CENTER;
+    -fx-content-display: GRAPHIC_ONLY;
     /*-fx-padding: 5px; !* Adjust padding as needed *!*/
 }
 

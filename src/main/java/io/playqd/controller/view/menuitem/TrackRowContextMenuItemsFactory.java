@@ -1,7 +1,7 @@
 package io.playqd.controller.view.menuitem;
 
 import io.playqd.data.NewMediaCollectionItem;
-import io.playqd.data.PlaylistWithTrackIds;
+import io.playqd.data.Playlist;
 import io.playqd.data.Track;
 import io.playqd.service.MusicLibrary;
 import javafx.scene.control.MenuItem;
@@ -15,8 +15,8 @@ import java.util.function.Supplier;
 
 public class TrackRowContextMenuItemsFactory {
 
-    private Supplier<PlaylistWithTrackIds> thisPlaylist;
-    private Consumer<PlaylistWithTrackIds> playlistModifiedCallback;
+    private Supplier<Playlist> thisPlaylist;
+    private Consumer<Playlist> playlistModifiedCallback;
 
     public List<MenuItem> get(List<Track> tracks) {
         var playMenuItems = new PlayMenuItems().onPlay(() -> tracks).build();
@@ -61,11 +61,11 @@ public class TrackRowContextMenuItemsFactory {
         return items;
     }
 
-    public void setThisPlaylist(Supplier<PlaylistWithTrackIds> thisPlaylist) {
+    public void setThisPlaylist(Supplier<Playlist> thisPlaylist) {
         this.thisPlaylist = thisPlaylist;
     }
 
-    public void setPlaylistModifiedCallback(Consumer<PlaylistWithTrackIds> playlistModifiedCallback) {
+    public void setPlaylistModifiedCallback(Consumer<Playlist> playlistModifiedCallback) {
         this.playlistModifiedCallback = playlistModifiedCallback;
     }
 }

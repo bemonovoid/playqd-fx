@@ -14,9 +14,9 @@
 
     <Separator/>
 
-    <ToolBar fx:id="headerToolBar" style="-fx-background-color: transparent">
+    <ToolBar fx:id="itemsTableHeaderToolBar" style="-fx-background-color: transparent">
         <StackPane HBox.hgrow="ALWAYS">
-            <HBox fx:id="headerLeft" alignment="CENTER_LEFT" style="-fx-font-weight: bold; -fx-font-size: 14"/>
+            <HBox fx:id="headerLeft" alignment="CENTER_LEFT"/>
             <HBox fx:id="headerCenter" alignment="CENTER" spacing="10" pickOnBounds="false">
                 <Button fx:id="moveBackBtn" disable="true" focusTraversable="false" onAction="#moveBack">
                     <styleClass>
@@ -44,12 +44,12 @@
         </StackPane>
     </ToolBar>
 
-    <TableView fx:id="tableView" VBox.vgrow="ALWAYS" focusTraversable="false">
+    <TableView fx:id="tableView" VBox.vgrow="ALWAYS">
         <styleClass>
             <String fx:value="library-item-table"/>
         </styleClass>
         <columns>
-            <TableColumn fx:id="imageCol"
+            <TableColumn fx:id="imageCol" style="-fx-alignment: CENTER"
                          reorderable="false" sortable="false" editable="false" minWidth="25" maxWidth="25">
                 <cellValueFactory>
                     <PropertyValueFactory property="id"/>

@@ -1,20 +1,20 @@
 package io.playqd.mini.controller.factories;
 
-import io.playqd.client.ArtworkImages;
+import io.playqd.client.Images;
 import javafx.scene.image.Image;
 
-public final class ArtistImageTableCellFactory extends ImageTableCellFactory {
+public final class ArtistImageTableCellFactory extends RemoteImageTableCellFactory {
 
     @Override
     protected Image getImage(long itemId, int size) {
-        return ArtworkImages.artist(itemId, size);
+        return Images.artist(itemId, size);
     }
 
     @Override
     protected Image getDefaultImage(long itemId, int size, boolean updateCache) {
-        var defaultImage = ArtworkImages.defaultArtist(size);
+        var defaultImage = Images.defaultArtist(size);
         if (updateCache) {
-            ArtworkImages.setArtist(itemId, defaultImage, size);
+            Images.setArtist(itemId, defaultImage, size);
         }
         return defaultImage;
     }

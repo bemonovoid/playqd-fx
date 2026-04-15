@@ -11,6 +11,8 @@
 <?import java.lang.String?>
 <?import javafx.scene.layout.StackPane?>
 <?import javafx.scene.control.ToggleButton?>
+<?import javafx.scene.control.Hyperlink?>
+<?import javafx.scene.control.Separator?>
 <VBox xmlns="http://javafx.com/javafx"
       xmlns:fx="http://javafx.com/fxml"
       spacing="10"
@@ -22,10 +24,16 @@
     </padding>
 
     <HBox alignment="CENTER_LEFT" spacing="10">
-        <ImageView fx:id="artworkImageView" fitWidth="65" fitHeight="65"/>
+        <ImageView fx:id="artworkImageView" fitWidth="85" fitHeight="85"/>
         <VBox>
-            <Label fx:id="artistNameLabel" styleClass="artist-label"/>
             <Label fx:id="trackNameLabel" styleClass="track-label"/>
+            <Hyperlink fx:id="albumNameLabel" styleClass="hyper-link-as-label" style="-fx-font-size: 12; -fx-font-weight: 200" onAction="#onAlbumNameClicked"/>
+            <Hyperlink fx:id="artistNameLabel" styleClass="hyper-link-as-label" onAction="#onArtistNameClicked"/>
+            <HBox spacing="5">
+                <Label fx:id="releaseDateLabel" disable="true" style="-fx-font-size: 10; -fx-font-weight: 100"/>
+                <Separator orientation="VERTICAL"/>
+                <Label fx:id="genreLabel" disable="true" style="-fx-font-size: 10; -fx-font-weight: 100"/>
+            </HBox>
         </VBox>
     </HBox>
 
@@ -62,7 +70,7 @@
                     <FontAwesomeIconView glyphName="STEP_BACKWARD" glyphSize="14" style="-fx-fill: #666"/>
                 </graphic>
             </Button>
-            <Button fx:id="playBtn" styleClass="icon-button" focusTraversable="false">
+            <Button fx:id="playBtn" styleClass="icon-button" focusTraversable="false" onAction="#play" prefWidth="40">
                 <graphic>
                     <FontAwesomeIconView glyphName="PLAY" glyphSize="22"/>
                 </graphic>

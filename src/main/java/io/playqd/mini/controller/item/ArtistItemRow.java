@@ -21,17 +21,6 @@ public final class ArtistItemRow extends LibraryItemRow {
     }
 
     @Override
-    public String getDescription() {
-        var albumsCount = artist.albumsCount();
-        var tracksCount = artist.tracksCount();
-        return String.format("%s album%s, %s track%s",
-                albumsCount,
-                albumsCount > 1 ? "s" : "",
-                tracksCount,
-                tracksCount > 1 ? "s" : "");
-    }
-
-    @Override
     public Artist getSource() {
         return artist;
     }

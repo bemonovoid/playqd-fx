@@ -1,6 +1,6 @@
 package io.playqd.controller.gallery;
 
-import io.playqd.client.ArtworkImages;
+import io.playqd.client.Images;
 import io.playqd.client.PlayqdApis;
 import io.playqd.client.PlayqdClientProvider;
 import io.playqd.controller.view.menuitem.ShowInFolderItems;
@@ -57,7 +57,7 @@ public class ArtworkGalleryView extends BorderPane {
 
     public ArtworkGalleryView(Track track) {
         this.track = track;
-        var image = ArtworkImages.album(track.id());
+        var image = Images.album(track.id());
         var resourceLoader = FXMLLoaderUtils.resourceLoader(FXMLResource.ARTWORK_GALLERY_VIEW);
         resourceLoader.setRoot(this);
         resourceLoader.setController(this);

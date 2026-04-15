@@ -2,7 +2,7 @@ package io.playqd.controller.playlists;
 
 import de.jensd.fx.glyphs.fontawesome.FontAwesomeIcon;
 import de.jensd.fx.glyphs.fontawesome.FontAwesomeIconView;
-import io.playqd.data.PlaylistWithTrackIds;
+import io.playqd.data.Playlist;
 import io.playqd.service.MusicLibrary;
 import io.playqd.utils.Numbers;
 import javafx.scene.control.*;
@@ -13,15 +13,15 @@ import javafx.stage.StageStyle;
 import javafx.util.Callback;
 
 class PlaylistsListViewCellFactory
-        implements Callback<ListView<PlaylistWithTrackIds>, ListCell<PlaylistWithTrackIds>> {
+        implements Callback<ListView<Playlist>, ListCell<Playlist>> {
 
     @Override
-    public ListCell<PlaylistWithTrackIds> call(ListView<PlaylistWithTrackIds> artistListView) {
+    public ListCell<Playlist> call(ListView<Playlist> artistListView) {
 
         return new ListCell<>() {
 
             @Override
-            protected void updateItem(PlaylistWithTrackIds listItem, boolean empty) {
+            protected void updateItem(Playlist listItem, boolean empty) {
 
                 super.updateItem(listItem, empty);
 
@@ -39,8 +39,8 @@ class PlaylistsListViewCellFactory
                     image.setFitHeight(25);
                     image.setFitWidth(25);
 
-                    var countText = listItem.trackIds().size() == 1 ? " track" : " tracks";
-                    var countTextLabel = new Label(Numbers.format(listItem.trackIds().size()) + countText);
+                    var countText = listItem.tracks().size() == 1 ? " track" : " tracks";
+                    var countTextLabel = new Label(Numbers.format(listItem.tracks().size()) + countText);
                     countTextLabel.setDisable(true);
                     countTextLabel.setStyle("-fx-font-size: 10px;");
 
@@ -67,8 +67,8 @@ class PlaylistsListViewCellFactory
         };
     }
 
-    private ContextMenu buildCellContextMenu(PlaylistWithTrackIds playlist,
-                                             ListView<PlaylistWithTrackIds> listView) {
+    private ContextMenu buildCellContextMenu(Playlist playlist,
+                                             ListView<Playlist> listView) {
         var contextMenu = new ContextMenu();
         contextMenu.getItems().add(renameMenuItem(playlist, listView));
         contextMenu.getItems().add(new SeparatorMenuItem());
@@ -76,7 +76,7 @@ class PlaylistsListViewCellFactory
         return contextMenu;
     }
 
-    private MenuItem renameMenuItem(PlaylistWithTrackIds playlist, ListView<PlaylistWithTrackIds> listView) {
+    private MenuItem renameMenuItem(Playlist playlist, ListView<Playlist> listView) {
         var icon = new FontAwesomeIconView(FontAwesomeIcon.PENCIL, "12");
         icon.setStyle("-fx-fill: #ff9d5f");
         var menuItem = new MenuItem("Rename", icon);
@@ -89,7 +89,7 @@ class PlaylistsListViewCellFactory
         return menuItem;
     }
 
-    private MenuItem deleteMenuItem(PlaylistWithTrackIds playlist, ListView<PlaylistWithTrackIds> listView) {
+    private MenuItem deleteMenuItem(Playlist playlist, ListView<Playlist> listView) {
         var icon = new FontAwesomeIconView(FontAwesomeIcon.REMOVE, "12");
         icon.setStyle("-fx-fill: #ff0000;");
         var menuItem = new MenuItem("Delete", icon);
@@ -99,7 +99,7 @@ class PlaylistsListViewCellFactory
             alert.initStyle(StageStyle.UTILITY);
             alert.setHeaderText(null);
             alert.setContentText(String.format("Delete '%s' playlist with %s track(s)?",
-                    playlist.name(), playlist.trackIds().size()));
+                    playlist.name(), playlist.tracks().size()));
             var result = alert.showAndWait();
             if (result.isPresent() && result.get() == ButtonType.OK) {
                 MusicLibrary.deletePlaylist(playlist.id());

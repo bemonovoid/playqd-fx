@@ -2,22 +2,24 @@ package io.playqd.mini.controller;
 
 import de.jensd.fx.glyphs.fontawesome.FontAwesomeIcon;
 import de.jensd.fx.glyphs.fontawesome.FontAwesomeIconView;
-import io.playqd.client.ArtworkImages;
+import io.playqd.client.Images;
 import io.playqd.data.Track;
+import io.playqd.mini.controller.item.AlbumItemRow;
+import io.playqd.mini.controller.item.AlbumTrackItemRow;
+import io.playqd.mini.controller.item.TrackItemRow;
+import io.playqd.mini.events.NavigationEvent;
 import io.playqd.player.Player;
 import io.playqd.service.MusicLibrary;
 import io.playqd.utils.TimeUtils;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.geometry.Pos;
-import javafx.scene.control.Button;
-import javafx.scene.control.Label;
-import javafx.scene.control.Slider;
-import javafx.scene.control.ToggleButton;
+import javafx.scene.control.*;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.StackPane;
+import javafx.scene.layout.VBox;
 
 import java.util.function.Consumer;
 
@@ -26,10 +28,16 @@ public class MiniPlayerViewController {
     private Consumer<Boolean> onQueueViewToggle;
 
     @FXML
+    private VBox miniPlayerView;
+
+    @FXML
     private ImageView artworkImageView;
 
     @FXML
-    private Label artistNameLabel, trackNameLabel, trackLengthLabel, timeElapsedLabel;
+    private Hyperlink artistNameLabel, albumNameLabel;
+
+    @FXML
+    private Label releaseDateLabel, genreLabel, trackNameLabel, trackLengthLabel, timeElapsedLabel;
 
     @FXML
     private Slider trackSlider;
@@ -48,6 +56,22 @@ public class MiniPlayerViewController {
         initSlider();
         initPlayerControls();
         initPlayerEventListeners();
+    }
+
+    @FXML
+    private void onArtistNameClicked() {
+        Player.playingTrack().ifPresent(track -> {
+            var navItems = NavigableItemsResolver.resolveArtistAlbums(new TrackItemRow(track));
+            miniPlayerView.fireEvent(new NavigationEvent(navItems));
+        });
+    }
+
+    @FXML
+    private void onAlbumNameClicked() {
+        Player.playingTrack().ifPresent(track -> {
+//            var navItems = NavigableItemsResolver.resolveAlbumTracks(new AlbumItemRow(MusicLibrary.getA));
+//            miniPlayerView.fireEvent(new NavigationEvent(navItems));
+        });
     }
 
     private void initSlider() {
@@ -77,6 +101,7 @@ public class MiniPlayerViewController {
         StackPane.setAlignment(centerControls, Pos.CENTER);
         StackPane.setAlignment(rightControls, Pos.CENTER_RIGHT);
         initLeftControls();
+        initCenterControls();
     }
 
     private void initLeftControls() {
@@ -87,11 +112,16 @@ public class MiniPlayerViewController {
         });
     }
 
+    private void initCenterControls() {
+
+
+    }
+
     private void initPlayerEventListeners() {
         Player.onPlayingTrackChanged(track ->
                 Platform.runLater(() -> {
-                    updateArtwork(track);
                     updateTitle(track);
+                    updateArtwork(track);
                     updatePlayButton(false);
                     updateSliderInitialsTimes(track);
                 }));
@@ -106,16 +136,16 @@ public class MiniPlayerViewController {
     }
 
     private void updateArtwork(Track track) {
-        var size = 65;
-        var image = ArtworkImages.album(track.id(), size);
+        var size = 85;
+        var image = Images.album(track.id(), size);
         if (image == null) {
-            artworkImageView.setImage(ArtworkImages.defaultAlbum(size));
+            artworkImageView.setImage(Images.defaultAlbum(size));
         } else {
             artworkImageView.setImage(image);
             image.errorProperty().addListener((_, _, hasError) -> {
                 if (hasError) {
-                    var defaultImage = ArtworkImages.defaultAlbum(size);
-                    ArtworkImages.setAlbum(track.id(), defaultImage, size);
+                    var defaultImage = Images.defaultAlbum(size);
+                    Images.setAlbum(track.id(), defaultImage, size);
                     artworkImageView.setImage(defaultImage);
                 }
             });
@@ -123,8 +153,11 @@ public class MiniPlayerViewController {
     }
 
     private void updateTitle(Track track) {
-        artistNameLabel.setText(track.artistName());
+        artistNameLabel.setText("by " + track.artistName());
         trackNameLabel.setText(track.title());
+        albumNameLabel.setText(track.albumName());
+        releaseDateLabel.setText(track.releaseDate());
+        genreLabel.setText(track.genre());
     }
 
     private void updateSliderInitialsTimes(Track track) {
@@ -172,5 +205,14 @@ public class MiniPlayerViewController {
 
     void setOnQueueViewToggle(Consumer<Boolean> onQueueViewToggle) {
         this.onQueueViewToggle = onQueueViewToggle;
+    }
+
+    @FXML
+    private void play() {
+        if (Player.isPlaying()) {
+            Player.pause();
+        } else {
+            Player.resume();
+        }
     }
 }

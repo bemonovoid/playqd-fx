@@ -18,7 +18,9 @@ public enum FXMLResource {
     DIALOG_SETTINGS_LIBRARY("/fxml/dialog/settings/library-config.fxml"),
     DIALOG_SETTINGS_DBUS("/fxml/dialog/settings/dbus-config.fxml"),
 
-    DIALOG_TRACKS_TABLE_VIEW_COLUMNS("/fxml/dialog/tracks-table-view-columns-dialog-pane.fxml");
+    DIALOG_TRACKS_TABLE_VIEW_COLUMNS("/fxml/dialog/tracks-table-view-columns-dialog-pane.fxml"),
+
+    ALBUMS_HEADER_MENU_BUTTON("/fxml/mini/albums-header-menu-btn.fxml");
 
     private final String path;
 

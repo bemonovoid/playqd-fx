@@ -1,6 +1,6 @@
 package io.playqd.controller.view;
 
-import io.playqd.client.ArtworkImages;
+import io.playqd.client.Images;
 import javafx.scene.control.TableCell;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.cell.TextFieldTableCell;
@@ -26,15 +26,15 @@ class TrackArtworkTableCellFactory
                 super.updateItem(trackId, empty);
                 if (trackId != null || !isEmpty()) {
                     setText(null);
-                    var image = ArtworkImages.album(trackId, 25);
+                    var image = Images.album(trackId, 25);
                     if (image == null) {
-                        imageView.setImage(ArtworkImages.defaultAlbum(25));
+                        imageView.setImage(Images.defaultAlbum(25));
                     } else {
                         imageView.setImage(image);
                         image.errorProperty().addListener((_, _, hasError) -> {
                             if (hasError) {
-                                var defaultImage = ArtworkImages.defaultAlbum(25);
-                                ArtworkImages.setAlbum(trackId, defaultImage, 25);
+                                var defaultImage = Images.defaultAlbum(25);
+                                Images.setAlbum(trackId, defaultImage, 25);
                                 imageView.setImage(defaultImage);
                             }
                         });

@@ -1,7 +1,7 @@
 package io.playqd.controller.collections;
 
 import io.playqd.data.MediaCollection;
-import io.playqd.data.PlaylistWithTrackIds;
+import io.playqd.data.Playlist;
 import io.playqd.service.MusicLibrary;
 import javafx.fxml.FXML;
 import javafx.scene.control.ListView;
@@ -71,7 +71,7 @@ public class CollectionsViewController {
     }
 
     private void initCollectionsInfoLabelListener() {
-//        listView.getItems().addListener((ListChangeListener<PlaylistWithTrackIds>) changed -> {
+//        listView.getItems().addListener((ListChangeListener<Playlist>) changed -> {
 //            if (changed.getList() == null || changed.getList().isEmpty()) {
 //                playlistsInfoLabel.setText("");
 //            } else {
@@ -81,7 +81,7 @@ public class CollectionsViewController {
 //        });
     }
 
-    private void updateTrackViewHeader(PlaylistWithTrackIds playlist) {
+    private void updateTrackViewHeader(Playlist playlist) {
 //        tracksView.tracksTableHeader().setTitle("Playlist: " + playlist.name());
 //        var lmdLabel = new Label("Last modified: ");
 //        var lmdLabelValue = new Label(playlist.lastModifiedDate().format(DateTimeFormatter.ofPattern("dd/MM/yyyy")));

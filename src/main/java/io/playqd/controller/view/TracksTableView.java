@@ -1,7 +1,7 @@
 package io.playqd.controller.view;
 
 import io.playqd.controller.view.menuitem.TrackRowContextMenuItemsFactory;
-import io.playqd.data.PlaylistWithTrackIds;
+import io.playqd.data.Playlist;
 import io.playqd.data.Track;
 import io.playqd.dialog.tracks.TracksTableViewColumnsDialog;
 import io.playqd.event.MouseEventHelper;
@@ -323,7 +323,7 @@ public class TracksTableView extends TableView<TrackTableRow> {
 
     private List<MenuItem> createAddToPlaylistMenuItems() {
         return MusicLibrary.getPlaylists().stream()
-                .sorted(Comparator.comparing(PlaylistWithTrackIds::name))
+                .sorted(Comparator.comparing(Playlist::name))
                 .map(p -> {
                     var menuItem = new MenuItem(p.name());
                     menuItem.setOnAction(_ -> addSelectedTracksToPlaylist(p.id()));

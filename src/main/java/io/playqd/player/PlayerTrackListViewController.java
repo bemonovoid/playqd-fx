@@ -1,6 +1,6 @@
 package io.playqd.player;
 
-import io.playqd.client.ArtworkImages;
+import io.playqd.client.Images;
 import io.playqd.config.AppConfig;
 import io.playqd.controller.view.ObservableProperties;
 import io.playqd.controller.view.request.CollectionsViewRequest;
@@ -191,15 +191,15 @@ public class PlayerTrackListViewController extends PlayerTrackListView {
     }
 
     private void updateTrackInfoView(Track track) {
-        var artistImage = ArtworkImages.artist(track.id(), 25);
+        var artistImage = Images.artist(track.id(), 25);
         if (artistImage == null) {
-            artistArtImageView.setImage(ArtworkImages.defaultArtist(25));
+            artistArtImageView.setImage(Images.defaultArtist(25));
         } else {
             artistArtImageView.setImage(artistImage);
             artistImage.errorProperty().addListener((_, _, hasError) -> {
                 if (hasError) {
-                    var defaultImage = ArtworkImages.defaultArtist(25);
-                    ArtworkImages.setArtist(track.id(), defaultImage, 25);
+                    var defaultImage = Images.defaultArtist(25);
+                    Images.setArtist(track.id(), defaultImage, 25);
                     artistArtImageView.setImage(defaultImage);
                 }
             });
@@ -208,15 +208,15 @@ public class PlayerTrackListViewController extends PlayerTrackListView {
         artistNameLabel.setText(track.artistName());
         trackTitleLabel.setText(track.title());
 
-        var albumImage = ArtworkImages.album(track.id(), 25);
+        var albumImage = Images.album(track.id(), 25);
         if (albumImage == null) {
-            albumArtImageView.setImage(ArtworkImages.defaultAlbum(25));
+            albumArtImageView.setImage(Images.defaultAlbum(25));
         } else {
             albumArtImageView.setImage(albumImage);
             albumImage.errorProperty().addListener((_, _, hasError) -> {
                 if (hasError) {
-                    var defaultImage = ArtworkImages.defaultAlbum(25);
-                    ArtworkImages.setAlbum(track.id(), defaultImage, 25);
+                    var defaultImage = Images.defaultAlbum(25);
+                    Images.setAlbum(track.id(), defaultImage, 25);
                     albumArtImageView.setImage(defaultImage);
                 }
             });

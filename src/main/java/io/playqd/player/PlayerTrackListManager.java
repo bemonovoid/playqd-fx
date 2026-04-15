@@ -14,8 +14,8 @@ public class PlayerTrackListManager {
         Player.enqueueAndPlay(request);
     }
 
-    public static void addNext(TrackListRequest trackListRequest) {
-        Player.enqueue(trackListRequest);
+    public static void addNext(List<Track> tracks) {
+        Player.enqueue(new TrackListRequest(trackList().size(), tracks)); //todo resolve next idx
     }
 
     public static void addLast(List<Track> tracks) {

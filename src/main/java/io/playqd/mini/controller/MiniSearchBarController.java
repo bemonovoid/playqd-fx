@@ -46,19 +46,19 @@ public class MiniSearchBarController {
         var inputText = searchInputTextFld.getText();
         if (KeyCode.TAB == keyEvent.getCode()) {
             if (searchScopeTagIsHidden()) {
-                if (inputText.equals(SearchScope.ARTISTS.shortcut())) {
+                if (inputText.equalsIgnoreCase(SearchScope.ARTISTS.shortcut())) {
                     clearSearchInputText();
                     showSearchScopeTag(SearchScope.ARTISTS);
-                } else if (inputText.equals(SearchScope.ALBUMS.shortcut())) {
+                } else if (inputText.equalsIgnoreCase(SearchScope.ALBUMS.shortcut())) {
                     clearSearchInputText();
                     showSearchScopeTag(SearchScope.ALBUMS);
-                } else if (inputText.equals(SearchScope.TRACKS.shortcut())) {
+                } else if (inputText.equalsIgnoreCase(SearchScope.TRACKS.shortcut())) {
                     clearSearchInputText();
                     showSearchScopeTag(SearchScope.TRACKS);
-                } else if (inputText.equals(SearchScope.PLAYLISTS.shortcut())) {
+                } else if (inputText.equalsIgnoreCase(SearchScope.PLAYLISTS.shortcut())) {
                     clearSearchInputText();
                     showSearchScopeTag(SearchScope.PLAYLISTS);
-                } else if (inputText.equals(SearchScope.COLLECTIONS.shortcut())) {
+                } else if (inputText.equalsIgnoreCase(SearchScope.COLLECTIONS.shortcut())) {
                     clearSearchInputText();
                     showSearchScopeTag(SearchScope.COLLECTIONS);
                 }
