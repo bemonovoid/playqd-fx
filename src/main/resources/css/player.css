@@ -6,3 +6,8 @@
     -fx-faint-focus-color: transparent;
     -fx-focus-color: #C92A2AB0;
 }
+
+.volume-slider:focused {
+    -fx-faint-focus-color: transparent;
+    -fx-focus-color: #88afe7;
+}

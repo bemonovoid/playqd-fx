@@ -5,6 +5,7 @@ dependencyResolutionManagement {
         libs {
             version('javafxVersion', '25.0.2')
             version('javafxpluginVersion', '0.1.0')
+            version('ikonliVersion', '12.4.0')
             version('controlsfxVersion', '11.2.3')
             version('fontAwesomeVersion', '8.9')
 
@@ -26,6 +27,9 @@ dependencyResolutionManagement {
             library('javafx-swing', 'org.openjfx', 'javafx-swing').versionRef('javafxVersion')
             library('javafx-graphics', 'org.openjfx', 'javafx-graphics').versionRef('javafxVersion')
 
+//            library('ikonli-core', 'org.kordamp.ikonli', 'ikonli-core').versionRef('ikonliVersion')
+            library('ikonli-javafx', 'org.kordamp.ikonli', 'ikonli-javafx').versionRef('ikonliVersion')
+            library('ikonli-fontawesome6', 'org.kordamp.ikonli', 'ikonli-fontawesome6-pack').versionRef('ikonliVersion')
             library('controls-fx', 'org.controlsfx', 'controlsfx').versionRef('controlsfxVersion')
 //            library('font-awesome', 'de.jensd', 'fontawesomefx').versionRef('fontAwesomeVersion')
             library('font-awesome', 'de.jensd', 'fontawesomefx-fontawesome').version('4.7.0-9.1.2')

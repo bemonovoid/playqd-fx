@@ -47,6 +47,8 @@ dependencies {
     implementation libs.javafx.swing
     implementation libs.javafx.graphics
 
+    implementation libs.ikonli.javafx
+    implementation libs.ikonli.fontawesome6
     implementation libs.controls.fx
     implementation libs.font.awesome
 

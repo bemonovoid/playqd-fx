@@ -13,6 +13,7 @@
 <?import javafx.scene.control.ToggleButton?>
 <?import javafx.scene.control.Hyperlink?>
 <?import javafx.scene.control.Separator?>
+<?import org.kordamp.ikonli.javafx.FontIcon?>
 <VBox xmlns="http://javafx.com/javafx"
       xmlns:fx="http://javafx.com/fxml"
       spacing="10"
@@ -27,7 +28,8 @@
         <ImageView fx:id="artworkImageView" fitWidth="85" fitHeight="85"/>
         <VBox>
             <Label fx:id="trackNameLabel" styleClass="track-label"/>
-            <Hyperlink fx:id="albumNameLabel" styleClass="hyper-link-as-label" style="-fx-font-size: 12; -fx-font-weight: 200" onAction="#onAlbumNameClicked"/>
+            <Hyperlink fx:id="albumNameLabel" styleClass="hyper-link-as-label"
+                       style="-fx-font-size: 12; -fx-font-weight: 200" onAction="#onAlbumNameClicked"/>
             <Hyperlink fx:id="artistNameLabel" styleClass="hyper-link-as-label" onAction="#onArtistNameClicked"/>
             <HBox spacing="5">
                 <Label fx:id="releaseDateLabel" disable="true" style="-fx-font-size: 10; -fx-font-weight: 100"/>
@@ -48,17 +50,25 @@
     </HBox>
 
     <StackPane>
-        <HBox fx:id="leftControls" alignment="CENTER_LEFT" spacing="15" pickOnBounds="false">
+        <HBox fx:id="leftControls" alignment="CENTER_LEFT" spacing="5" pickOnBounds="false">
             <ToggleButton fx:id="toggleQueueView" focusTraversable="false">
                 <graphic>
-                    <FontAwesomeIconView glyphName="LIST" glyphSize="14"/>
+                    <FontIcon iconLiteral="fas-list-ul"/>
                 </graphic>
                 <styleClass>
                     <String fx:value="icon-button"/>
                     <String fx:value="icon-toggle-button"/>
                 </styleClass>
             </ToggleButton>
+
+            <Button styleClass="icon-button" focusTraversable="false">
+                <graphic>
+                    <FontIcon iconLiteral="far-heart"/>
+                </graphic>
+            </Button>
+
         </HBox>
+
         <HBox fx:id="centerControls" alignment="CENTER" spacing="15" pickOnBounds="false">
             <Button styleClass="icon-button" focusTraversable="false">
                 <graphic>
@@ -86,9 +96,22 @@
                     <FontAwesomeIconView glyphName="REPEAT" glyphSize="14" style="-fx-fill: #666"/>
                 </graphic>
             </Button>
-        </HBox>
-        <HBox fx:id="rightControls" alignment="CENTER_RIGHT" spacing="15" pickOnBounds="false">
 
+        </HBox>
+
+        <HBox fx:id="rightControls" alignment="CENTER_RIGHT" spacing="5" pickOnBounds="false">
+
+            <Button styleClass="icon-button" focusTraversable="false">
+                <graphic>
+                    <FontIcon iconLiteral="fas-volume-up" iconSize="10"/>
+                </graphic>
+            </Button>
+
+            <Slider fx:id="volumeSlider" prefWidth="70">
+                <styleClass>
+                    <String fx:value="volume-slider"/>
+                </styleClass>
+            </Slider>
         </HBox>
 
     </StackPane>
