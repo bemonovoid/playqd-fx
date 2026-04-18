@@ -184,7 +184,7 @@ public class PlayerTrackListViewController extends PlayerTrackListView {
         LOG.info("Removing tracks at selected indices: {}", selectedIndices);
         selectedIndices.forEach(idx -> {
             var removedTrack = trackListView.getItems().remove(idx.intValue());
-            LOG.info("Track at index {} was removed: {} - {}", idx, removedTrack.artistName(), removedTrack.title());
+            LOG.info("Track at index {} was removed: {} - {}", idx, removedTrack.artistName(), removedTrack.name());
         });
         trackListView.refresh();
         PlayerTrackListManager.remove(selectedIndices);
@@ -206,7 +206,7 @@ public class PlayerTrackListViewController extends PlayerTrackListView {
         }
 
         artistNameLabel.setText(track.artistName());
-        trackTitleLabel.setText(track.title());
+        trackTitleLabel.setText(track.name());
 
         var albumImage = Images.album(track.id(), 25);
         if (albumImage == null) {

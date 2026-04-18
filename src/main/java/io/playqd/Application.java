@@ -46,6 +46,7 @@ public class Application extends javafx.application.Application {
         stage.setTitle(TITLE);
         scene.getStylesheets().addAll("css/buttons.css", "css/mini/mini-player.css");
         stage.setScene(scene);
+        PlatformApi.setHostServices(getHostServices());
         Accelerators.initialize(scene);
         ApplicationTitleUpdateListener.register(stage);
         stage.show();

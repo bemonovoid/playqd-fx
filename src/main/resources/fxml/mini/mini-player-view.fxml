@@ -25,7 +25,7 @@
     </padding>
 
     <HBox alignment="CENTER_LEFT" spacing="10">
-        <ImageView fx:id="artworkImageView" fitWidth="85" fitHeight="85"/>
+        <ImageView fx:id="artworkImageView" fitWidth="85" fitHeight="85" onMouseClicked="#onArtworkImageClicked"/>
         <VBox>
             <Label fx:id="trackNameLabel" styleClass="track-label"/>
             <Hyperlink fx:id="albumNameLabel" styleClass="hyper-link-as-label"
@@ -75,7 +75,7 @@
                     <FontAwesomeIconView glyphName="RANDOM" glyphSize="14" style="-fx-fill: #666"/>
                 </graphic>
             </Button>
-            <Button fx:id="playPrevBtn" styleClass="icon-button" focusTraversable="false">
+            <Button fx:id="playPrevBtn" styleClass="icon-button" focusTraversable="false" onAction="#playPrevious">
                 <graphic>
                     <FontAwesomeIconView glyphName="STEP_BACKWARD" glyphSize="14" style="-fx-fill: #666"/>
                 </graphic>
@@ -85,7 +85,7 @@
                     <FontAwesomeIconView glyphName="PLAY" glyphSize="22"/>
                 </graphic>
             </Button>
-            <Button fx:id="playNextBtn" styleClass="icon-button" focusTraversable="false">
+            <Button fx:id="playNextBtn" styleClass="icon-button" focusTraversable="false" onAction="#playNext">
                 <graphic>
                     <FontAwesomeIconView glyphName="STEP_FORWARD" glyphSize="14" style="-fx-fill: #666"/>
                 </graphic>

@@ -20,7 +20,7 @@ public sealed class TrackItemRow extends LibraryItemRow
 
     @Override
     public String getName() {
-        return track.title();
+        return track.name();
     }
 
     @Override

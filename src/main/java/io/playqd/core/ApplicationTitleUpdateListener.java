@@ -9,7 +9,7 @@ public class ApplicationTitleUpdateListener {
 
     public static void register(Stage primaryStage) {
         Player.onPlayingTrackChanged(track ->
-                setTitle(primaryStage, track.artistName() + " - " + track.title()),
+                setTitle(primaryStage, track.artistName() + " - " + track.name()),
                 () -> setTitle(primaryStage, Application.TITLE));
     }
 

@@ -1,7 +1,5 @@
 package io.playqd.mini.controller.factories;
 
-import de.jensd.fx.glyphs.fontawesome.FontAwesomeIcon;
-import de.jensd.fx.glyphs.fontawesome.FontAwesomeIconView;
 import io.playqd.client.Images;
 import io.playqd.mini.controller.item.LibraryItemRow;
 import javafx.scene.control.TableCell;

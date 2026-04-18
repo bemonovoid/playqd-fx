@@ -16,6 +16,7 @@ final class LinuxMintPlatformApiInstance extends LinuxPlatformApiInstance {
 
     private final Path LINUX_MINT_X_ICONS_DIR = Paths.get("/usr/share/icons/Mint-X");
     private static final String DEFAULT_SIZE = "24";
+    private static final int DEFAULT_IMAGE_SIZE = 15;
 //    private static final Path LINUX_MINT_L_ICONS_DIR = Paths.get("/usr/share/icons/Mint-L");
 //    private static final Path LINUX_MINT_L_YELLOW_ICONS_DIR = Paths.get("/usr/share/icons/Mint-L-Yellow");
 
@@ -44,7 +45,7 @@ final class LinuxMintPlatformApiInstance extends LinuxPlatformApiInstance {
     private static Image getImageFromMimeTypeFile(Path dir, String filename) {
         var path = dir.resolve("mimetypes", DEFAULT_SIZE, filename + ".png");
         if (Files.exists(path)) {
-            return new Image(path.toUri().toString(), true);
+            return new Image(path.toUri().toString(), DEFAULT_IMAGE_SIZE, DEFAULT_IMAGE_SIZE, true, true, true);
         }
         return tryResolveImageForMissingMimetypeFile(filename, dir);
     }
@@ -73,6 +74,6 @@ final class LinuxMintPlatformApiInstance extends LinuxPlatformApiInstance {
             }
         }
         var path = dir.resolve("mimetypes", DEFAULT_SIZE, resolvedFilename + ".png");
-        return new Image(path.toUri().toString());
+        return new Image(path.toUri().toString(), DEFAULT_IMAGE_SIZE, DEFAULT_IMAGE_SIZE,  true, true, true);
     }
 }

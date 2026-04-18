@@ -249,6 +249,12 @@ public final class MusicLibrary {
         return playlist;
     }
 
+    public static MediaCollection removeTracksFromCollection(long id, List<Long> ids) {
+        var collection = playqdClient().collections().removeItems(id, ids);
+        COLLECTION_CACHE.put(collection.id(), collection);
+        return collection;
+    }
+
     public static void deletePlaylist(long id) {
         playqdClient().deletePlaylist(id);
         PLAYLIST_CACHE.remove(id);
@@ -267,10 +273,14 @@ public final class MusicLibrary {
 
     public static List<MediaCollection> getCollections() {
         if (COLLECTION_CACHE.isEmpty()) {
-            COLLECTION_CACHE.putAll(playqdClient().collections().getAll().stream()
+            COLLECTION_CACHE.putAll(collectionsApi().getAll().stream()
                     .collect(Collectors.toMap(MediaCollection::id, p -> p)));
         }
         return new ArrayList<>(COLLECTION_CACHE.values());
+    }
+
+    public static MediaCollection getCollection(long id) {
+        return COLLECTION_CACHE.computeIfAbsent(id, _ -> collectionsApi().get(id));
     }
 
     public static List<MediaCollection> findCollectionsWithTrackId(long id) {
@@ -280,38 +290,56 @@ public final class MusicLibrary {
                 .toList();
     }
 
+    public static MediaCollection createCollection(String name) {
+        return createCollection(name, List.of());
+    }
+
     public static MediaCollection createCollection(String name, List<NewMediaCollectionItem> items) {
-        var collection = playqdClient().collections().create(name, items);
+        var collection = collectionsApi().create(name, items);
         COLLECTION_CACHE.put(collection.id(), collection);
         return collection;
     }
 
     public static MediaCollection updateCollection(long id, String newName) {
-        var updated = playqdClient().collections().update(new UpdateMediaCollectionRequest(id, newName));
+        var updated = collectionsApi().update(new UpdateMediaCollectionRequest(id, newName));
         COLLECTION_CACHE.put(updated.id(), updated);
         return updated;
     }
 
     public static void updateCollectionItemComment(long id, String comment) {
         var request = new UpdateMediaCollectionItemRequest(comment);
-        var updated = PlayqdClientProvider.get().collections().updateItem(id, request);
+        var updated = collectionsApi().updateItem(id, request);
         COLLECTION_CACHE.put(updated.id(), updated);
     }
 
     public static MediaCollection addItemsToCollection(long id, List<NewMediaCollectionItem> items) {
-        var collection = playqdClient().collections().addItems(id, items);
+        var collection = collectionsApi().addItems(id, items);
         COLLECTION_CACHE.put(id, collection);
         return collection;
     }
 
     public static void deleteCollectionItems(long id, List<Long> itemIds) {
-        playqdClient().collections().deleteItems(itemIds);
-        COLLECTION_CACHE.put(id, playqdClient().collections().get(id));
+        collectionsApi().deleteItems(itemIds);
+        COLLECTION_CACHE.put(id, collectionsApi().get(id));
     }
 
     public static void deleteCollection(long id) {
-        playqdClient().collections().delete(id);
+        collectionsApi().delete(id);
         COLLECTION_CACHE.remove(id);
+    }
+
+    // Watch Folders
+
+    public static List<WatchFolder> getWatchFolders() {
+        return watchFoldersApi().getAll();
+    }
+
+    public static List<WatchFolderItem> getWatchFolderItems(String parentId) {
+        return watchFoldersApi().getChildrenItems(parentId);
+    }
+
+    public static WatchFolderItem getWatchFolderItemByLocation(String location) {
+        return watchFoldersApi().geItemByLocation(location);
     }
 
     private static void updateTrackInCache(List<Track> tracks) {
@@ -355,6 +383,14 @@ public final class MusicLibrary {
 
     private static PlayqdClient playqdClient() {
         return PlayqdClientProvider.get();
+    }
+
+    private static PlayqdClient.CollectionsApi collectionsApi() {
+        return playqdClient().collections();
+    }
+
+    private static PlayqdClient.WatchFoldersApi watchFoldersApi() {
+        return playqdClient().watchFolders();
     }
 
     private MusicLibrary() {

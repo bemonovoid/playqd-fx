@@ -8,6 +8,9 @@ import javafx.scene.control.TableView;
 import javafx.scene.layout.HBox;
 
 import java.util.List;
+import java.util.Optional;
+import java.util.function.Consumer;
+import java.util.function.Supplier;
 
 public sealed interface ItemsViewConfigurer permits DefaultItemsViewConfigurer {
 
@@ -20,7 +23,13 @@ public sealed interface ItemsViewConfigurer permits DefaultItemsViewConfigurer {
 
     void configureFooter(TableView<LibraryItemRow> tableView, Label footerLabel);
 
-    void onRowOpened(LibraryItemRow item);
+    void onItemsOpen(List<LibraryItemRow> items);
+
+    default Optional<Consumer<List<LibraryItemRow>>> onItemsDelete() {
+        return Optional.empty();
+    }
+
+    Supplier<List<MenuItem>> configureViewOptionsMenuItems(TableView<LibraryItemRow> tableView);
 
     List<MenuItem> configureContextMenuItems(List<LibraryItemRow> selectedItems);
 

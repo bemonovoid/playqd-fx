@@ -17,9 +17,17 @@ import javafx.scene.layout.HBox;
 import java.util.Collections;
 import java.util.List;
 import java.util.Set;
+import java.util.function.Supplier;
 
-sealed abstract class DefaultItemsViewConfigurer implements ItemsViewConfigurer
-        permits ArtistsViewConfigurer, AlbumsViewConfigurer, TracksViewConfigurer, PlaylistsViewConfigurer {
+sealed abstract class DefaultItemsViewConfigurer implements ItemsViewConfigurer permits
+        ArtistsViewConfigurer,
+        AlbumsViewConfigurer,
+        TracksViewConfigurer,
+        PlaylistsViewConfigurer,
+        CollectionsViewConfigurer,
+        CollectionItemsViewConfigurer,
+        WatchFoldersViewConfigurer,
+        FoldersViewConfigurer {
 
     protected final MiniLibraryItemsViewController controller;
 
@@ -87,8 +95,29 @@ sealed abstract class DefaultItemsViewConfigurer implements ItemsViewConfigurer
     }
 
     @Override
+    public Supplier<List<MenuItem>> configureViewOptionsMenuItems(TableView<LibraryItemRow> tableView) {
+        return List::of;
+    }
+
+    @Override
     public List<MenuItem> configureContextMenuItems(List<LibraryItemRow> selectedItems) {
         return List.of();
+    }
+
+    protected abstract ImageTableCellFactory geImageTableCellFactory();
+
+    protected DescriptionTableCellFactory getDescriptionTableCellFactory() {
+        return null;
+    }
+
+    protected MiscValueTableCellFactory getMiscValueTableCellFactory() {
+        return null;
+    }
+
+    protected abstract void configureHeaderLeft(ItemsDescriptor itemsDescriptor, HBox headerLeft);
+
+    protected void configureHeaderRight(TableView<LibraryItemRow> tableView, HBox headerRight) {
+
     }
 
     private void rebindNameColumnWidths(TableView<LibraryItemRow> tableView) {
@@ -104,14 +133,4 @@ sealed abstract class DefaultItemsViewConfigurer implements ItemsViewConfigurer
                     col.maxWidthProperty().bind(tableView.widthProperty().multiply(0.7));
                 });
     }
-
-    protected abstract ImageTableCellFactory geImageTableCellFactory();
-
-    protected abstract DescriptionTableCellFactory getDescriptionTableCellFactory();
-
-    protected abstract MiscValueTableCellFactory getMiscValueTableCellFactory();
-
-    protected abstract void configureHeaderLeft(ItemsDescriptor itemsDescriptor, HBox headerLeft);
-
-    protected abstract void configureHeaderRight(TableView<LibraryItemRow> tableView, HBox headerRight);
 }

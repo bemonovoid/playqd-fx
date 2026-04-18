@@ -26,7 +26,7 @@ class MediaListPlayerEventListenerImpl implements MediaListPlayerEventListener {
                 .findFirst()
                 .ifPresent(trackRef -> {
                     LOG.info("Next item: {} ({} - {})",
-                            trackRef.mrl(), trackRef.track().artistName(), trackRef.track().title());
+                            trackRef.mrl(), trackRef.track().artistName(), trackRef.track().name());
                     mediaListPlayer.mediaPlayer().mediaPlayer().userData(trackRef);
                 });
     }

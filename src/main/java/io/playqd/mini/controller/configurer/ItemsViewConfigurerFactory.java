@@ -30,6 +30,14 @@ public final class ItemsViewConfigurerFactory {
             return CONFIGURERS.computeIfAbsent(type, _ -> new TracksViewConfigurer(controller));
         } else if (PlaylistItemRow.class == type) {
             return CONFIGURERS.computeIfAbsent(type, _ -> new PlaylistsViewConfigurer(controller));
+        } else if (CollectionItemRow.class == type) {
+            return CONFIGURERS.computeIfAbsent(type, _ -> new CollectionsViewConfigurer(controller));
+        } else if (CollectionChildItemRow.class == type) {
+            return CONFIGURERS.computeIfAbsent(type, _ -> new CollectionItemsViewConfigurer(controller));
+        } else if (WatchFolderItemRow.class == type) {
+            return CONFIGURERS.computeIfAbsent(type, _ -> new WatchFoldersViewConfigurer(controller));
+        } else if (FolderItemRow.class == type) {
+            return CONFIGURERS.computeIfAbsent(type, _ -> new FoldersViewConfigurer(controller));
         } else {
             throw new IllegalStateException("Unsupported type " + type);
         }

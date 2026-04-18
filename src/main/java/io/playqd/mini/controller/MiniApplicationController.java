@@ -1,12 +1,9 @@
 package io.playqd.mini.controller;
 
-import io.playqd.mini.controller.navigator.ItemsDescriptor;
 import io.playqd.mini.controller.navigator.NavigableItems;
 import io.playqd.mini.events.ApplicationEvent;
 import javafx.fxml.FXML;
 import javafx.scene.Node;
-
-import java.util.Collections;
 
 public class MiniApplicationController {
 
@@ -44,7 +41,7 @@ public class MiniApplicationController {
             case ALBUMS -> NavigableItemsResolver.resolveSearchAlbums(token);
             case TRACKS -> NavigableItemsResolver.resolveSearchTracks(token);
             case PLAYLISTS -> NavigableItemsResolver.resolveSearchPlaylists(token);
-            case COLLECTIONS -> new NavigableItems(ItemsDescriptor.empty(), Collections::emptyList, null);
+            case COLLECTIONS -> NavigableItemsResolver.resolveSearchCollections(token);
         };
     }
 

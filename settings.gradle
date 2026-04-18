@@ -27,7 +27,6 @@ dependencyResolutionManagement {
             library('javafx-swing', 'org.openjfx', 'javafx-swing').versionRef('javafxVersion')
             library('javafx-graphics', 'org.openjfx', 'javafx-graphics').versionRef('javafxVersion')
 
-//            library('ikonli-core', 'org.kordamp.ikonli', 'ikonli-core').versionRef('ikonliVersion')
             library('ikonli-javafx', 'org.kordamp.ikonli', 'ikonli-javafx').versionRef('ikonliVersion')
             library('ikonli-fontawesome6', 'org.kordamp.ikonli', 'ikonli-fontawesome6-pack').versionRef('ikonliVersion')
             library('controls-fx', 'org.controlsfx', 'controlsfx').versionRef('controlsfxVersion')

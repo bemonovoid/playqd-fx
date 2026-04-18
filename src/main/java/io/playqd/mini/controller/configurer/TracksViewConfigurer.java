@@ -1,12 +1,13 @@
 package io.playqd.mini.controller.configurer;
 
-import de.jensd.fx.glyphs.fontawesome.FontAwesomeIcon;
-import de.jensd.fx.glyphs.fontawesome.FontAwesomeIconView;
 import io.playqd.data.Track;
 import io.playqd.mini.controller.ItemsTableColumnIds;
 import io.playqd.mini.controller.MiniLibraryItemsViewController;
 import io.playqd.mini.controller.NavigableItemsResolver;
-import io.playqd.mini.controller.factories.*;
+import io.playqd.mini.controller.factories.DescriptionTableCellFactory;
+import io.playqd.mini.controller.factories.HyperLinkTableCellFactory;
+import io.playqd.mini.controller.factories.ImageTableCellFactory;
+import io.playqd.mini.controller.factories.TrackImageTableCellFactory;
 import io.playqd.mini.controller.item.LibraryItemRow;
 import io.playqd.mini.controller.item.TrackItemRow;
 import io.playqd.mini.controller.item.contextmenu.ContextMenuItemsBuilder;
@@ -14,11 +15,10 @@ import io.playqd.mini.controller.navigator.ItemsDescriptor;
 import io.playqd.player.PlayerTrackListManager;
 import io.playqd.player.TrackListRequest;
 import io.playqd.utils.TimeUtils;
-import javafx.geometry.Insets;
-import javafx.geometry.Side;
-import javafx.scene.AccessibleRole;
-import javafx.scene.Node;
-import javafx.scene.control.*;
+import javafx.scene.control.Label;
+import javafx.scene.control.MenuItem;
+import javafx.scene.control.TableColumn;
+import javafx.scene.control.TableView;
 import javafx.scene.layout.HBox;
 import org.apache.commons.io.FileUtils;
 import org.slf4j.Logger;
@@ -27,6 +27,7 @@ import org.slf4j.LoggerFactory;
 import java.text.NumberFormat;
 import java.time.Duration;
 import java.util.List;
+import java.util.function.Supplier;
 
 public sealed class TracksViewConfigurer extends DefaultItemsViewConfigurer permits
         ArtistTracksViewConfigurer,
@@ -78,20 +79,27 @@ public sealed class TracksViewConfigurer extends DefaultItemsViewConfigurer perm
     }
 
     @Override
-    public void onRowOpened(LibraryItemRow item) {
-        if (item instanceof TrackItemRow trackItemRow) {
+    public void onItemsOpen(List<LibraryItemRow> items) {
+        if (items.isEmpty()) {
+            return;
+        }
+        if (items.getFirst() instanceof TrackItemRow trackItemRow) {
             PlayerTrackListManager.enqueueAndPlay(new TrackListRequest(trackItemRow.getSource()));
         } else {
-            LOG.error("Unexpected item type: {}. Expected type: {}", item.getClass(),  TrackItemRow.class);
+            LOG.error("Unexpected item type: {}. Expected type: {}", items.getFirst().getClass(),  TrackItemRow.class);
         }
     }
 
     @Override
     public List<MenuItem> configureContextMenuItems(List<LibraryItemRow> selectedItems) {
         var items = selectedItems.stream().map(i -> (Track) i.getSource()).toList();
-        return ContextMenuItemsBuilder.newBuilder()
+        return ContextMenuItemsBuilder.newBuilder(controller)
                 .playMenuItems(items)
+                .separatorMenuItem()
                 .playlistMenuItems(items)
+                .collectionsMenuItems(selectedItems)
+                .separatorMenuItem()
+                .showInContextMenuItems(selectedItems)
                 .build();
     }
 
@@ -106,62 +114,16 @@ public sealed class TracksViewConfigurer extends DefaultItemsViewConfigurer perm
     }
 
     @Override
-    protected MiscValueTableCellFactory getMiscValueTableCellFactory() {
-        return null;
-    }
-
-    @Override
     protected void configureHeaderLeft(ItemsDescriptor itemsDescriptor, HBox headerLeft) {
         headerLeft.getChildren().add(new Label("Tracks:"));
     }
 
     @Override
-    protected void configureHeaderRight(TableView<LibraryItemRow> tableView, HBox headerRight) {
-        headerRight.getChildren().addAll(createFilterMenuButton(), createSortMenuButton());
+    public Supplier<List<MenuItem>> configureViewOptionsMenuItems(TableView<LibraryItemRow> tableView) {
+        return () -> {
+            var trackContextOptions = new TrackContextViewOptions(tableView);
+            return List.of(trackContextOptions.getFilterByMenu(), trackContextOptions.getSortByMenu());
+        };
     }
 
-    private Node createFilterMenuButton() {
-        var playedMenuItem = new MenuItem("Played");
-        playedMenuItem.setGraphic(new FontAwesomeIconView(FontAwesomeIcon.PLAY));
-
-        var likedMenuItem = new MenuItem("Liked");
-        likedMenuItem.setGraphic(new FontAwesomeIconView(FontAwesomeIcon.THUMBS_ALT_UP));
-
-        var cueMenuItem = new MenuItem("Cue tracks");
-        cueMenuItem.setGraphic(new FontAwesomeIconView(FontAwesomeIcon.FILE_AUDIO_ALT));
-
-        var menuBtn = new MenuButton();
-
-        menuBtn.setPadding(new Insets(1));
-        menuBtn.setFocusTraversable(false);
-        menuBtn.setAccessibleRole(AccessibleRole.BUTTON);
-        menuBtn.getStyleClass().setAll("icon-button", "button");
-        menuBtn.setGraphic(new FontAwesomeIconView(FontAwesomeIcon.FILTER));
-        menuBtn.setPopupSide(Side.LEFT);
-
-        menuBtn.getItems().addAll(playedMenuItem, likedMenuItem, cueMenuItem);
-
-        return menuBtn;
-    }
-
-    private Node createSortMenuButton() {
-        var titleMenuItem = new MenuItem("Title");
-        titleMenuItem.setGraphic(new FontAwesomeIconView(FontAwesomeIcon.SORT_ALPHA_ASC));
-
-        var lengthMenuItem = new MenuItem("Length");
-        lengthMenuItem.setGraphic(new FontAwesomeIconView(FontAwesomeIcon.SORT_NUMERIC_ASC));
-
-        var menuBtn = new MenuButton();
-
-        menuBtn.setPadding(new Insets(1));
-        menuBtn.setFocusTraversable(false);
-        menuBtn.setAccessibleRole(AccessibleRole.BUTTON);
-        menuBtn.getStyleClass().setAll("icon-button", "button");
-        menuBtn.setGraphic(new FontAwesomeIconView(FontAwesomeIcon.SORT_AMOUNT_DESC));
-        menuBtn.setPopupSide(Side.LEFT);
-
-        menuBtn.getItems().addAll(lengthMenuItem);
-
-        return menuBtn;
-    }
  }

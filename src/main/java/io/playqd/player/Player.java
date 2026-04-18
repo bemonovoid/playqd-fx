@@ -37,7 +37,7 @@ public class Player {
 
     static {
         MEDIA_PLAYER_FACTORY = new MediaPlayerFactory();
-        MEDIA_PLAYER = MEDIA_PLAYER_FACTORY.mediaPlayers().newMediaPlayer();
+        MEDIA_PLAYER = MEDIA_PLAYER_FACTORY.mediaPlayers().newEmbeddedMediaPlayer();
         MEDIA_LIST_PLAYER = newMediaListPlayerInstance();
         MprisApplication.init(MEDIA_PLAYER, MEDIA_LIST_PLAYER).start();
         var mediaPlayerEventListener = new MediaPlayerEventAdapterImpl(MEDIA_LIST_PLAYER);
@@ -88,7 +88,7 @@ public class Player {
         var playTrackRef = trackRefs.get(index);
 
         LOG.info("Created new media list with {} tracks. Playback starts at index: {} ({} - {})",
-                trackRefs.size(), index, playTrackRef.track().artistName(), playTrackRef.track().title());
+                trackRefs.size(), index, playTrackRef.track().artistName(), playTrackRef.track().name());
 
         setNewMediaList(trackRefs);
 
@@ -118,7 +118,7 @@ public class Player {
     }
 
     public static void play(Track track) {
-        LOG.info("Requesting track from media list: {} - {}.", track.artistName(), track.title());
+        LOG.info("Requesting track from media list: {} - {}.", track.artistName(), track.name());
         if (MEDIA_LIST_PLAYER.list().media() != null) {
             var trackRef = new TrackRef(track);
             var listSize = MEDIA_LIST_PLAYER.list().media().count();
@@ -279,7 +279,7 @@ public class Player {
     private static void addLoggingListeners() {
         onPaused(paused -> LOG.info("{}", paused ? "PAUSED" : "RESUMED"));
         onFinished(finishedTrack ->
-                LOG.info("FINISHED PLAYING '{} - {}'", finishedTrack.artistName(), finishedTrack.title()));
+                LOG.info("FINISHED PLAYING '{} - {}'", finishedTrack.artistName(), finishedTrack.name()));
         onStopped(stopped -> {
             if (stopped) {
                 LOG.info("STOPPED.");
@@ -287,9 +287,9 @@ public class Player {
         });
         onPlayingTrackChanged(track -> {
             if (track.isCueTrack()) {
-                LOG.info("PLAYING (cue track) '{} - {}'", track.artistName(), track.title());
+                LOG.info("PLAYING (cue track) '{} - {}'", track.artistName(), track.name());
             } else {
-                LOG.info("PLAYING '{} - {}'", track.artistName(), track.title());
+                LOG.info("PLAYING '{} - {}'", track.artistName(), track.name());
             }
         });
     }

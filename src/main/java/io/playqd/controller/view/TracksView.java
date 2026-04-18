@@ -98,10 +98,10 @@ public class TracksView extends VBox {
             }
             @SuppressWarnings("unchecked")
             var items = ((List<TrackTableRow>) tracksTableView.getUserData()).stream()
-                    .filter(m -> m.track().title().toLowerCase().contains(newInput))
+                    .filter(m -> m.track().name().toLowerCase().contains(newInput))
                     .collect(Collectors.toCollection(ArrayList::new));
             LOG.info("Search by: '{}'. Found: {}", newInput, items.size());
-            items.sort(Comparator.comparing(m -> m.track().title().toLowerCase()));
+            items.sort(Comparator.comparing(m -> m.track().name().toLowerCase()));
             tracksTableView.setItems(FXCollections.observableArrayList(items));
             tracksTableView.getSelectionModel().selectFirst();
             if (!tracksTableHeader.tracksSearchLabel().isVisible()) {

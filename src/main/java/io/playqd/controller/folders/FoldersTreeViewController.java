@@ -58,9 +58,9 @@ public class FoldersTreeViewController {
     }
 
     private static List<TreeItem<WatchFolderItem>> convertWatchFoldersToItems() {
-        var watchFolders = PlayqdClientProvider.get().getWatchFolders();
+        var watchFolders = PlayqdClientProvider.get().watchFolders().getAll();
         return watchFolders.stream()
-                .map(wf -> PlayqdClientProvider.get().getWatchFolderItem(wf.uuid()))
+                .map(wf -> PlayqdClientProvider.get().watchFolders().getItemById(wf.uuid()))
                 .map(TreeItem::new)
                 .toList();
     }

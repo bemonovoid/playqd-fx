@@ -70,7 +70,7 @@ class PlayerTrackListViewCellFactory implements Callback<ListView<Track>, ListCe
                             }
                         });
                     }
-                    trackTitleLabel.setText(track.title());
+                    trackTitleLabel.setText(track.name());
                     artistNameLabel.setText(track.artistName());
                     trackTimeLabel.setText(track.length().readable());
 //                    var trackTitleHbox = new HBox(trackTitle, createHiResBadge());

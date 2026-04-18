@@ -41,7 +41,7 @@ public class MusicLibraryScanServiceManager {
     }
 
     public static void submitScan() {
-        var watchFolders = PlayqdClientProvider.get().getWatchFolders();
+        var watchFolders = PlayqdClientProvider.get().watchFolders().getAll();
 
         watchFolders.forEach(watchFolder -> {
 

@@ -82,7 +82,7 @@ public class PlayerQueue {
             var next = current();
             next.ifPresent(track ->
                     LOG.info("Found next: '{} - {}'. Position: {}, fetch mode: {}. loop mode: {}.",
-                            track.artistName(), track.title(), currentPosition.get(), fetchMode, loopMode));
+                            track.artistName(), track.name(), currentPosition.get(), fetchMode, loopMode));
             return next;
         }
 
@@ -101,7 +101,7 @@ public class PlayerQueue {
         next.ifPresent(queuedTrack -> {
             queuedTrack.setVisited(true);
             LOG.info("Found next: '{} - {}'. Position: {}, fetch mode: {}. loop mode: {}.",
-                    queuedTrack.track().artistName(), queuedTrack.track().title(),
+                    queuedTrack.track().artistName(), queuedTrack.track().name(),
                     currentPosition.get(), fetchMode, loopMode);
         });
 

@@ -1,6 +1,5 @@
 package io.playqd.controller.folders;
 
-import io.playqd.client.PlayqdClientProvider;
 import io.playqd.controller.view.ApplicationViews;
 import io.playqd.controller.view.ObservableProperties;
 import io.playqd.data.ItemType;
@@ -11,7 +10,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.nio.file.Path;
-import java.util.Comparator;
 import java.util.List;
 
 public class FoldersViewController {
@@ -31,10 +29,10 @@ public class FoldersViewController {
                     if (selectedTreeItem != null) {
                         var item = selectedTreeItem.getValue();
                         if (item.hasNonFolderChildren()) {
-                            var childrenItems = PlayqdClientProvider.get().watchFolderChildrenItems(item.id()).stream()
-                                    .filter(wfi -> ItemType.FOLDER != wfi.itemType())
-                                    .toList();
-                            folderItemsTableViewController.setItems(childrenItems);
+//                            var childrenItems = PlayqdClientProvider.get().watchFolderChildrenItems(item.id()).stream()
+//                                    .filter(wfi -> ItemType.FOLDER != wfi.itemType())
+//                                    .toList();
+//                            folderItemsTableViewController.setItems(childrenItems);
                         }
                     }
                 });
@@ -95,10 +93,11 @@ public class FoldersViewController {
     }
 
     static List<TreeItem<WatchFolderItem>> getChildrenFromServer(String parentId, ItemType itemType) {
-        return PlayqdClientProvider.get()
-                .watchFolderChildrenItems(parentId, itemType).stream()
-                .sorted(Comparator.comparing(WatchFolderItem::name))
-                .map(TreeItem::new)
-                .toList();
+        return null;
+//        return PlayqdClientProvider.get()
+//                .watchFolderChildrenItems(parentId, itemType).stream()
+//                .sorted(Comparator.comparing(WatchFolderItem::name))
+//                .map(TreeItem::new)
+//                .toList();
     }
 }

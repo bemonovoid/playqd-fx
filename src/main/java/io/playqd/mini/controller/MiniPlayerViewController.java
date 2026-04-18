@@ -4,12 +4,13 @@ import de.jensd.fx.glyphs.fontawesome.FontAwesomeIcon;
 import de.jensd.fx.glyphs.fontawesome.FontAwesomeIconView;
 import io.playqd.client.Images;
 import io.playqd.data.Track;
+import io.playqd.event.MouseEventHelper;
 import io.playqd.mini.controller.item.AlbumItemRow;
-import io.playqd.mini.controller.item.AlbumTrackItemRow;
 import io.playqd.mini.controller.item.TrackItemRow;
 import io.playqd.mini.events.NavigationEvent;
 import io.playqd.player.Player;
 import io.playqd.service.MusicLibrary;
+import io.playqd.utils.ImagePopup;
 import io.playqd.utils.TimeUtils;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
@@ -59,6 +60,15 @@ public class MiniPlayerViewController {
     }
 
     @FXML
+    private void onArtworkImageClicked(MouseEvent mouseEvent) {
+        if (MouseEventHelper.primaryButtonDoubleClicked(mouseEvent)) {
+            if (!artworkImageView.getImage().getUrl().contains("no-album")) {
+                Player.playingTrack().ifPresent(ImagePopup::show);
+            }
+        }
+    }
+
+    @FXML
     private void onArtistNameClicked() {
         Player.playingTrack().ifPresent(track -> {
             var navItems = NavigableItemsResolver.resolveArtistAlbums(new TrackItemRow(track));
@@ -69,8 +79,8 @@ public class MiniPlayerViewController {
     @FXML
     private void onAlbumNameClicked() {
         Player.playingTrack().ifPresent(track -> {
-//            var navItems = NavigableItemsResolver.resolveAlbumTracks(new AlbumItemRow(MusicLibrary.getA));
-//            miniPlayerView.fireEvent(new NavigationEvent(navItems));
+            var navItems = NavigableItemsResolver.resolveAlbumTracks(new TrackItemRow(track));
+            miniPlayerView.fireEvent(new NavigationEvent(navItems));
         });
     }
 
@@ -154,7 +164,7 @@ public class MiniPlayerViewController {
 
     private void updateTitle(Track track) {
         artistNameLabel.setText("by " + track.artistName());
-        trackNameLabel.setText(track.title());
+        trackNameLabel.setText(track.name());
         albumNameLabel.setText(track.albumName());
         releaseDateLabel.setText(track.releaseDate());
         genreLabel.setText(track.genre());
@@ -214,5 +224,17 @@ public class MiniPlayerViewController {
         } else {
             Player.resume();
         }
+    }
+
+    @FXML
+    private void playNext() {
+        var hasNext = Player.playNext();
+        playNextBtn.setDisable(!hasNext);
+    }
+
+    @FXML
+    private void playPrevious() {
+        var hasNext = Player.playPrevious();
+        playPrevBtn.setDisable(!hasNext);
     }
 }

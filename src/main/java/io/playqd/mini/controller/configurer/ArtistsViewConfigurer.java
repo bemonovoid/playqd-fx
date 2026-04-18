@@ -4,16 +4,19 @@ import io.playqd.data.Tuple;
 import io.playqd.mini.controller.ItemsTableColumnIds;
 import io.playqd.mini.controller.MiniLibraryItemsViewController;
 import io.playqd.mini.controller.NavigableItemsResolver;
-import io.playqd.mini.controller.factories.*;
+import io.playqd.mini.controller.factories.AlbumsAndTracksCountTableCellFactory;
+import io.playqd.mini.controller.factories.ArtistImageTableCellFactory;
+import io.playqd.mini.controller.factories.ImageTableCellFactory;
+import io.playqd.mini.controller.factories.MiscValueTableCellFactory;
 import io.playqd.mini.controller.item.ArtistItemRow;
 import io.playqd.mini.controller.item.LibraryItemRow;
 import io.playqd.mini.controller.navigator.ItemsDescriptor;
 import javafx.scene.control.Label;
-import javafx.scene.control.TableView;
 import javafx.scene.layout.HBox;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.List;
 import java.util.Set;
 
 public final class ArtistsViewConfigurer extends DefaultItemsViewConfigurer {
@@ -30,22 +33,17 @@ public final class ArtistsViewConfigurer extends DefaultItemsViewConfigurer {
     }
 
     @Override
-    public void onRowOpened(LibraryItemRow item) {
-        if (item instanceof ArtistItemRow artistItemRow) {
+    public void onItemsOpen(List<LibraryItemRow> items) {
+        if (items.getFirst() instanceof ArtistItemRow artistItemRow) {
             controller.showItems(NavigableItemsResolver.resolveArtistAlbums(artistItemRow));
         } else {
-            LOG.warn("Unexpected item type: {}. Expected type: {}", item.getClass(), ArtistItemRow.class);
+            LOG.warn("Unexpected item type: {}. Expected type: {}", items.getFirst().getClass(), ArtistItemRow.class);
         }
     }
 
     @Override
     protected ImageTableCellFactory geImageTableCellFactory() {
         return new ArtistImageTableCellFactory();
-    }
-
-    @Override
-    protected DescriptionTableCellFactory getDescriptionTableCellFactory() {
-        return null;
     }
 
     @Override
@@ -63,10 +61,5 @@ public final class ArtistsViewConfigurer extends DefaultItemsViewConfigurer {
     @Override
     protected void configureHeaderLeft(ItemsDescriptor itemsDescriptor, HBox headerLeft) {
         headerLeft.getChildren().add(new Label("Artists:"));
-    }
-
-    @Override
-    protected void configureHeaderRight(TableView<LibraryItemRow> tableView, HBox headerRight) {
-
     }
 }

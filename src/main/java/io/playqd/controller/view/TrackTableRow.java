@@ -33,7 +33,7 @@ public final class TrackTableRow {
     }
 
     public String getTitle() {
-        return track().title();
+        return track().name();
     }
 
     public Integer getTime() {

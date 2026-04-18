@@ -7,6 +7,8 @@ import io.playqd.mini.controller.configurer.ItemsViewConfigurerFactory;
 import io.playqd.mini.controller.item.LibraryItemRow;
 import io.playqd.mini.controller.navigator.ItemsNavigator;
 import io.playqd.mini.controller.navigator.NavigableItems;
+import io.playqd.mini.custom.ConfirmDeleteRowItemsDialog;
+import io.playqd.utils.ClipboardHelper;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.fxml.FXML;
@@ -23,6 +25,7 @@ import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Predicate;
 
 public class MiniLibraryItemsViewController {
 
@@ -37,10 +40,10 @@ public class MiniLibraryItemsViewController {
     private ToolBar itemsTableHeaderToolBar;
 
     @FXML
-    private HBox headerLeft, headerCenter, headerRight;
+    private HBox headerLeft, headerCenter, headerRight, footerContainer;
 
     @FXML
-    private MenuButton showHistoryMenuBtn;
+    private MenuButton showHistoryMenuBtn, viewOptionsMenuBtn;
 
     @FXML
     private Button moveBackBtn, moveForwardBtn;
@@ -52,12 +55,14 @@ public class MiniLibraryItemsViewController {
     private TableColumn<LibraryItemRow, String> nameCol, descriptionCol, miscValueCol;
 
     @FXML
-    private Label footerLabel;
+    private Label itemPathFooterLabel, footerLabel;
 
     @FXML
     private void initialize() {
         initTableHeaderProperties();
+        initTableFooterProperties();
         initItemsHistoryControls();
+        initViewOptionsControls();
         initTableProperties();
         initRowFactories();
         initKeyPressedHandlers();
@@ -70,14 +75,48 @@ public class MiniLibraryItemsViewController {
         StackPane.setAlignment(headerRight, Pos.CENTER_RIGHT);
     }
 
+    private void initTableFooterProperties() {
+        itemPathFooterLabel.prefWidthProperty().bind(footerContainer.widthProperty().multiply(0.7));
+        itemPathFooterLabel.maxWidthProperty().bind(footerContainer.widthProperty().multiply(0.7));
+
+
+        var copyFullPath = new MenuItem("Copy path");
+        var copyPathSegments = new Menu("Copy path segment");
+
+        copyFullPath.setOnAction(_ ->
+                ClipboardHelper.putString(itemsNavigator.getCurrentState().descriptor().path().value()));
+
+        var copyPathContextMenu = new ContextMenu();
+
+        copyPathContextMenu.getItems().addAll(copyFullPath, copyPathSegments);
+
+        copyPathContextMenu.setOnShowing(_ -> {
+            copyPathSegments.getItems().clear();
+            var itemPath = itemsNavigator.getCurrentState().descriptor().path();
+
+            if (!itemPath.pathVariables().isEmpty()) {
+                var copySegmentMenuItems = itemPath.pathVariables().stream()
+                        .map(pathVariable -> {
+                            var copySegmentMenuItem = new MenuItem(pathVariable);
+                            copySegmentMenuItem.setOnAction(_ -> ClipboardHelper.putString(pathVariable));
+                            return copySegmentMenuItem;
+                        })
+                        .toList();
+                copyPathSegments.getItems().addAll(copySegmentMenuItems);
+            }
+        });
+        itemPathFooterLabel.setContextMenu(copyPathContextMenu);
+
+    }
+
     private void initItemsHistoryControls() {
-        showHistoryMenuBtn.getStyleClass().setAll("icon-button", "button");
+        showHistoryMenuBtn.getStyleClass().setAll("button", "icon-button");
         showHistoryMenuBtn.setOnShowing(_ -> {
             showHistoryMenuBtn.getItems().clear();
             var navItems = itemsNavigator.getReadOnlyNavigableItems();
             var menuItems = new ArrayList<MenuItem>(navItems.size());
             for (int i = 0; i < navItems.size(); i++) {
-                var menuItem = new MenuItem(navItems.get(i).descriptor().path());
+                var menuItem = new MenuItem(navItems.get(i).descriptor().path().value());
                 if (itemsNavigator.getCurrentIndex() == i) {
                     menuItem.setGraphic(new FontAwesomeIconView(FontAwesomeIcon.CARET_RIGHT));
                 }
@@ -99,6 +138,16 @@ public class MiniLibraryItemsViewController {
         });
     }
 
+    private void initViewOptionsControls() {
+        viewOptionsMenuBtn.getStyleClass().setAll("icon-button", "button");
+        viewOptionsMenuBtn.setOnShowing(_ -> {
+            viewOptionsMenuBtn.getItems().clear();
+            var configurer = ItemsViewConfigurerFactory.get(itemsNavigator.getCurrentState().type(), this);
+            var items = configurer.configureViewOptionsMenuItems(tableView);
+            viewOptionsMenuBtn.getItems().addAll(items.get());
+        });
+    }
+
     private void initTableProperties() {
         tableView.getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
         tableView.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY_LAST_COLUMN);
@@ -116,7 +165,8 @@ public class MiniLibraryItemsViewController {
             row.setOnMouseClicked(e -> {
                 if (!row.isEmpty()) {
                     if (MouseEventHelper.primaryButtonDoubleClicked(e)) {
-                        ItemsViewConfigurerFactory.get(row.getItem().getClass(), this).onRowOpened(row.getItem());
+                        var selectedItems = tableView.getSelectionModel().getSelectedItems();
+                        ItemsViewConfigurerFactory.get(row.getItem().getClass(), this).onItemsOpen(selectedItems);
                     } else if (MouseEventHelper.secondaryButtonSingleClicked(e)) {
                         showContextMenu(e, row);
                     }
@@ -133,7 +183,7 @@ public class MiniLibraryItemsViewController {
     private void initTableKeyPressedHandlers() {
         tableView.setOnKeyPressed(keyEvent -> {
             var keyCode = keyEvent.getCode();
-            if  (keyEvent.isShortcutDown()) {
+            if (keyEvent.isShortcutDown()) {
                 if (keyEvent.isControlDown()) {
                     if (keyCode == KeyCode.LEFT) {
                         moveBack();
@@ -141,9 +191,22 @@ public class MiniLibraryItemsViewController {
                         moveForward();
                     }
                 }
+            } else if (keyCode == KeyCode.BACK_SPACE) {
+                moveBack(); //TODO move to foldersview
             } else if (keyCode == KeyCode.ENTER) {
-                var selectedItem = tableView.getSelectionModel().getSelectedItem();
-                ItemsViewConfigurerFactory.get(selectedItem.getClass(), this).onRowOpened(selectedItem);
+                var selectedItems = tableView.getSelectionModel().getSelectedItems();
+                ItemsViewConfigurerFactory.get(selectedItems.getFirst().getClass(), this).onItemsOpen(selectedItems);
+                keyEvent.consume();
+            } else if (keyCode == KeyCode.DELETE || keyCode == KeyCode.F8) {
+                var selectedItems = tableView.getSelectionModel().getSelectedItems();
+                var onItemsDeleteOpt =
+                        ItemsViewConfigurerFactory.get(selectedItems.getFirst().getClass(), this).onItemsDelete();
+                onItemsDeleteOpt.ifPresent(itemsConsumer -> {
+                    var confirmed = ConfirmDeleteRowItemsDialog.confirmDelete(selectedItems);
+                    if (confirmed) {
+                        itemsConsumer.andThen(_ -> refreshLastState()).accept(selectedItems);
+                    }
+                });
                 keyEvent.consume();
             }
         });
@@ -181,6 +244,11 @@ public class MiniLibraryItemsViewController {
         moveBackBtn.setDisable(!itemsNavigator.canGoBack());
         moveForwardBtn.setDisable(!itemsNavigator.canGoForward());
         showHistoryMenuBtn.setDisable(itemsNavigator.getReadOnlyNavigableItems().isEmpty());
+        if (itemsNavigator.getCurrentState() != null) {
+            var path = itemsNavigator.getCurrentState().descriptor().path();
+            itemPathFooterLabel.setText(path.value());
+            itemPathFooterLabel.setTooltip(new Tooltip(path.value()));
+        }
     }
 
     public void refreshLastState() {
@@ -193,10 +261,19 @@ public class MiniLibraryItemsViewController {
 
     private void showItems(NavigableItems navigableItems, boolean saveState) {
         LOG.info("Showing items for path: {}", navigableItems.descriptor().path());
-        showNewItems(navigableItems, saveState);
+        showItems(navigableItems, saveState, null);
     }
 
-    private void showNewItems(NavigableItems navigableItems, boolean saveState) {
+    public void showItems(NavigableItems navigableItems, Predicate<LibraryItemRow> selectItemIf) {
+        showItems(navigableItems, navigableItems.descriptor().isPresent(), selectItemIf);
+    }
+
+    private void showItems(NavigableItems navigableItems, boolean saveState, Predicate<LibraryItemRow> selectItemIf) {
+        LOG.info("Showing items for path: {}", navigableItems.descriptor().path());
+        showNewItems(navigableItems, saveState, selectItemIf);
+    }
+
+    private void showNewItems(NavigableItems navigableItems, boolean saveState, Predicate<LibraryItemRow> selectItemIf) {
         Platform.runLater(() -> {
             var configurer = ItemsViewConfigurerFactory.get(navigableItems.type(), this);
             configurer.configureColumns(tableView);
@@ -204,21 +281,32 @@ public class MiniLibraryItemsViewController {
             if (saveState) {
                 itemsNavigator.addState(navigableItems);
             }
+            tableView.getSelectionModel().clearSelection();
             tableView.getItems().clear();
             var items = navigableItems.supplier().get();
             if (!items.isEmpty()) {
-                setTableViewItems(items);
+                setTableViewItems(items, selectItemIf);
             }
             configurer.configureFooter(tableView, footerLabel);
         });
     }
 
-    private void setTableViewItems(List<LibraryItemRow> items) {
+    private void setTableViewItems(List<LibraryItemRow> items, Predicate<LibraryItemRow> selectItemIf) {
         tableView.setItems(FXCollections.observableArrayList(items));
         if (!items.isEmpty()) {
             tableView.requestFocus();
-            tableView.scrollTo(0);
-            tableView.getSelectionModel().selectFirst();
+            var selectedIdx = 0;
+            if (selectItemIf != null) {
+                for (int i = 0; i < tableView.getItems().size(); i++) {
+                    if (selectItemIf.test(tableView.getItems().get(i))) {
+                        tableView.getSelectionModel().clearSelection();
+                        selectedIdx = i;
+                        break;
+                    }
+                }
+            }
+            tableView.scrollTo(selectedIdx);
+            tableView.getSelectionModel().select(selectedIdx);
         }
     }
 }

@@ -3,7 +3,14 @@ package io.playqd.mini.controller.item;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
 
-public abstract sealed class LibraryItemRow permits ArtistItemRow, AlbumItemRow, TrackItemRow, PlaylistItemRow {
+public abstract sealed class LibraryItemRow permits
+        UuidLibraryItemRow,
+        ArtistItemRow,
+        AlbumItemRow,
+        TrackItemRow,
+        PlaylistItemRow,
+        CollectionItemRow,
+        CollectionChildItemRow {
 
     private final StringProperty miscValue;
 

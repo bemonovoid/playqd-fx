@@ -61,7 +61,7 @@ class CollectionItemIconTableCellFactory
 
                         }
                     } else if (MediaItemType.FILE == collectionItem.itemType()) {
-                        var wfi = PlayqdClientProvider.get().getWatchFolderItemByLocation(collectionItem.refId());
+                        var wfi = PlayqdClientProvider.get().watchFolders().geItemByLocation(collectionItem.refId());
                         setIcon(wfi);
                     }
 

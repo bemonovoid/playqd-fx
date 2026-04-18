@@ -3,15 +3,15 @@ package io.playqd.mini.controller.item.contextmenu;
 import de.jensd.fx.glyphs.fontawesome.FontAwesomeIcon;
 import de.jensd.fx.glyphs.fontawesome.FontAwesomeIconView;
 import io.playqd.controller.playlists.PlaylistDialog;
+import io.playqd.data.PlaylistTrack;
 import io.playqd.data.Track;
 import io.playqd.service.MusicLibrary;
 import javafx.scene.control.Menu;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.SeparatorMenuItem;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
+import java.util.stream.Collectors;
 
 final class PlaylistContextMenuItemsBuilder {
 
@@ -62,7 +62,7 @@ final class PlaylistContextMenuItemsBuilder {
     public PlaylistContextMenuItemsBuilder removeMenuItem(long fromPlaylist) {
         var removeMenuItem = new MenuItem("Remove from playlist");
         removeMenuItem.setOnAction(_ ->
-                MusicLibrary.removeTracksFromPlaylist(fromPlaylist, tracks.stream().map(Track::id).toList()));
+                MusicLibrary.removeTracksFromCollection(fromPlaylist, tracks.stream().map(Track::id).toList()));
         return this;
     }
 
@@ -75,8 +75,17 @@ final class PlaylistContextMenuItemsBuilder {
                 .filter(p -> p.id() != excludingPlaylistId)
                 .map(p -> {
                     var menuItem = new MenuItem(p.name());
-                    menuItem.setOnAction(_ ->
-                            MusicLibrary.addTracksToPlaylist(p.id(), tracks.stream().map(Track::id).toList()));
+                    menuItem.setOnAction(_ -> {
+                        var sameIds = p.tracks().stream()
+                                .map(PlaylistTrack::id)
+                                .collect(Collectors.toCollection(HashSet::new));
+                        var newIds = tracks.stream().map(Track::id).collect(Collectors.toSet());
+                        sameIds.retainAll(newIds);
+                        if (!sameIds.isEmpty()) {
+                            System.out.println("not empty: " + Arrays.toString(sameIds.toArray()));
+                        }
+                        MusicLibrary.addTracksToPlaylist(p.id(), tracks.stream().map(Track::id).toList());
+                    });
                     return menuItem;
                 })
                 .toList();

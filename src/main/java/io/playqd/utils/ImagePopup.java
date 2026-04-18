@@ -13,7 +13,7 @@ public final class ImagePopup {
     private static final Logger LOG = LoggerFactory.getLogger(ImagePopup.class);
 
     public static void show(Track track) {
-        var title = track.artistName() + " - " + track.title();
+        var title = track.artistName() + " - " + track.name();
         var imageGalleryView = new ArtworkGalleryView(track);
 
         var screenBounds = Screen.getPrimary().getVisualBounds();

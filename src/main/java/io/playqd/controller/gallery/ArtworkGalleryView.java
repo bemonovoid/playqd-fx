@@ -69,7 +69,7 @@ public class ArtworkGalleryView extends BorderPane {
     @FXML
     private void initialize() {
         Platform.runLater(() -> {
-            var imageRefs = PlayqdClientProvider.get().getAlbumFolderImages(track.id());
+            var imageRefs = PlayqdClientProvider.get().watchFolders().getAlbumFolderImages(track.id());
             images.get().addAll(imageRefs);
             for (int i = 0; i < images.get().size(); i++) {
                 var image = (Image) null;

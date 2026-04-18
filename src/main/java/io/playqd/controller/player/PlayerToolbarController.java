@@ -292,7 +292,7 @@ public class PlayerToolbarController {
     private void updateSliderTitle(Track track) {
         artistNameLinkLabel.setUserData(track);
         artistNameLinkLabel.setText("[" + track.artistName() + "]");
-        trackTitleLabel.setText(" - " + track.title());
+        trackTitleLabel.setText(" - " + track.name());
     }
 
     private void updateTrackTime(Track track) {

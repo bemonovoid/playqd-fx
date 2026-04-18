@@ -34,7 +34,7 @@ public class LibraryConfigView extends VBox implements ConfigView {
         scanOnStartToggle.setSelected(AppConfig.getProperties().library().rescanOnStartUp().get());
         AppConfig.getProperties().library().rescanOnStartUp().bind(scanOnStartToggle.selectedProperty());
         foldersListView.setCellFactory(new CustomCellFactory());
-        foldersListView.getItems().addAll(PlayqdClientProvider.get().getWatchFolders());
+        foldersListView.getItems().addAll(PlayqdClientProvider.get().watchFolders().getAll());
     }
 
     @FXML

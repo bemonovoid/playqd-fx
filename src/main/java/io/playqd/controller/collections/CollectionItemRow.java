@@ -21,7 +21,7 @@ public final class CollectionItemRow {
     }
 
     public String getTitle() {
-        return item.title();
+        return item.name();
     }
 
     public MediaItemType getItemType() {

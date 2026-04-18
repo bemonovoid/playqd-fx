@@ -35,7 +35,7 @@ public class VLCEventToMPRISAdapterImpl extends MediaPlayerEventAdapter {
                     .setTrackID(new DBusPath(MprisApplication.OBJECT_PATH + "/Track/" + trackRef.track().id()))
                     .setLength((int) (trackRef.track().length().seconds() * 1000L * 1000L))
                     .setArtURL(URI.create(PlayqdApis.trackArtwork(trackRef.track().id())))
-                    .setTitle(trackRef.track().title())
+                    .setTitle(trackRef.track().name())
                     .setArtists(List.of(trackRef.track().artistName()))
                     .build();
             mpris.setMetadata(metadata);
