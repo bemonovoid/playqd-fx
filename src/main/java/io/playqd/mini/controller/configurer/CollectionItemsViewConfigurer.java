@@ -1,6 +1,7 @@
 package io.playqd.mini.controller.configurer;
 
 import io.playqd.data.MediaItemType;
+import io.playqd.mini.controller.ItemsTableColumnIds;
 import io.playqd.mini.controller.MiniLibraryItemsViewController;
 import io.playqd.mini.controller.NavigableItemsResolver;
 import io.playqd.mini.controller.factories.CollectionItemImageTableCellFactory;
@@ -22,7 +23,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import java.util.function.Consumer;
 
 public final class CollectionItemsViewConfigurer extends DefaultItemsViewConfigurer {
@@ -31,6 +34,16 @@ public final class CollectionItemsViewConfigurer extends DefaultItemsViewConfigu
 
     public CollectionItemsViewConfigurer(MiniLibraryItemsViewController controller) {
         super(controller);
+    }
+
+    @Override
+    protected Set<String> getExcludedColumns() {
+        return Set.of(ItemsTableColumnIds.TAGS_COL);
+    }
+
+    @Override
+    protected Map<String, String> getColumnNameOverrides() {
+        return Map.of(ItemsTableColumnIds.MISC_VALUE_COL, "Item type");
     }
 
     @Override

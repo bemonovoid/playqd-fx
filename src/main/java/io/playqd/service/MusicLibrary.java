@@ -4,9 +4,8 @@ import io.playqd.client.*;
 import io.playqd.data.*;
 import io.playqd.data.request.*;
 import io.playqd.event.LibraryRefreshedEvent;
-import io.playqd.event.TrackUpdateType;
-import io.playqd.event.TracksUpdatedEvent;
 import io.playqd.player.Player;
+import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.ReadOnlyObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.collections.FXCollections;
@@ -30,8 +29,7 @@ public final class MusicLibrary {
     private static final SimpleObjectProperty<LibraryRefreshedEvent> LIBRARY_REFRESHED_EVENT_PROPERTY =
             new SimpleObjectProperty<>();
 
-    private static final SimpleObjectProperty<TracksUpdatedEvent> TRACKS_UPDATED_EVENT_PROPERTY =
-            new SimpleObjectProperty<>();
+    private static final ObjectProperty<UpdatedTracks> UPDATED_TRACKS_PROPERTY = new SimpleObjectProperty<>();
 
     private static final ObservableMap<Long, Playlist> PLAYLIST_CACHE =
             FXCollections.observableMap(new HashMap<>());
@@ -67,8 +65,8 @@ public final class MusicLibrary {
         return LIBRARY_REFRESHED_EVENT_PROPERTY;
     }
 
-    public static ReadOnlyObjectProperty<TracksUpdatedEvent> tracksUpdatedEventProperty() {
-        return TRACKS_UPDATED_EVENT_PROPERTY;
+    public static ReadOnlyObjectProperty<UpdatedTracks> updatedTracksProperty() {
+        return UPDATED_TRACKS_PROPERTY;
     }
 
     public static void onPlaylistsModified(Consumer<List<Playlist>> callback) {
@@ -193,16 +191,14 @@ public final class MusicLibrary {
                 .toList());
     }
 
-    public static void updateReaction(Reaction reaction, List<Long> trackIds) {
+    public static void updateReaction(List<Long> trackIds, Reaction reaction) {
         var updatedTracks = playqdClient().updateReaction(new UpdateReactionRequest(reaction, trackIds));
         updateTrackInCache(updatedTracks);
-        updateTracksUpdateEventProperty(TrackUpdateType.REACTION, updatedTracks);
     }
 
     public static void updatePlayCount(long trackId) {
         var trackUpdated = playqdClient().markAsPlayed(trackId);
         updateTrackInCache(List.of(trackUpdated));
-        updateTracksUpdateEventProperty(TrackUpdateType.PLAY_COUNT_INCR, List.of(trackUpdated));
     }
 
     public static List<Playlist> getPlaylists() {
@@ -344,10 +340,11 @@ public final class MusicLibrary {
 
     private static void updateTrackInCache(List<Track> tracks) {
         tracks.forEach(track -> TRACKS_CACHE.put(track.id(), track));
+        setUpdatedTracksProperty(tracks);
     }
 
-    private static void updateTracksUpdateEventProperty(TrackUpdateType trackUpdateType, List<Track> tracks) {
-        TRACKS_UPDATED_EVENT_PROPERTY.set(new TracksUpdatedEvent(trackUpdateType, tracks));
+    private static void setUpdatedTracksProperty(List<Track> tracks) {
+        UPDATED_TRACKS_PROPERTY.set(new UpdatedTracks(tracks));
     }
 
     private static Map<Long, Track> getTracksFromCache() {

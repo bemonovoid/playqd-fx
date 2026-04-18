@@ -5,6 +5,7 @@ import io.playqd.mini.controller.MiniLibraryItemsViewController;
 import io.playqd.mini.controller.factories.DescriptionTableCellFactory;
 import io.playqd.mini.controller.factories.ImageTableCellFactory;
 import io.playqd.mini.controller.factories.MiscValueTableCellFactory;
+import io.playqd.mini.controller.factories.TagsTableCellFactory;
 import io.playqd.mini.controller.item.LibraryItemRow;
 import io.playqd.mini.controller.navigator.ItemsDescriptor;
 import javafx.scene.control.Label;
@@ -16,6 +17,7 @@ import javafx.scene.layout.HBox;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.function.Supplier;
 
@@ -48,10 +50,7 @@ sealed abstract class DefaultItemsViewConfigurer implements ItemsViewConfigurer 
     public void configureColumns(TableView<LibraryItemRow> tableView) {
         tableView.getColumns().forEach(col -> {
             if (getExcludedColumns().contains(col.getId())) {
-                col.prefWidthProperty().unbind();
-                col.maxWidthProperty().unbind();
                 col.setVisible(false);
-                rebindNameColumnWidths(tableView);
                 return;
             } else {
                 col.setVisible(true);
@@ -68,9 +67,18 @@ sealed abstract class DefaultItemsViewConfigurer implements ItemsViewConfigurer 
                 } else {
                     descriptionCol.setCellFactory(getDescriptionTableCellFactory());
                 }
+            } else if (col.getId().equals(ItemsTableColumnIds.TAGS_COL)) {
+                @SuppressWarnings("unchecked")
+                var tagsCol = (TableColumn<LibraryItemRow, String>) col;
+                if (getTagsTableCellFactory() == null) {
+                    tagsCol.setCellFactory(TextFieldTableCell.forTableColumn());
+                } else {
+                    tagsCol.setCellFactory(getTagsTableCellFactory());
+                }
             } else if (col.getId().equals(ItemsTableColumnIds.MISC_VALUE_COL)) {
                 @SuppressWarnings("unchecked")
                 var miscValueCol = (TableColumn<LibraryItemRow, String>) col;
+                col.setText(getColumnNameOverrides().getOrDefault(col.getId(), ""));
                 if (getMiscValueTableCellFactory() == null) {
                     miscValueCol.setCellFactory(TextFieldTableCell.forTableColumn());
                 } else {
@@ -94,6 +102,10 @@ sealed abstract class DefaultItemsViewConfigurer implements ItemsViewConfigurer 
         return Collections.emptySet();
     }
 
+    protected Map<String, String> getColumnNameOverrides() {
+        return Map.of();
+    }
+
     @Override
     public Supplier<List<MenuItem>> configureViewOptionsMenuItems(TableView<LibraryItemRow> tableView) {
         return List::of;
@@ -110,6 +122,10 @@ sealed abstract class DefaultItemsViewConfigurer implements ItemsViewConfigurer 
         return null;
     }
 
+    protected TagsTableCellFactory getTagsTableCellFactory() {
+        return null;
+    }
+
     protected MiscValueTableCellFactory getMiscValueTableCellFactory() {
         return null;
     }
@@ -118,19 +134,5 @@ sealed abstract class DefaultItemsViewConfigurer implements ItemsViewConfigurer 
 
     protected void configureHeaderRight(TableView<LibraryItemRow> tableView, HBox headerRight) {
 
-    }
-
-    private void rebindNameColumnWidths(TableView<LibraryItemRow> tableView) {
-        tableView.getColumns().stream()
-                .filter(c -> c.getId().equals(ItemsTableColumnIds.NAME_COL))
-                .findFirst()
-                .ifPresent(col -> {
-                    col.prefWidthProperty().unbind();
-                    col.maxWidthProperty().unbind();
-                    col.setPrefWidth(tableView.widthProperty().multiply(0.7).getValue());
-                    col.setMaxWidth(tableView.widthProperty().multiply(0.7).getValue());
-                    col.prefWidthProperty().bind(tableView.widthProperty().multiply(0.7));
-                    col.maxWidthProperty().bind(tableView.widthProperty().multiply(0.7));
-                });
     }
 }

@@ -61,7 +61,7 @@
                 </styleClass>
             </ToggleButton>
 
-            <Button styleClass="icon-button" focusTraversable="false">
+            <Button fx:id="reactionBtn" styleClass="icon-button" focusTraversable="false" onAction="#changeReaction">
                 <graphic>
                     <FontIcon iconLiteral="far-heart"/>
                 </graphic>

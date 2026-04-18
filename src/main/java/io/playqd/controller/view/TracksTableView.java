@@ -128,19 +128,19 @@ public class TracksTableView extends TableView<TrackTableRow> {
         // This will only update currently displayed table items. If the items must be removed or added this is to be
         // done in the class that holds the context about an action, e.g: Unlike a track in favorites view will remove
         // an item from table view. This handler is only responsible to update observable properties.
-        MusicLibrary.tracksUpdatedEventProperty().addListener((_, _, tracksUpdate) -> {
-            var updatedTracks = tracksUpdate.tracks().stream()
-                    .collect(Collectors.toMap(Track::id, Function.identity()));
-            for (var m : getItems()) {
-                if (updatedTracks.isEmpty()) {
-                    break;
-                }
-                var updatedTrack = updatedTracks.get(m.track().id());
-                if (updatedTrack != null) {
-                    m.setObservableProperties(updatedTrack);
-                    updatedTracks.remove(m.track().id());
-                }
-            }
+        MusicLibrary.updatedTracksProperty().addListener((_, _, tracksUpdate) -> {
+//            var updatedTracks = tracksUpdate.tracks().stream()
+//                    .collect(Collectors.toMap(Track::id, Function.identity()));
+//            for (var m : getItems()) {
+//                if (updatedTracks.isEmpty()) {
+//                    break;
+//                }
+//                var updatedTrack = updatedTracks.get(m.track().id());
+//                if (updatedTrack != null) {
+//                    m.setObservableProperties(updatedTrack);
+//                    updatedTracks.remove(m.track().id());
+//                }
+//            }
         });
     }
 

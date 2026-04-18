@@ -27,7 +27,7 @@ public final class WatchFoldersViewConfigurer extends DefaultItemsViewConfigurer
 
     @Override
     protected Set<String> getExcludedColumns() {
-        return Set.of(ItemsTableColumnIds.MISC_VALUE_COL);
+        return Set.of(ItemsTableColumnIds.TAGS_COL, ItemsTableColumnIds.MISC_VALUE_COL);
     }
 
     @Override

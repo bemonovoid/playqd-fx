@@ -1,6 +1,7 @@
 package io.playqd.player;
 
 import io.playqd.data.Track;
+import io.playqd.service.MusicLibrary;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import org.slf4j.Logger;
@@ -52,8 +53,13 @@ public class Player {
         return instance;
     }
 
+    /**
+     * Returns the most up-to-date track from cache
+     * @return
+     */
     public static Optional<Track> playingTrack() {
-        return Optional.ofNullable((TrackRef) MEDIA_PLAYER.userData()).map(TrackRef::track);
+        return Optional.ofNullable((TrackRef) MEDIA_PLAYER.userData())
+                .map(tRef -> MusicLibrary.getTrackById(tRef.track().id()));
     }
 
     static void enqueueAndPlay(TrackListRequest trackListRequest) {

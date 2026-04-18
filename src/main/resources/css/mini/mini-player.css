@@ -28,12 +28,19 @@
     -fx-focus-color: #C92A2AB0;
 }
 
+.library-item-table .column-header .label {
+    -fx-font-size: 10;
+    -fx-font-weight: 200;
+    /*-fx-alignment: CENTER_LEFT;*/
+    -fx-font-smoothing-type: lcd;
+}
+
 /* 1. Hide the Column Header Area */
 .library-item-table .column-header-background {
-    -fx-max-height: 0;
-    -fx-pref-height: 0;
-    -fx-min-height: 0;
-    -fx-visibility: hidden;
+    -fx-max-height: 20;
+    -fx-pref-height: 20;
+    -fx-min-height: 20;
+    /*-fx-visibility: hidden;*/
 }
 
 /* 2. Hide Table Grid Lines */

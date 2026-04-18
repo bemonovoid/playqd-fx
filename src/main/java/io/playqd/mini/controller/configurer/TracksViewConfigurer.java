@@ -4,10 +4,7 @@ import io.playqd.data.Track;
 import io.playqd.mini.controller.ItemsTableColumnIds;
 import io.playqd.mini.controller.MiniLibraryItemsViewController;
 import io.playqd.mini.controller.NavigableItemsResolver;
-import io.playqd.mini.controller.factories.DescriptionTableCellFactory;
-import io.playqd.mini.controller.factories.HyperLinkTableCellFactory;
-import io.playqd.mini.controller.factories.ImageTableCellFactory;
-import io.playqd.mini.controller.factories.TrackImageTableCellFactory;
+import io.playqd.mini.controller.factories.*;
 import io.playqd.mini.controller.item.LibraryItemRow;
 import io.playqd.mini.controller.item.TrackItemRow;
 import io.playqd.mini.controller.item.contextmenu.ContextMenuItemsBuilder;
@@ -27,6 +24,7 @@ import org.slf4j.LoggerFactory;
 import java.text.NumberFormat;
 import java.time.Duration;
 import java.util.List;
+import java.util.Map;
 import java.util.function.Supplier;
 
 public sealed class TracksViewConfigurer extends DefaultItemsViewConfigurer permits
@@ -46,6 +44,12 @@ public sealed class TracksViewConfigurer extends DefaultItemsViewConfigurer perm
         super.configureColumns(tableView);
         tableView.getColumns()
                 .forEach(col -> {
+                    if (col.getId().equals(ItemsTableColumnIds.TAGS_COL)) {
+                        col.setVisible(true);
+                        @SuppressWarnings("unchecked")
+                        var tagsCol = (TableColumn<LibraryItemRow, String>) col;
+                        tagsCol.setCellValueFactory(c -> c.getValue().getTags());
+                    }
                     if (col.getId().equals(ItemsTableColumnIds.MISC_VALUE_COL)) {
                         col.setVisible(true);
                         @SuppressWarnings("unchecked")
@@ -53,6 +57,11 @@ public sealed class TracksViewConfigurer extends DefaultItemsViewConfigurer perm
                         miscValueCol.setCellValueFactory(c -> c.getValue().getMiscValue());
                     }
                 });
+    }
+
+    @Override
+    protected Map<String, String> getColumnNameOverrides() {
+        return Map.of(ItemsTableColumnIds.MISC_VALUE_COL, "Time");
     }
 
     @Override
@@ -111,6 +120,11 @@ public sealed class TracksViewConfigurer extends DefaultItemsViewConfigurer perm
     @Override
     protected DescriptionTableCellFactory getDescriptionTableCellFactory() {
         return new HyperLinkTableCellFactory(NavigableItemsResolver::resolveArtistAlbums);
+    }
+
+    @Override
+    protected TagsTableCellFactory getTagsTableCellFactory() {
+        return new TrackTagsTableCellFactory();
     }
 
     @Override

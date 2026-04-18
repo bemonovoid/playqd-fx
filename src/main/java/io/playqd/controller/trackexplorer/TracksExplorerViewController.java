@@ -4,7 +4,6 @@ import io.playqd.controller.view.TracksTableView;
 import io.playqd.controller.view.TracksView;
 import io.playqd.data.Reaction;
 import io.playqd.data.Track;
-import io.playqd.event.TrackUpdateType;
 import io.playqd.player.PlayerTrackListManager;
 import io.playqd.player.TrackListRequest;
 import io.playqd.service.MusicLibrary;
@@ -92,7 +91,7 @@ public class TracksExplorerViewController {
             listView.getSelectionModel().select(selectedIdx);
             listView.setDisable(false);
         });
-        MusicLibrary.tracksUpdatedEventProperty().addListener((_, _, tracksUpdatedEvent) -> {
+        MusicLibrary.updatedTracksProperty().addListener((_, _, tracksUpdatedEvent) -> {
             var counts = getCounts();
             listView.getItems().forEach(li -> {
                 switch (li.id()) {
@@ -100,21 +99,21 @@ public class TracksExplorerViewController {
                     case CUE -> li.countProperty().set(counts.cues());
                     case LIKES -> {
                         li.countProperty().set(counts.likes());
-                        if (li == getSelectedItem() && TrackUpdateType.REACTION == tracksUpdatedEvent.type()) {
-                            tracksView.showTracks(() -> MusicLibrary.getReactedTracks(Reaction.THUMB_UP));
-                        }
+//                        if (li == getSelectedItem() && TrackUpdateType.REACTION == tracksUpdatedEvent.type()) {
+//                            tracksView.showTracks(() -> MusicLibrary.getReactedTracks(Reaction.THUMB_UP));
+//                        }
                     }
                     case DISLIKES -> {
-                        li.countProperty().set(counts.dislikes());
-                        if (li == getSelectedItem() && TrackUpdateType.REACTION == tracksUpdatedEvent.type()) {
-                            tracksView.showTracks(() -> MusicLibrary.getReactedTracks(Reaction.THUMB_DOWN));
-                        }
+//                        li.countProperty().set(counts.dislikes());
+//                        if (li == getSelectedItem() && TrackUpdateType.REACTION == tracksUpdatedEvent.type()) {
+//                            tracksView.showTracks(() -> MusicLibrary.getReactedTracks(Reaction.THUMB_DOWN));
+//                        }
                     }
                     case PLAYED -> {
-                        li.countProperty().set(counts.played());
-                        if (li == getSelectedItem() && TrackUpdateType.PLAY_COUNT_INCR == tracksUpdatedEvent.type()) {
-                            tracksView.showTracks(MusicLibrary::getPlayedTracks);
-                        }
+//                        li.countProperty().set(counts.played());
+//                        if (li == getSelectedItem() && TrackUpdateType.PLAY_COUNT_INCR == tracksUpdatedEvent.type()) {
+//                            tracksView.showTracks(MusicLibrary::getPlayedTracks);
+//                        }
                     }
                 }
             });

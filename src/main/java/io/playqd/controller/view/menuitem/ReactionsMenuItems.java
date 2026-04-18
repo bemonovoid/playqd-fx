@@ -25,16 +25,16 @@ public class ReactionsMenuItems implements MenuItemsBuilder {
         var tracks = onAction.get();
 
         var thumbsUpMenuItem = new MenuItem("Like", new FontAwesomeIconView(FontAwesomeIcon.THUMBS_ALT_UP));
-        thumbsUpMenuItem.setOnAction(_ -> MusicLibrary.updateReaction(Reaction.THUMB_UP, tracks.stream()
+        thumbsUpMenuItem.setOnAction(_ -> MusicLibrary.updateReaction(tracks.stream()
                 .filter(t -> Reaction.THUMB_UP != t.reaction())
                 .map(Track::id)
-                .toList()));
+                .toList(), Reaction.THUMB_UP));
 
         var thumbsDownMenuItem = new MenuItem("Dislike", new FontAwesomeIconView(FontAwesomeIcon.THUMBS_ALT_DOWN));
-        thumbsDownMenuItem.setOnAction(_ -> MusicLibrary.updateReaction(Reaction.THUMB_DOWN, tracks.stream()
+        thumbsDownMenuItem.setOnAction(_ -> MusicLibrary.updateReaction(tracks.stream()
                 .filter(t -> Reaction.THUMB_DOWN != t.reaction())
                 .map(Track::id)
-                .toList()));
+                .toList(), Reaction.THUMB_DOWN));
 
         if (tracks.isEmpty()) {
             thumbsUpMenuItem.setDisable(true);

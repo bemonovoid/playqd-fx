@@ -2,12 +2,15 @@ package io.playqd.mini.controller;
 
 import de.jensd.fx.glyphs.fontawesome.FontAwesomeIcon;
 import de.jensd.fx.glyphs.fontawesome.FontAwesomeIconView;
+import io.playqd.data.Track;
 import io.playqd.event.MouseEventHelper;
 import io.playqd.mini.controller.configurer.ItemsViewConfigurerFactory;
 import io.playqd.mini.controller.item.LibraryItemRow;
+import io.playqd.mini.controller.item.TrackItemRow;
 import io.playqd.mini.controller.navigator.ItemsNavigator;
 import io.playqd.mini.controller.navigator.NavigableItems;
 import io.playqd.mini.custom.ConfirmDeleteRowItemsDialog;
+import io.playqd.service.MusicLibrary;
 import io.playqd.utils.ClipboardHelper;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
@@ -25,7 +28,9 @@ import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 import java.util.function.Predicate;
+import java.util.stream.Collectors;
 
 public class MiniLibraryItemsViewController {
 
@@ -52,7 +57,7 @@ public class MiniLibraryItemsViewController {
     private TableView<LibraryItemRow> tableView;
 
     @FXML
-    private TableColumn<LibraryItemRow, String> nameCol, descriptionCol, miscValueCol;
+    private TableColumn<LibraryItemRow, String> nameCol, descriptionCol, tagsCol, miscValueCol;
 
     @FXML
     private Label itemPathFooterLabel, footerLabel;
@@ -66,6 +71,7 @@ public class MiniLibraryItemsViewController {
         initTableProperties();
         initRowFactories();
         initKeyPressedHandlers();
+        initLibraryEventHandlers();
     }
 
     private void initTableHeaderProperties() {
@@ -150,13 +156,7 @@ public class MiniLibraryItemsViewController {
 
     private void initTableProperties() {
         tableView.getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
-        tableView.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY_LAST_COLUMN);
-        nameCol.prefWidthProperty().bind(tableView.widthProperty().multiply(0.5));
-        nameCol.maxWidthProperty().bind(tableView.widthProperty().multiply(0.5));
-        descriptionCol.prefWidthProperty().bind(tableView.widthProperty().multiply(0.3));
-        descriptionCol.maxWidthProperty().bind(tableView.widthProperty().multiply(0.3));
-        miscValueCol.prefWidthProperty().bind(tableView.widthProperty().multiply(0.2));
-        miscValueCol.maxWidthProperty().bind(tableView.widthProperty().multiply(0.2));
+        tableView.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY_FLEX_LAST_COLUMN);
     }
 
     private void initRowFactories() {
@@ -208,6 +208,25 @@ public class MiniLibraryItemsViewController {
                     }
                 });
                 keyEvent.consume();
+            }
+        });
+    }
+
+    private void initLibraryEventHandlers() {
+        MusicLibrary.updatedTracksProperty().addListener((_, _, newValue) -> {
+            if (newValue != null && newValue.tracks() != null && !newValue.tracks().isEmpty()) {
+                if (!tableView.getItems().isEmpty() && tableView.getItems().getFirst() instanceof TrackItemRow) {
+                    var updatedTracks = newValue.tracks().stream().collect(Collectors.toMap(Track::id, t -> t));
+                    for (int i = 0; i < tableView.getItems().size(); i++) {
+                        var trackRowItem = (TrackItemRow) tableView.getItems().get(i);
+                        var updatedTrack = updatedTracks.get(trackRowItem.getId());
+                        if (updatedTrack != null) {
+                            trackRowItem.setTrack(updatedTrack);
+                            // This will trigger cell update and reset the tags icons
+                            trackRowItem.setTags(UUID.randomUUID().toString());
+                        }
+                    }
+                }
             }
         });
     }

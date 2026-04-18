@@ -3,9 +3,9 @@ package io.playqd.mini.controller;
 import de.jensd.fx.glyphs.fontawesome.FontAwesomeIcon;
 import de.jensd.fx.glyphs.fontawesome.FontAwesomeIconView;
 import io.playqd.client.Images;
+import io.playqd.data.Reaction;
 import io.playqd.data.Track;
 import io.playqd.event.MouseEventHelper;
-import io.playqd.mini.controller.item.AlbumItemRow;
 import io.playqd.mini.controller.item.TrackItemRow;
 import io.playqd.mini.events.NavigationEvent;
 import io.playqd.player.Player;
@@ -21,7 +21,12 @@ import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
+import javafx.scene.paint.Color;
+import org.kordamp.ikonli.fontawesome6.FontAwesomeRegular;
+import org.kordamp.ikonli.fontawesome6.FontAwesomeSolid;
+import org.kordamp.ikonli.javafx.FontIcon;
 
+import java.util.List;
 import java.util.function.Consumer;
 
 public class MiniPlayerViewController {
@@ -50,13 +55,14 @@ public class MiniPlayerViewController {
     private ToggleButton toggleQueueView;
 
     @FXML
-    private Button playPrevBtn, playBtn, playNextBtn;
+    private Button reactionBtn, playPrevBtn, playBtn, playNextBtn;
 
     @FXML
     private void initialize() {
         initSlider();
         initPlayerControls();
         initPlayerEventListeners();
+        initLibraryEventListeners();
     }
 
     @FXML
@@ -81,6 +87,14 @@ public class MiniPlayerViewController {
         Player.playingTrack().ifPresent(track -> {
             var navItems = NavigableItemsResolver.resolveAlbumTracks(new TrackItemRow(track));
             miniPlayerView.fireEvent(new NavigationEvent(navItems));
+        });
+    }
+
+    @FXML
+    private void changeReaction() {
+        Player.playingTrack().ifPresent(track -> {
+            var reaction = Reaction.THUMB_UP == track.reaction() ? Reaction.NONE : Reaction.THUMB_UP;
+            MusicLibrary.updateReaction(List.of(track.id()), reaction);
         });
     }
 
@@ -132,6 +146,7 @@ public class MiniPlayerViewController {
                 Platform.runLater(() -> {
                     updateTitle(track);
                     updateArtwork(track);
+                    updateReactionButton(track);
                     updatePlayButton(false);
                     updateSliderInitialsTimes(track);
                 }));
@@ -143,6 +158,15 @@ public class MiniPlayerViewController {
         Player.onPositionChanged(this::updateSliderPosition);
         Player.onPaused(this::updatePlayButton);
         Player.onTimeChanged(newTime -> Platform.runLater(() -> updateSliderElapsedTime(newTime)));
+    }
+
+    private void initLibraryEventListeners() {
+        MusicLibrary.updatedTracksProperty().addListener((_, _, newValue) -> {
+            if (newValue != null && newValue.tracks() != null && newValue.tracks().size() == 1) {
+                var track = newValue.tracks().getFirst();
+                updateReactionButton(track);
+            }
+        });
     }
 
     private void updateArtwork(Track track) {
@@ -197,6 +221,16 @@ public class MiniPlayerViewController {
                 // slider position for cue tracks is updated upon time changed callback.
                 .filter(track -> track.parentId() == null)
                 .ifPresent(_ -> trackSlider.setValue(newValue));
+    }
+
+    private void updateReactionButton(Track track) {
+        var icon = (FontIcon) null;
+        if (Reaction.THUMB_UP == track.reaction()) {
+            icon = FontIcon.of(FontAwesomeSolid.HEART, Color.web("#ff6688"));
+        } else {
+            icon = FontIcon.of(FontAwesomeRegular.HEART);
+        }
+        reactionBtn.setGraphic(icon);
     }
 
     private void updatePlayButton(boolean paused) {

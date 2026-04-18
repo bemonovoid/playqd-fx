@@ -106,6 +106,6 @@ public final class CollectionsViewConfigurer extends DefaultItemsViewConfigurer 
 
     @Override
     protected Set<String> getExcludedColumns() {
-        return Set.of(ItemsTableColumnIds.DESCRIPTION_COL);
+        return Set.of(ItemsTableColumnIds.DESCRIPTION_COL, ItemsTableColumnIds.TAGS_COL);
     }
 }

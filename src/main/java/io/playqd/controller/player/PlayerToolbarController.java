@@ -116,7 +116,7 @@ public class PlayerToolbarController {
             Player.playingTrack().ifPresent(track -> {
                 var trackFromLibrary = MusicLibrary.getTrackById(track.id());
                 var newReaction = Reaction.THUMB_UP == trackFromLibrary.reaction() ? Reaction.NONE : Reaction.THUMB_UP;
-                MusicLibrary.updateReaction(newReaction, List.of(track.id()));
+//                MusicLibrary.updateReaction(newReaction, List.of(track.id()));
                 if (Reaction.NONE != newReaction) {
                     setThumbsUpReactionBtnStyle();
                 }
@@ -128,7 +128,7 @@ public class PlayerToolbarController {
             Player.playingTrack().ifPresent(track -> {
                 var trackFromLibrary = MusicLibrary.getTrackById(track.id());
                 var newReaction = Reaction.THUMB_DOWN == trackFromLibrary.reaction() ? Reaction.NONE : Reaction.THUMB_DOWN;
-                MusicLibrary.updateReaction(newReaction, List.of(track.id()));
+//                MusicLibrary.updateReaction(newReaction, List.of(track.id()));
                 if (Reaction.NONE != newReaction) {
                     setThumbsDownReactionBtnStyle();
                 }
