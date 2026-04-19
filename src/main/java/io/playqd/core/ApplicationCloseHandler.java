@@ -22,7 +22,9 @@ public class ApplicationCloseHandler {
         primaryStage.setOnCloseRequest(event -> {
             event.consume(); // to prevent automatic window closing
             if (closeConfirmed()) {
-                saveProperties();
+                setAppSizeProperties(primaryStage);
+                setPlayerStateProperties();
+                AppConfig.saveProperties();
                 logOutAndClose.run();
             }
         });
@@ -32,9 +34,10 @@ public class ApplicationCloseHandler {
         return true;
     }
 
-    private static void saveProperties() {
-        setPlayerStateProperties();
-        AppConfig.saveProperties();
+    private static void setAppSizeProperties(Stage primaryStage) {
+        var size = AppConfig.getProperties().ui().app().size();
+        size.height().set(primaryStage.getHeight());
+        size.width().set(primaryStage.getWidth());
     }
 
     private static void setPlayerStateProperties() {

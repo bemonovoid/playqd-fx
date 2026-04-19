@@ -4,8 +4,6 @@
 <?import javafx.scene.layout.VBox?>
 <VBox xmlns="http://javafx.com/javafx/25"
       xmlns:fx="http://javafx.com/fxml"
-      prefWidth="550"
-      prefHeight="750"
       fx:id="miniApplicationVBox"
       fx:controller="io.playqd.mini.controller.MiniApplicationController">
 

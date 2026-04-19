@@ -23,6 +23,8 @@ public class Application extends javafx.application.Application {
     private static final Logger LOG = LoggerFactory.getLogger(Application.class);
 
     public static final String TITLE = "playqd-fx";
+    private static final double PREF_HEIGHT = 750.0;
+    private static final double PREF_WIDTH = 550.0;
 
     private static ApplicationExiter applicationExiter;
 
@@ -42,12 +44,17 @@ public class Application extends javafx.application.Application {
 
     private void startMiniInStage(Stage stage) throws Exception {
         var fxmlLoader = FXMLLoaderUtils.resourceLoader(FXMLResource.APPLICATION_MINI);
-        var scene = new Scene(fxmlLoader.load());
+        var size = AppConfig.getProperties().ui().app().size();
+        var scene = new Scene(
+                fxmlLoader.load(),
+                size.height().get() > 0 ? size.width().get() : PREF_WIDTH,
+                size.height().get() > 0 ? size.height().get() : PREF_HEIGHT);
         stage.setTitle(TITLE);
         scene.getStylesheets().addAll("css/buttons.css", "css/mini/mini-player.css");
         stage.setScene(scene);
         PlatformApi.setHostServices(getHostServices());
         Accelerators.initialize(scene);
+        ApplicationCloseHandler.register(stage);
         ApplicationTitleUpdateListener.register(stage);
         stage.show();
     }

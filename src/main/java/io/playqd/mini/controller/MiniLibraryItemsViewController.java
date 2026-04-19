@@ -22,7 +22,6 @@ import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Region;
 import javafx.scene.layout.StackPane;
-import javafx.scene.layout.VBox;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -37,9 +36,6 @@ public class MiniLibraryItemsViewController {
     private static final Logger LOG = LoggerFactory.getLogger(MiniLibraryItemsViewController.class);
 
     private final ItemsNavigator itemsNavigator = new ItemsNavigator(this::onItemsNavigationChanged);
-
-    @FXML
-    private VBox miniLibraryItemsView;
 
     @FXML
     private ToolBar itemsTableHeaderToolBar;

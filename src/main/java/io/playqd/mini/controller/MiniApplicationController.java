@@ -3,12 +3,12 @@ package io.playqd.mini.controller;
 import io.playqd.mini.controller.navigator.NavigableItems;
 import io.playqd.mini.events.ApplicationEvent;
 import javafx.fxml.FXML;
-import javafx.scene.Node;
+import javafx.scene.layout.VBox;
 
 public class MiniApplicationController {
 
     @FXML
-    private Node miniApplicationVBox;
+    private VBox miniApplicationVBox;
 
     @FXML
     private MiniSearchBarController miniSearchBarController;
