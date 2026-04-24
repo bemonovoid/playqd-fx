@@ -1,9 +1,15 @@
 package io.playqd.mini.controller;
 
-import io.playqd.mini.controller.navigator.NavigableItems;
-import io.playqd.mini.events.ApplicationEvent;
+import java.util.function.Predicate;
+
 import javafx.fxml.FXML;
 import javafx.scene.layout.VBox;
+
+import io.playqd.mini.controller.item.LibraryItemRow;
+import io.playqd.mini.controller.navigator.NavigableItems;
+import io.playqd.mini.events.ApplicationEvent;
+import io.playqd.player.Player;
+import io.playqd.player.PlayerTrack;
 
 public class MiniApplicationController {
 
@@ -26,7 +32,8 @@ public class MiniApplicationController {
                 miniLibraryItemsViewController.showItems(resolveNavigableItems(searchScope, searchText)));
         miniPlayerViewController.setOnQueueViewToggle(selected -> {
             if (selected) {
-                miniLibraryItemsViewController.showItems(NavigableItemsResolver.resolveQueuedTracks());
+                miniLibraryItemsViewController.showItems(
+                        NavigableItemsResolver.resolveQueuedTracks(), selectIfPlaying());
             } else {
                 miniLibraryItemsViewController.refreshLastState();
             }
@@ -34,14 +41,15 @@ public class MiniApplicationController {
         miniLibraryItemsViewController.showItems(NavigableItemsResolver.resolveTracks());
     }
 
-    private NavigableItems resolveNavigableItems(SearchScope searchScope, String searchText) {
-        var token = searchText.toLowerCase();
+    private NavigableItems resolveNavigableItems(SearchScope searchScope, SearchToken token) {
         return switch (searchScope) {
             case ARTISTS -> NavigableItemsResolver.resolveSearchArtists(token);
             case ALBUMS -> NavigableItemsResolver.resolveSearchAlbums(token);
-            case TRACKS -> NavigableItemsResolver.resolveSearchTracks(token);
-            case PLAYLISTS -> NavigableItemsResolver.resolveSearchPlaylists(token);
             case COLLECTIONS -> NavigableItemsResolver.resolveSearchCollections(token);
+            case FOLDERS -> null;
+            case GENRES -> null;
+            case PLAYLISTS -> NavigableItemsResolver.resolveSearchPlaylists(token);
+            case TRACKS -> NavigableItemsResolver.resolveSearchTracks(token);
         };
     }
 
@@ -50,6 +58,13 @@ public class MiniApplicationController {
             event.consume();
             miniLibraryItemsViewController.showItems(event.getNavigableItems());
         });
+    }
+
+    private Predicate<LibraryItemRow> selectIfPlaying() {
+        return libraryItemRow -> Player.playerTrack()
+                .map(PlayerTrack::track)
+                .filter(track -> track.id() == libraryItemRow.getId())
+                .isPresent();
     }
 
 }

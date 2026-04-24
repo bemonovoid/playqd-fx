@@ -1,11 +1,12 @@
 package io.playqd.mini.controller.navigator;
 
+import java.util.List;
+
+import io.playqd.mini.controller.SearchToken;
 import io.playqd.mini.controller.item.AlbumItemRow;
 import io.playqd.mini.controller.item.FolderItemRow;
 import io.playqd.mini.controller.item.LibraryItemRow;
 import io.playqd.mini.controller.item.TrackItemRow;
-
-import java.util.List;
 
 public interface ItemsDescriptor {
 
@@ -94,39 +95,59 @@ public interface ItemsDescriptor {
         return new ItemDescriptorImpl(path, parent);
     }
 
-    static ItemsDescriptor forSearchArtists(String searchInput) {
-        if (searchInput.isEmpty()) {
+    static ItemsDescriptor forSearchArtists(SearchToken token) {
+        if (token.isEmpty()) {
             return new ItemDescriptorImpl("[search]/artists/*");
         }
-        return new ItemDescriptorImpl(String.format("[search]/artists/name/?contains=%s", searchInput));
+        var path =  switch (token.filterType()) {
+            case CONTAINS -> String.format("[search]/artists?nameContains=%s", token.value());
+            case STARTS_WITH -> String.format("[search]/artists?nameStartsWith=%s", token.value());
+        };
+        return new ItemDescriptorImpl(path);
     }
 
-    static ItemsDescriptor forSearchAlbums(String searchInput) {
-        if (searchInput.isEmpty()) {
+    static ItemsDescriptor forSearchAlbums(SearchToken token) {
+        if (token.isEmpty()) {
             return new ItemDescriptorImpl("[search]/albums/*");
         }
-        return new ItemDescriptorImpl(String.format("[search]/albums/name/?contains=%s", searchInput));
+        var path =  switch (token.filterType()) {
+            case CONTAINS -> String.format("[search]/albums?nameContains=%s", token.value());
+            case STARTS_WITH -> String.format("[search]/albums?nameStartsWith=%s", token.value());
+        };
+        return new ItemDescriptorImpl(path);
     }
 
-    static ItemsDescriptor forSearchTracks(String searchInput) {
-        if (searchInput.isEmpty()) {
+    static ItemsDescriptor forSearchTracks(SearchToken token) {
+        if (token.isEmpty()) {
             return new ItemDescriptorImpl("[search]/tracks/*");
         }
-        return new ItemDescriptorImpl(String.format("[search]/tracks/name/?contains=%s", searchInput));
+        var path =  switch (token.filterType()) {
+            case CONTAINS -> String.format("[search]/tracks?nameContains=%s", token.value());
+            case STARTS_WITH -> String.format("[search]/tracks?nameStartsWith=%s", token.value());
+        };
+        return new ItemDescriptorImpl(path);
     }
 
-    static ItemsDescriptor forSearchPlaylists(String searchInput) {
-        if (searchInput.isEmpty()) {
+    static ItemsDescriptor forSearchPlaylists(SearchToken token) {
+        if (token.isEmpty()) {
             return new ItemDescriptorImpl("[search]/playlists/*");
         }
-        return new ItemDescriptorImpl(String.format("[search]/playlists/name/?contains=%s", searchInput));
+        var path =  switch (token.filterType()) {
+            case CONTAINS -> String.format("[search]/playlists?nameContains=%s", token.value());
+            case STARTS_WITH -> String.format("[search]/playlists?nameStartsWith=%s", token.value());
+        };
+        return new ItemDescriptorImpl(path);
     }
 
-    static ItemsDescriptor forSearchCollections(String searchInput) {
-        if (searchInput.isEmpty()) {
+    static ItemsDescriptor forSearchCollections(SearchToken token) {
+        if (token.isEmpty()) {
             return new ItemDescriptorImpl("[search]/collections/*");
         }
-        return new ItemDescriptorImpl(String.format("[search]/collections/name/?contains=%s", searchInput));
+        var path =  switch (token.filterType()) {
+            case CONTAINS -> String.format("[search]/collections?nameContains=%s", token.value());
+            case STARTS_WITH -> String.format("[search]/collections?nameStartsWith=%s", token.value());
+        };
+        return new ItemDescriptorImpl(path);
     }
 
     static ItemsDescriptor empty() {

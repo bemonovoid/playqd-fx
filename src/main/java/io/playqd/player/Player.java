@@ -1,22 +1,24 @@
 package io.playqd.player;
 
-import io.playqd.data.Track;
-import io.playqd.service.MusicLibrary;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Optional;
+import java.util.function.Consumer;
+
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import uk.co.caprica.vlcj.factory.MediaPlayerFactory;
 import uk.co.caprica.vlcj.player.base.MediaPlayer;
+import uk.co.caprica.vlcj.player.base.State;
 import uk.co.caprica.vlcj.player.list.MediaListPlayer;
 import uk.co.caprica.vlcj.player.list.MediaListPlayerEventListener;
 import uk.co.caprica.vlcj.player.list.PlaybackMode;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Optional;
-import java.util.function.Consumer;
+import io.playqd.data.Track;
+import io.playqd.service.MusicLibrary;
 
 public class Player {
 
@@ -32,6 +34,7 @@ public class Player {
     static final SimpleBooleanProperty STOPPED_PROPERTY = new SimpleBooleanProperty();
     static final SimpleObjectProperty<Long> TIME_CHANGED_PROPERTY = new SimpleObjectProperty<>();
 
+    static int START_UP_TRACK_IDX_ON_MANUAL_PLAY_REQUEST = -1;
     static MediaListPlayerEventListener LIST_PLAYER_EVENT_LISTENER;
 
     private static final MediaListPlayer MEDIA_LIST_PLAYER;
@@ -54,22 +57,45 @@ public class Player {
     }
 
     /**
-     * Returns the most up-to-date track from cache
+     * Returns the track in player
+     *
      * @return
      */
-    public static Optional<Track> playingTrack() {
+    public static Optional<PlayerTrack> playerTrack() {
         return Optional.ofNullable((TrackRef) MEDIA_PLAYER.userData())
-                .map(tRef -> MusicLibrary.getTrackById(tRef.track().id()));
+                .map(tRef -> new PlayerTrack(MusicLibrary.getTrackById(tRef.track().id()), () -> {
+                    var status = PlayerTrackStatus.READY;
+                    if (isPlaying()) {
+                        status = PlayerTrackStatus.PLAYING;
+                    } else if (isPaused()) {
+                        status = PlayerTrackStatus.PAUSED;
+                    }
+                    return status;
+                }));
     }
 
-    static void enqueueAndPlay(TrackListRequest trackListRequest) {
+    /**
+     * Creates a new queue with these tracks. Previous queue is cleared and player state is reset.
+     * If autoPlay is set to true, will play a track at specified index from the queue that has just been created.
+     *
+     * @param trackListRequest
+     */
+    static void createNewQueueAndPlay(TrackListRequest trackListRequest) {
         var playTrackRef = enqueueNewList(trackListRequest);
+        preparePlayer(playTrackRef);
         if (trackListRequest.autoPlay()) {
-            play(trackListRequest.firstTrackPosition(), playTrackRef);
+            play(trackListRequest.firstTrackPosition());
+        } else {
+            START_UP_TRACK_IDX_ON_MANUAL_PLAY_REQUEST = trackListRequest.firstTrackPosition();
         }
     }
 
-    static void enqueue(TrackListRequest trackListRequest) {
+    /**
+     * Adds new tracks to the existing queue
+     *
+     * @param trackListRequest
+     */
+    static void addToQueue(TrackListRequest trackListRequest) {
         var trackRefs = mapTracksToRefs(trackListRequest.tracks());
         if (MEDIA_LIST_PLAYER.list().media() == null) {
             enqueueNewList(trackListRequest);
@@ -143,7 +169,7 @@ public class Player {
         LOG.info("Track was not found.");
     }
 
-    private static void play(int index, TrackRef trackRef) {
+    private static void resetListEventListener() {
         // Need to reset the listener when playing by index, otherwise the list listener triggers on previous mrl
         // preventing to grab current mrl correctly.
         // The listener is reset upon playing callback in media player listener.
@@ -151,7 +177,19 @@ public class Player {
             MEDIA_LIST_PLAYER.events().removeMediaListPlayerEventListener(LIST_PLAYER_EVENT_LISTENER);
             LIST_PLAYER_EVENT_LISTENER = null;
         }
+    }
+
+    private static void preparePlayer(TrackRef trackRef) {
+        resetListEventListener();
         MEDIA_LIST_PLAYER.mediaPlayer().mediaPlayer().userData(trackRef);
+    }
+
+    private static void play(int index, TrackRef trackRef) {
+        preparePlayer(trackRef);
+        play(index);
+    }
+
+    private static void play(int index) {
         MEDIA_LIST_PLAYER.controls().play(index);
     }
 
@@ -181,7 +219,10 @@ public class Player {
     }
 
     public static void resume() {
-        if (!isPlaying()) {
+        if (START_UP_TRACK_IDX_ON_MANUAL_PLAY_REQUEST >= 0) {
+            play(START_UP_TRACK_IDX_ON_MANUAL_PLAY_REQUEST);
+            START_UP_TRACK_IDX_ON_MANUAL_PLAY_REQUEST = -1;
+        } else if (!isPlaying()) {
             MEDIA_PLAYER.controls().setPause(false);
         }
         if (!isPlaying()) {
@@ -191,6 +232,10 @@ public class Player {
 
     public static boolean isPlaying() {
         return MEDIA_PLAYER.status().isPlaying();
+    }
+
+    public static boolean isPaused() {
+        return State.PAUSED == MEDIA_PLAYER.status().state();
     }
 
     public static void setVolume(int volume) {

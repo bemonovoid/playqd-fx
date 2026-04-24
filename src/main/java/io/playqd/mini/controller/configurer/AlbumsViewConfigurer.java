@@ -1,20 +1,26 @@
 package io.playqd.mini.controller.configurer;
 
-import io.playqd.mini.controller.ItemsTableColumnIds;
-import io.playqd.mini.controller.MiniLibraryItemsViewController;
-import io.playqd.mini.controller.NavigableItemsResolver;
-import io.playqd.mini.controller.factories.*;
-import io.playqd.mini.controller.item.AlbumItemRow;
-import io.playqd.mini.controller.item.LibraryItemRow;
-import io.playqd.mini.controller.navigator.ItemsDescriptor;
+import java.util.List;
+import java.util.Set;
+
 import javafx.scene.control.Label;
 import javafx.scene.control.TableView;
 import javafx.scene.layout.HBox;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.List;
-import java.util.Set;
+import io.playqd.data.Album;
+import io.playqd.mini.controller.ItemsTableColumnIds;
+import io.playqd.mini.controller.MiniLibraryItemsViewController;
+import io.playqd.mini.controller.NavigableItemsResolver;
+import io.playqd.mini.controller.factories.AlbumImageTableCellFactory;
+import io.playqd.mini.controller.factories.ImageTableCellFactory;
+import io.playqd.mini.controller.factories.MiscValueTableCellFactory;
+import io.playqd.mini.controller.factories.NameTableCellFactory;
+import io.playqd.mini.controller.factories.TracksCountTableCellFactory;
+import io.playqd.mini.controller.item.AlbumItemRow;
+import io.playqd.mini.controller.item.LibraryItemRow;
+import io.playqd.mini.controller.navigator.ItemsDescriptor;
 
 public sealed class AlbumsViewConfigurer extends DefaultItemsViewConfigurer permits ArtistAlbumsViewConfigurer {
 
@@ -27,12 +33,8 @@ public sealed class AlbumsViewConfigurer extends DefaultItemsViewConfigurer perm
     }
 
     @Override
-    protected Set<String> getExcludedColumns() {
-        return Set.of(ItemsTableColumnIds.TAGS_COL);
-    }
-
-    @Override
-    public void onItemsOpen(List<LibraryItemRow> items) {
+    public void onOpen(TableView<LibraryItemRow> tableView) {
+        var items = tableView.getSelectionModel().getSelectedItems();
         if (items.getFirst() instanceof AlbumItemRow albumItemRow) {
             controller.showItems(NavigableItemsResolver.resolveAlbumTracks(albumItemRow));
         }
@@ -44,8 +46,13 @@ public sealed class AlbumsViewConfigurer extends DefaultItemsViewConfigurer perm
     }
 
     @Override
-    protected DescriptionTableCellFactory getDescriptionTableCellFactory() {
-        return new HyperLinkTableCellFactory(NavigableItemsResolver::resolveArtistAlbums);
+    protected NameTableCellFactory getNameTableCellFactory() {
+        return new NameTableCellFactory(this, libraryItemRow -> {
+            if (libraryItemRow.getSource() instanceof Album album) {
+                return String.format("%s track%s", album.tracksCount(), album.tracksCount() > 1 ? "s" : "");
+            }
+            return null;
+        });
     }
 
     @Override

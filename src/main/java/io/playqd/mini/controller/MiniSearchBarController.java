@@ -16,7 +16,7 @@ public class MiniSearchBarController {
 
     private final AtomicBoolean wasInputAlreadyEmptied = new AtomicBoolean(false);
 
-    private BiConsumer<SearchScope, String> onSearchSubmit;
+    private BiConsumer<SearchScope, SearchToken> onSearchSubmit;
 
     @FXML
     private HBox searchInputLeftNode;
@@ -62,15 +62,21 @@ public class MiniSearchBarController {
                 } else if (inputText.equalsIgnoreCase(SearchScope.ALBUMS.shortcut())) {
                     clearSearchInputText();
                     showSearchScopeTag(SearchScope.ALBUMS);
-                } else if (inputText.equalsIgnoreCase(SearchScope.TRACKS.shortcut())) {
-                    clearSearchInputText();
-                    showSearchScopeTag(SearchScope.TRACKS);
-                } else if (inputText.equalsIgnoreCase(SearchScope.PLAYLISTS.shortcut())) {
-                    clearSearchInputText();
-                    showSearchScopeTag(SearchScope.PLAYLISTS);
                 } else if (inputText.equalsIgnoreCase(SearchScope.COLLECTIONS.shortcut())) {
                     clearSearchInputText();
                     showSearchScopeTag(SearchScope.COLLECTIONS);
+                } else if (inputText.equalsIgnoreCase(SearchScope.FOLDERS.shortcut())) {
+                    clearSearchInputText();
+                    showSearchScopeTag(SearchScope.FOLDERS);
+                } else if (inputText.equalsIgnoreCase(SearchScope.GENRES.shortcut())) {
+                    clearSearchInputText();
+                    showSearchScopeTag(SearchScope.GENRES);
+                } else if (inputText.equalsIgnoreCase(SearchScope.PLAYLISTS.shortcut())) {
+                    clearSearchInputText();
+                    showSearchScopeTag(SearchScope.PLAYLISTS);
+                } else if (inputText.equalsIgnoreCase(SearchScope.TRACKS.shortcut())) {
+                    clearSearchInputText();
+                    showSearchScopeTag(SearchScope.TRACKS);
                 }
             }
         } else if (KeyCode.ESCAPE == keyEvent.getCode()) {
@@ -85,7 +91,13 @@ public class MiniSearchBarController {
                 hideSearchScopeTagIfShown();
             }
         } else if (KeyCode.ENTER == keyEvent.getCode()) {
-            onSearchSubmit.accept(getSearchScope(), inputText);
+            var searchValue = inputText.toLowerCase();
+            var searchFilter = SearchFilter.CONTAINS;
+            if (searchValue.length() >= 2 && searchValue.charAt(0) == ':') {
+                searchValue = searchValue.substring(1);
+                searchFilter =  SearchFilter.STARTS_WITH;
+            }
+            onSearchSubmit.accept(getSearchScope(), new SearchToken(searchValue, searchFilter));
             searchInputLeftNode.requestFocus();
         }
     }
@@ -140,7 +152,7 @@ public class MiniSearchBarController {
         return label;
     }
 
-    void setOnSearchSubmit(BiConsumer<SearchScope, String> onSearchSubmit) {
+    void setOnSearchSubmit(BiConsumer<SearchScope, SearchToken> onSearchSubmit) {
         this.onSearchSubmit = onSearchSubmit;
     }
 

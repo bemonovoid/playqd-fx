@@ -9,10 +9,4 @@ public record PlayerProperties(@JsonProperty("state") PlayerStateProperties stat
         this(new PlayerStateProperties(), new DBusProperties());
     }
 
-//    @JsonCreator
-//    public PlayerProperties(@JsonProperty("state") PlayerStateProperties state,
-//                            @JsonProperty("dbus") DBusProperties dbus) {
-//        this(state, dbus);
-//    }
-
 }

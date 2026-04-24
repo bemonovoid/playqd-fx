@@ -17,6 +17,7 @@ import org.slf4j.LoggerFactory;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -37,9 +38,10 @@ public final class MusicLibrary {
     private static final ObservableMap<Long, MediaCollection> COLLECTION_CACHE =
             FXCollections.observableMap(new HashMap<>());
 
-    private static Map<Long, Track> TRACKS_CACHE;
+    private static final Map<Long, Track> TRACKS_CACHE = Collections.synchronizedMap(new HashMap<>());
 
     static {
+        getAllTracks();
         MusicLibraryScanServiceManager.scanResultProperty().addListener((_, _, scanDataResult) -> {
             scanDataResult.ifPresent(scanData -> {
                 if (scanData.added() + scanData.updated() + scanData.deleted() > 0) {
@@ -158,6 +160,7 @@ public final class MusicLibrary {
         var artistTrack = getTrackById(artistTrackId);
         return new ArrayList<>(getAllTracksStreamExcludingCueParent()
                 .filter(track -> track.artistName().equals(artistTrack.artistName()))
+                .sorted(TrackComparators.byAlbumAndTrackNumber())
                 .toList());
     }
 
@@ -166,6 +169,7 @@ public final class MusicLibrary {
         return new ArrayList<>(getAllTracksStreamExcludingCueParent()
                 .filter(track -> track.artistName().equals(albumTrack.artistName()))
                 .filter(track -> track.albumName().equals(albumTrack.albumName()))
+                .sorted(TrackComparators.trackInstanceNumberComparator())
                 .toList());
     }
 
@@ -187,7 +191,7 @@ public final class MusicLibrary {
     public static List<Track> getReactedTracks(Reaction reaction) {
         return new ArrayList<>(getAllTracksStreamExcludingCueParent()
                 .filter(t -> Reaction.NONE != reaction && t.reaction() == reaction)
-                .sorted(TrackComparators.byReactionDate())
+                .sorted(TrackComparators.byReactionDate().reversed())
                 .toList());
     }
 
@@ -203,7 +207,7 @@ public final class MusicLibrary {
 
     public static List<Playlist> getPlaylists() {
         if (PLAYLIST_CACHE.isEmpty()) {
-            PLAYLIST_CACHE.putAll(playqdClient().getPlaylists().stream()
+            PLAYLIST_CACHE.putAll(playlistApi().getAll().stream()
                     .collect(Collectors.toMap(Playlist::id, p -> p)));
         }
         return new ArrayList<>(PLAYLIST_CACHE.values());
@@ -218,29 +222,29 @@ public final class MusicLibrary {
     }
 
     public static Playlist createPlaylist(String name, List<Long> trackIds) {
-        var playlist = playqdClient().createPlaylist(name, trackIds);
+        var playlist = playlistApi().create(name, trackIds);
         PLAYLIST_CACHE.put(playlist.id(), playlist);
         return playlist;
     }
 
     public static Playlist getPlaylist(long id) {
-        return PLAYLIST_CACHE.computeIfAbsent(id, _ -> playqdClient().getPlaylist(id));
+        return PLAYLIST_CACHE.computeIfAbsent(id, _ -> playlistApi().get(id));
     }
 
     public static Playlist addTracksToPlaylist(long id, List<Long> trackIds) {
-        var playlist = playqdClient().addTracksToPlaylist(id, trackIds);
+        var playlist = playlistApi().addTracks(id, trackIds);
         PLAYLIST_CACHE.put(playlist.id(), playlist);
         return playlist;
     }
 
     public static void movePlaylistTracks(long fromPlaylistId, long toPlaylistId, List<Long> trackIds) {
-        playqdClient().movePlaylistAudioTracks(new MovePlaylistTracksRequest(fromPlaylistId, toPlaylistId, trackIds));
-        PLAYLIST_CACHE.put(fromPlaylistId, playqdClient().getPlaylist(fromPlaylistId));
-        PLAYLIST_CACHE.put(toPlaylistId, playqdClient().getPlaylist(toPlaylistId));
+        playlistApi().moveTracks(new MovePlaylistTracksRequest(fromPlaylistId, toPlaylistId, trackIds));
+        PLAYLIST_CACHE.put(fromPlaylistId, playlistApi().get(fromPlaylistId));
+        PLAYLIST_CACHE.put(toPlaylistId, playlistApi().get(toPlaylistId));
     }
 
     public static Playlist removeTracksFromPlaylist(long id, List<Long> trackIds) {
-        var playlist = playqdClient().removeTracksFromPlaylist(id, trackIds);
+        var playlist = playlistApi().removeTracks(id, trackIds);
         PLAYLIST_CACHE.put(playlist.id(), playlist);
         return playlist;
     }
@@ -252,17 +256,17 @@ public final class MusicLibrary {
     }
 
     public static void deletePlaylist(long id) {
-        playqdClient().deletePlaylist(id);
+        playlistApi().delete(id);
         PLAYLIST_CACHE.remove(id);
     }
 
     public static void deletePlaylists(List<Long> ids) {
-        playqdClient().deletePlaylists(ids);
+        playlistApi().delete(ids);
         ids.forEach(PLAYLIST_CACHE::remove);
     }
 
     public static Playlist updatePlaylist(long id, String newName) {
-        var updated = playqdClient().updatePlaylist(new UpdatePlaylistRequest(id, newName));
+        var updated = playlistApi().update(new UpdatePlaylistRequest(id, newName));
         PLAYLIST_CACHE.put(updated.id(), updated);
         return updated;
     }
@@ -338,6 +342,10 @@ public final class MusicLibrary {
         return watchFoldersApi().geItemByLocation(location);
     }
 
+    public static List<WatchFolderItem> getWatchFolderItemsByLocation(String location, ItemType itemType) {
+        return watchFoldersApi().getChildrenItemsByLocation(location, itemType);
+    }
+
     private static void updateTrackInCache(List<Track> tracks) {
         tracks.forEach(track -> TRACKS_CACHE.put(track.id(), track));
         setUpdatedTracksProperty(tracks);
@@ -348,10 +356,12 @@ public final class MusicLibrary {
     }
 
     private static Map<Long, Track> getTracksFromCache() {
-        if (TRACKS_CACHE == null || TRACKS_CACHE.isEmpty()) {
+        if (TRACKS_CACHE.isEmpty()) {
             LOG.info("Music library cache is empty, retrieving item from server ...");
-            return TRACKS_CACHE = getTracksFromServer().stream()
+            var tracksFromServer = getTracksFromServer().stream()
                     .collect(Collectors.toMap(Track::id, Function.identity()));
+            LOG.info("Retrieved and cached {} tracks from server", tracksFromServer.size());
+            TRACKS_CACHE.putAll(tracksFromServer);
         }
         return TRACKS_CACHE;
     }
@@ -380,6 +390,10 @@ public final class MusicLibrary {
 
     private static PlayqdClient playqdClient() {
         return PlayqdClientProvider.get();
+    }
+
+    private static PlayqdClient.PlaylistApi playlistApi() {
+        return playqdClient().playlists();
     }
 
     private static PlayqdClient.CollectionsApi collectionsApi() {

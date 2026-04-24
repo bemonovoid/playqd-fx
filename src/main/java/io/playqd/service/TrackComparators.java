@@ -1,8 +1,8 @@
 package io.playqd.service;
 
-import io.playqd.data.Track;
-
 import java.util.Comparator;
+
+import io.playqd.data.Track;
 
 public final class TrackComparators {
 

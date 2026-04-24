@@ -9,18 +9,18 @@ import java.util.List;
 public class PlayerTrackListManager {
 
     /**
-     * Replaces current list (if exists) with the new list and starts playing from the given index if requested
+     * Creates new queue and starts playing from the given index.
      */
-    public static void enqueueAndPlay(TrackListRequest request) {
-        Player.enqueueAndPlay(request);
+    public static void enqueue(TrackListRequest request) {
+        Player.createNewQueueAndPlay(request);
     }
 
     public static void addNext(List<Track> tracks) {
-        Player.enqueue(new TrackListRequest(trackList().size(), tracks)); //todo resolve next idx
+        Player.addToQueue(new TrackListRequest(trackList().size(), tracks)); //todo resolve next idx
     }
 
     public static void addLast(List<Track> tracks) {
-        Player.enqueue(new TrackListRequest(trackList().size(), tracks));
+        Player.addToQueue(new TrackListRequest(trackList().size(), tracks));
     }
 
     /**

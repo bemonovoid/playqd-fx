@@ -3,7 +3,6 @@ package io.playqd.mini.controller.factories;
 import io.playqd.mini.controller.item.LibraryItemRow;
 import javafx.scene.control.TableCell;
 import javafx.scene.control.TableColumn;
-import javafx.scene.control.cell.TextFieldTableCell;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import org.slf4j.Logger;
@@ -13,40 +12,29 @@ public abstract class RemoteImageTableCellFactory extends ImageTableCellFactory 
 
     private static final Logger LOG = LoggerFactory.getLogger(RemoteImageTableCellFactory.class);
 
-    private static final int IMAGE_SIZE = 20;
+    private static final int IMAGE_SIZE = 30;
 
-    protected abstract Image getImage(long itemId, int size);
-
-    protected abstract Image getDefaultImage(long itemId, int size, boolean updateCache);
+    protected abstract Image getImage(LibraryItemRow row, int size);
 
     @Override
     public TableCell<LibraryItemRow, Long> call(TableColumn<LibraryItemRow, Long> param) {
 
-        return new TextFieldTableCell<>() {
+        return new TableCell<>() {
 
             private final ImageView imageView = new ImageView();
 
+            {
+                imageView.setCache(true);
+            }
+
             @Override
-            public void updateItem(Long trackId, boolean empty) {
-                super.updateItem(trackId, empty);
-                if (trackId != null || !isEmpty()) {
-                    setText(null);
-                    var image = getImage(trackId, IMAGE_SIZE);
-                    if (image == null) {
-                        imageView.setImage(getDefaultImage(trackId, IMAGE_SIZE, false));
-                    } else {
-                        imageView.setImage(image);
-                        image.errorProperty().addListener((_, _, hasError) -> {
-                            if (hasError) {
-                                var defaultImage = getDefaultImage(trackId, IMAGE_SIZE, true);
-                                imageView.setImage(defaultImage);
-                            }
-                        });
-                    }
+            public void updateItem(Long itemId, boolean empty) {
+                super.updateItem(itemId, empty);
+                if (itemId != null && !isEmpty()) {
+                    imageView.setImage(getImage(getTableRow().getItem(), IMAGE_SIZE));
                     setGraphic(imageView);
                 }
             }
         };
     }
-
 }

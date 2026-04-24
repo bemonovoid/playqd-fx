@@ -1,22 +1,29 @@
 package io.playqd.mini.controller;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.UUID;
+import java.util.function.Predicate;
+import java.util.stream.Collectors;
+
 import de.jensd.fx.glyphs.fontawesome.FontAwesomeIcon;
 import de.jensd.fx.glyphs.fontawesome.FontAwesomeIconView;
-import io.playqd.data.Track;
-import io.playqd.event.MouseEventHelper;
-import io.playqd.mini.controller.configurer.ItemsViewConfigurerFactory;
-import io.playqd.mini.controller.item.LibraryItemRow;
-import io.playqd.mini.controller.item.TrackItemRow;
-import io.playqd.mini.controller.navigator.ItemsNavigator;
-import io.playqd.mini.controller.navigator.NavigableItems;
-import io.playqd.mini.custom.ConfirmDeleteRowItemsDialog;
-import io.playqd.service.MusicLibrary;
-import io.playqd.utils.ClipboardHelper;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.fxml.FXML;
 import javafx.geometry.Pos;
-import javafx.scene.control.*;
+import javafx.scene.control.Button;
+import javafx.scene.control.ContextMenu;
+import javafx.scene.control.Label;
+import javafx.scene.control.Menu;
+import javafx.scene.control.MenuButton;
+import javafx.scene.control.MenuItem;
+import javafx.scene.control.SelectionMode;
+import javafx.scene.control.SeparatorMenuItem;
+import javafx.scene.control.TableRow;
+import javafx.scene.control.TableView;
+import javafx.scene.control.ToolBar;
+import javafx.scene.control.Tooltip;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.HBox;
@@ -25,11 +32,18 @@ import javafx.scene.layout.StackPane;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.UUID;
-import java.util.function.Predicate;
-import java.util.stream.Collectors;
+import io.playqd.data.Track;
+import io.playqd.event.MouseEventHelper;
+import io.playqd.mini.controller.configurer.ItemsViewConfigurerFactory;
+import io.playqd.mini.controller.item.LibraryItemRow;
+import io.playqd.mini.controller.item.QueuedTrackItemRow;
+import io.playqd.mini.controller.item.TrackItemRow;
+import io.playqd.mini.controller.navigator.ItemsNavigator;
+import io.playqd.mini.controller.navigator.NavigableItems;
+import io.playqd.mini.custom.ConfirmDeleteRowItemsDialog;
+import io.playqd.player.Player;
+import io.playqd.service.MusicLibrary;
+import io.playqd.utils.ClipboardHelper;
 
 public class MiniLibraryItemsViewController {
 
@@ -53,9 +67,6 @@ public class MiniLibraryItemsViewController {
     private TableView<LibraryItemRow> tableView;
 
     @FXML
-    private TableColumn<LibraryItemRow, String> nameCol, descriptionCol, tagsCol, miscValueCol;
-
-    @FXML
     private Label itemPathFooterLabel, footerLabel;
 
     @FXML
@@ -68,6 +79,7 @@ public class MiniLibraryItemsViewController {
         initRowFactories();
         initKeyPressedHandlers();
         initLibraryEventHandlers();
+        initPlayerEventHandlers();
     }
 
     private void initTableHeaderProperties() {
@@ -161,8 +173,7 @@ public class MiniLibraryItemsViewController {
             row.setOnMouseClicked(e -> {
                 if (!row.isEmpty()) {
                     if (MouseEventHelper.primaryButtonDoubleClicked(e)) {
-                        var selectedItems = tableView.getSelectionModel().getSelectedItems();
-                        ItemsViewConfigurerFactory.get(row.getItem().getClass(), this).onItemsOpen(selectedItems);
+                        ItemsViewConfigurerFactory.get(row.getItem().getClass(), this).onOpen(tableView);
                     } else if (MouseEventHelper.secondaryButtonSingleClicked(e)) {
                         showContextMenu(e, row);
                     }
@@ -191,12 +202,12 @@ public class MiniLibraryItemsViewController {
                 moveBack(); //TODO move to foldersview
             } else if (keyCode == KeyCode.ENTER) {
                 var selectedItems = tableView.getSelectionModel().getSelectedItems();
-                ItemsViewConfigurerFactory.get(selectedItems.getFirst().getClass(), this).onItemsOpen(selectedItems);
+                ItemsViewConfigurerFactory.get(selectedItems.getFirst().getClass(), this).onOpen(tableView);
                 keyEvent.consume();
             } else if (keyCode == KeyCode.DELETE || keyCode == KeyCode.F8) {
                 var selectedItems = tableView.getSelectionModel().getSelectedItems();
                 var onItemsDeleteOpt =
-                        ItemsViewConfigurerFactory.get(selectedItems.getFirst().getClass(), this).onItemsDelete();
+                        ItemsViewConfigurerFactory.get(selectedItems.getFirst().getClass(), this).onDelete();
                 onItemsDeleteOpt.ifPresent(itemsConsumer -> {
                     var confirmed = ConfirmDeleteRowItemsDialog.confirmDelete(selectedItems);
                     if (confirmed) {
@@ -211,19 +222,44 @@ public class MiniLibraryItemsViewController {
     private void initLibraryEventHandlers() {
         MusicLibrary.updatedTracksProperty().addListener((_, _, newValue) -> {
             if (newValue != null && newValue.tracks() != null && !newValue.tracks().isEmpty()) {
-                if (!tableView.getItems().isEmpty() && tableView.getItems().getFirst() instanceof TrackItemRow) {
-                    var updatedTracks = newValue.tracks().stream().collect(Collectors.toMap(Track::id, t -> t));
-                    for (int i = 0; i < tableView.getItems().size(); i++) {
-                        var trackRowItem = (TrackItemRow) tableView.getItems().get(i);
-                        var updatedTrack = updatedTracks.get(trackRowItem.getId());
-                        if (updatedTrack != null) {
-                            trackRowItem.setTrack(updatedTrack);
-                            // This will trigger cell update and reset the tags icons
-                            trackRowItem.setTags(UUID.randomUUID().toString());
+                Platform.runLater(() -> {
+                    if (!tableView.getItems().isEmpty() && tableView.getItems().getFirst() instanceof TrackItemRow) {
+                        var updatedTracks = newValue.tracks().stream().collect(Collectors.toMap(Track::id, t -> t));
+                        for (int i = 0; i < tableView.getItems().size(); i++) {
+                            var trackRowItem = (TrackItemRow) tableView.getItems().get(i);
+                            var updatedTrack = updatedTracks.get(trackRowItem.getId());
+                            if (updatedTrack != null) {
+                                trackRowItem.setTrack(updatedTrack);
+                                // This will trigger cell update and reset the status icons
+                                trackRowItem.setStatus(UUID.randomUUID().toString());
+                            }
                         }
                     }
-                }
+                });
             }
+        });
+    }
+
+    private void initPlayerEventHandlers() {
+        Player.onPlayingTrackChanged(track -> {
+            Platform.runLater(() -> {
+                if (!tableView.getItems().isEmpty()
+                        && tableView.getItems().getFirst() instanceof QueuedTrackItemRow queuedTrackItemRow) {
+                    var selectedIdx = tableView.getSelectionModel().getSelectedIndex();
+                    var playingTrackIdx = -1;
+                    for (int i = 0; i < tableView.getItems().size(); i++) {
+                        if (tableView.getItems().get(i).getId() == track.id()) {
+                            playingTrackIdx = i;
+                            break;
+                        }
+                    }
+                    if (selectedIdx != playingTrackIdx) {
+                        tableView.getSelectionModel().clearSelection();
+                        tableView.getSelectionModel().select(playingTrackIdx);
+                        tableView.scrollTo(playingTrackIdx);
+                    }
+                }
+            });
         });
     }
 
@@ -274,13 +310,13 @@ public class MiniLibraryItemsViewController {
         showItems(navigableItems, navigableItems.descriptor().isPresent());
     }
 
+    public void showItems(NavigableItems navigableItems, Predicate<LibraryItemRow> selectItemIf) {
+        showItems(navigableItems, navigableItems.descriptor().isPresent(), selectItemIf);
+    }
+
     private void showItems(NavigableItems navigableItems, boolean saveState) {
         LOG.info("Showing items for path: {}", navigableItems.descriptor().path());
         showItems(navigableItems, saveState, null);
-    }
-
-    public void showItems(NavigableItems navigableItems, Predicate<LibraryItemRow> selectItemIf) {
-        showItems(navigableItems, navigableItems.descriptor().isPresent(), selectItemIf);
     }
 
     private void showItems(NavigableItems navigableItems, boolean saveState, Predicate<LibraryItemRow> selectItemIf) {

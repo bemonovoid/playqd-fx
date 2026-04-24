@@ -23,9 +23,9 @@ public sealed interface ItemsViewConfigurer permits DefaultItemsViewConfigurer {
 
     void configureFooter(TableView<LibraryItemRow> tableView, Label footerLabel);
 
-    void onItemsOpen(List<LibraryItemRow> items);
+    void onOpen(TableView<LibraryItemRow> tableView);
 
-    default Optional<Consumer<List<LibraryItemRow>>> onItemsDelete() {
+    default Optional<Consumer<List<LibraryItemRow>>> onDelete() {
         return Optional.empty();
     }
 

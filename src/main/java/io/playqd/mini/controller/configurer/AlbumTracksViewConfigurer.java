@@ -1,9 +1,16 @@
 package io.playqd.mini.controller.configurer;
 
-import io.playqd.mini.controller.MiniLibraryItemsViewController;
-import io.playqd.mini.controller.navigator.ItemsDescriptor;
 import javafx.scene.control.Label;
+import javafx.scene.control.TableView;
 import javafx.scene.layout.HBox;
+
+import io.playqd.data.Track;
+import io.playqd.mini.controller.MiniLibraryItemsViewController;
+import io.playqd.mini.controller.item.LibraryItemRow;
+import io.playqd.mini.controller.item.TrackItemRow;
+import io.playqd.mini.controller.navigator.ItemsDescriptor;
+import io.playqd.player.PlayerTrackListManager;
+import io.playqd.player.TrackListRequest;
 
 public final class AlbumTracksViewConfigurer extends TracksViewConfigurer {
 
@@ -16,4 +23,8 @@ public final class AlbumTracksViewConfigurer extends TracksViewConfigurer {
         headerLeft.getChildren().add(new Label("Album tracks:"));
     }
 
+    @Override
+    public void onOpen(TableView<LibraryItemRow> tableView) {
+        enqueueAll(tableView);
+    }
 }

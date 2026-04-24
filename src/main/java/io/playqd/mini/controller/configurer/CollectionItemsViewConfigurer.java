@@ -1,13 +1,12 @@
 package io.playqd.mini.controller.configurer;
 
+import io.playqd.data.MediaCollectionItem;
 import io.playqd.data.MediaItemType;
-import io.playqd.mini.controller.ItemsTableColumnIds;
 import io.playqd.mini.controller.MiniLibraryItemsViewController;
 import io.playqd.mini.controller.NavigableItemsResolver;
 import io.playqd.mini.controller.factories.CollectionItemImageTableCellFactory;
-import io.playqd.mini.controller.factories.DescriptionTableCellFactory;
 import io.playqd.mini.controller.factories.ImageTableCellFactory;
-import io.playqd.mini.controller.factories.MiscValueTableCellFactory;
+import io.playqd.mini.controller.factories.NameTableCellFactory;
 import io.playqd.mini.controller.item.CollectionChildItemRow;
 import io.playqd.mini.controller.item.LibraryItemRow;
 import io.playqd.mini.controller.item.PlaylistItemRow;
@@ -18,14 +17,13 @@ import io.playqd.service.MusicLibrary;
 import javafx.geometry.Insets;
 import javafx.scene.control.Hyperlink;
 import javafx.scene.control.Label;
+import javafx.scene.control.TableView;
 import javafx.scene.layout.HBox;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
-import java.util.Set;
 import java.util.function.Consumer;
 
 public final class CollectionItemsViewConfigurer extends DefaultItemsViewConfigurer {
@@ -37,18 +35,18 @@ public final class CollectionItemsViewConfigurer extends DefaultItemsViewConfigu
     }
 
     @Override
-    protected Set<String> getExcludedColumns() {
-        return Set.of(ItemsTableColumnIds.TAGS_COL);
-    }
-
-    @Override
-    protected Map<String, String> getColumnNameOverrides() {
-        return Map.of(ItemsTableColumnIds.MISC_VALUE_COL, "Item type");
-    }
-
-    @Override
     protected ImageTableCellFactory geImageTableCellFactory() {
         return new CollectionItemImageTableCellFactory();
+    }
+
+    @Override
+    protected NameTableCellFactory getNameTableCellFactory() {
+        return new NameTableCellFactory(this, libraryItemRow -> {
+            if (libraryItemRow.getSource() instanceof MediaCollectionItem item) {
+                return item.itemType().name();
+            }
+            return null;
+        });
     }
 
     @Override
@@ -62,12 +60,13 @@ public final class CollectionItemsViewConfigurer extends DefaultItemsViewConfigu
     }
 
     @Override
-    public void onItemsOpen(List<LibraryItemRow> items) {
+    public void onOpen(TableView<LibraryItemRow> tableView) {
+        var items = tableView.getSelectionModel().getSelectedItems();
         if (items.getFirst() instanceof CollectionChildItemRow collectionChildItemRow) {
             var itemMediaType = collectionChildItemRow.getSource().itemType();
             if (MediaItemType.TRACK == itemMediaType) {
                 var track = MusicLibrary.getTrackById(Long.parseLong(collectionChildItemRow.getSource().refId()));
-                PlayerTrackListManager.enqueueAndPlay(new TrackListRequest(track));
+                PlayerTrackListManager.enqueue(new TrackListRequest(track));
             }
         } else {
             LOG.warn("Unexpected item type: {}. Expected type: {}", items.getFirst().getClass(), PlaylistItemRow.class);
@@ -75,7 +74,7 @@ public final class CollectionItemsViewConfigurer extends DefaultItemsViewConfigu
     }
 
     @Override
-    public Optional<Consumer<List<LibraryItemRow>>> onItemsDelete() {
+    public Optional<Consumer<List<LibraryItemRow>>> onDelete() {
         return Optional.of(libraryItemRows -> {
             if (libraryItemRows.getFirst() instanceof CollectionChildItemRow collectionChildItemRow) {
                 var collectionId = collectionChildItemRow.getSource().collectionId();

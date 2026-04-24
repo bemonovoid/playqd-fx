@@ -1,21 +1,22 @@
 package io.playqd.config;
 
-import com.fasterxml.jackson.annotation.JsonCreator;
-import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-import io.playqd.config.serializer.IntegerPropertySerializer;
-import io.playqd.config.serializer.LongPropertySerializer;
-import javafx.beans.property.IntegerProperty;
-import javafx.beans.property.LongProperty;
-import javafx.beans.property.SimpleIntegerProperty;
-import javafx.beans.property.SimpleLongProperty;
-
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-public record PlayerStateProperties(@JsonSerialize(using = IntegerPropertySerializer.class)
-                                    IntegerProperty volume,
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import javafx.beans.property.DoubleProperty;
+import javafx.beans.property.LongProperty;
+import javafx.beans.property.SimpleDoubleProperty;
+import javafx.beans.property.SimpleLongProperty;
+
+import io.playqd.config.serializer.DoublePropertySerializer;
+import io.playqd.config.serializer.LongPropertySerializer;
+
+public record PlayerStateProperties(@JsonSerialize(using = DoublePropertySerializer.class)
+                                    DoubleProperty volume,
                                     @JsonSerialize(using = LongPropertySerializer.class)
                                     LongProperty lastPlayedTrackId,
                                     List<Long> tracklist) {
@@ -25,11 +26,11 @@ public record PlayerStateProperties(@JsonSerialize(using = IntegerPropertySerial
     }
 
     @JsonCreator
-    public PlayerStateProperties(@JsonProperty("volume") int volume,
+    public PlayerStateProperties(@JsonProperty("volume") double volume,
                                  @JsonProperty("lastPlayedTrackId") Long lastPlayedTrackId,
                                  @JsonProperty("tracklist") List<Long> tracklist) {
         this(
-                new SimpleIntegerProperty(volume),
+                new SimpleDoubleProperty(volume),
                 new SimpleLongProperty(lastPlayedTrackId != null ? lastPlayedTrackId : -1),
                 tracklist != null ? new ArrayList<>(tracklist) : Collections.emptyList());
     }

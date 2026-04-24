@@ -1,5 +1,8 @@
 package io.playqd.client;
 
+import io.playqd.data.Album;
+import io.playqd.data.Artist;
+import io.playqd.data.Track;
 import javafx.scene.image.Image;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -23,7 +26,7 @@ public final class Images {
     private static final Image DEFAULT_ALBUM_IMG = new Image(DEFAULT_ALBUM_IMG_URL, 19, 19, true, true, true);
 
     private static final Map<String, Image> ARTIST_IMAGES = new HashMap<>();
-    private static final Map<String, Image> ALBUM_IMAGES = new HashMap<>();
+    private static final Map<String, Image> IMAGES = new HashMap<>();
     private static final Map<Integer, Image> DEFAULT_ARTIST_IMAGES = new HashMap<>();
     private static final Map<Integer, Image> DEFAULT_ALBUM_IMAGES = new HashMap<>();
     private static final Map<Integer, Image> DEFAULT_AUDIO_FILE_IMAGES = new HashMap<>();
@@ -32,7 +35,7 @@ public final class Images {
         DEFAULT_ARTIST_IMAGES.clear();
         DEFAULT_ALBUM_IMAGES.clear();
         ARTIST_IMAGES.clear();
-        ALBUM_IMAGES.clear();
+        IMAGES.clear();
     }
 
     public static Image artist(long artistId) {
@@ -49,13 +52,18 @@ public final class Images {
     }
 
     public static Image album(long albumId, int size) {
-        return ALBUM_IMAGES.computeIfAbsent(albumId + ":" + size, _ -> getImage(PlayqdApis.trackArtwork(albumId), size));
+        return IMAGES.computeIfAbsent(albumId + ":" + size, _ -> getImage(PlayqdApis.trackArtwork(albumId), size));
     }
+
+    public static Image album(long trackId, String imageId, int size) {
+        return IMAGES.computeIfAbsent(imageId + ":" + size, _ -> getImage(PlayqdApis.trackArtwork(trackId), size));
+    }
+
 
     public static Image track(long albumId, int size) {
         var key = albumId + ":" + size;
-        if (ALBUM_IMAGES.containsKey(key)) {
-            var image = ALBUM_IMAGES.get(key);
+        if (IMAGES.containsKey(key)) {
+            var image = IMAGES.get(key);
             if (image.getUrl().contains("no-album")) {
                 return DEFAULT_AUDIO_FILE_IMG;
             }
@@ -63,8 +71,54 @@ public final class Images {
         return album(albumId, size);
     }
 
+
     public static Image allArtistsImage() {
         return ALL_ARTIST_IMAGE;
+    }
+
+    public static Image getImage(Track track, int size) {
+        var key = track.artistName() + "-" + track.albumName() + ":" + size;
+        var image = IMAGES.get(key);
+        if (image == null) {
+            image = new Image(PlayqdApis.trackArtwork(track.id()), size, size, true, true, true);
+            image.errorProperty().addListener((_, _, hasError) -> {
+               if (hasError != null && hasError) {
+                   IMAGES.put(key, DEFAULT_AUDIO_FILE_IMG);
+               }
+            });
+            IMAGES.put(key, image);
+        }
+        return image;
+    }
+
+    public static Image getImage(Album album, int size) {
+        var key = album.artistName() + "-" + album.name() + ":" + size;
+        var image = IMAGES.get(key);
+        if (image == null) {
+            image = new Image(PlayqdApis.trackArtwork(album.id()), size, size, true, true, true);
+            image.errorProperty().addListener((_, _, hasError) -> {
+                if (hasError != null && hasError) {
+                    IMAGES.put(key, DEFAULT_AUDIO_FILE_IMG);
+                }
+            });
+            IMAGES.put(key, image);
+        }
+        return image;
+    }
+
+    public static Image getImage(Artist artist, int size) {
+        var key = artist.name() + ":" + size;
+        var image = IMAGES.get(key);
+        if (image == null) {
+            image = new Image(PlayqdApis.artistArtwork(artist.id()), size, size, true, true, true);
+            image.errorProperty().addListener((_, _, hasError) -> {
+                if (hasError != null && hasError) {
+                    IMAGES.put(key, DEFAULT_AUDIO_FILE_IMG);
+                }
+            });
+            IMAGES.put(key, image);
+        }
+        return image;
     }
 
     public static Image defaultArtist(int size) {
@@ -99,7 +153,7 @@ public final class Images {
     }
 
     public static void setAlbum(long albumId, Image image, int size) {
-        ALBUM_IMAGES.put(albumId + ":" + size, image);
+        IMAGES.put(albumId + ":" + size, image);
     }
 
     public static boolean isDefaultImage(String url) {

@@ -28,8 +28,8 @@ final class QuickNavigationMenuItems {
         playlists.setOnAction(_ -> node.fireEvent(new NavigationEvent(NavigableItemsResolver.resolvePlaylists())));
         collections.setOnAction(_ -> node.fireEvent(new NavigationEvent(NavigableItemsResolver.resolveCollections())));
         allTracks.setOnAction(_ -> node.fireEvent(new NavigationEvent(NavigableItemsResolver.resolveTracks())));
-        likedTracks.setOnAction(_ -> node.fireEvent(new NavigationEvent(NavigableItemsResolver.resolveTracks())));
-        playedTracks.setOnAction(_ -> node.fireEvent(new NavigationEvent(NavigableItemsResolver.resolveTracks())));
+        likedTracks.setOnAction(_ -> node.fireEvent(new NavigationEvent(NavigableItemsResolver.resolveLikedTracks())));
+        playedTracks.setOnAction(_ -> node.fireEvent(new NavigationEvent(NavigableItemsResolver.resolvePlayedTracks())));
         folders.setOnAction(_ -> node.fireEvent(new NavigationEvent(NavigableItemsResolver.resolveWatchFolders())));
 
         var menuItems = List.of(

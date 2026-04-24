@@ -61,7 +61,7 @@ public class PlayerTrackListViewController extends PlayerTrackListView {
             setItems(tracks);
             return 0;
         }
-        var playingTrackIdx = Player.playingTrack().map(playingTrack -> trackListView.getItems().indexOf(playingTrack));
+        var playingTrackIdx = Player.playerTrack().map(playingTrack -> trackListView.getItems().indexOf(playingTrack));
         if (playingTrackIdx.isPresent()) {
             var insertIndex = playingTrackIdx.get() + 1;
             trackListView.getItems().addAll(insertIndex, tracks);
@@ -118,7 +118,7 @@ public class PlayerTrackListViewController extends PlayerTrackListView {
                     }
                 }
             }
-            PlayerTrackListManager.enqueueAndPlay(new TrackListRequest(startIdx, tracks, false));
+            PlayerTrackListManager.enqueue(new TrackListRequest(startIdx, tracks, false));
             trackListView.getSelectionModel().select(startIdx);
             updateTrackInfoView(tracks.get(startIdx));
             //TODO update player toolbar

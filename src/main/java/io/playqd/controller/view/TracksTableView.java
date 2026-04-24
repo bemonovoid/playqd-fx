@@ -26,9 +26,7 @@ import org.slf4j.LoggerFactory;
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.*;
-import java.util.function.Function;
 import java.util.function.Supplier;
-import java.util.stream.Collectors;
 
 public class TracksTableView extends TableView<TrackTableRow> {
 
@@ -181,7 +179,7 @@ public class TracksTableView extends TableView<TrackTableRow> {
                         var items = getSelectionModel().getSelectedItems();
                         if (!items.isEmpty()) {
                             var trackListReq = new TrackListRequest(items.stream().map(TrackTableRow::track).toList());
-                            PlayerTrackListManager.enqueueAndPlay(trackListReq);
+                            PlayerTrackListManager.enqueue(trackListReq);
                         }
                     }
                 }
@@ -190,7 +188,7 @@ public class TracksTableView extends TableView<TrackTableRow> {
                     var items = getSelectionModel().getSelectedItems();
                     if (!items.isEmpty()) {
                         var trackListReq = new TrackListRequest(items.stream().map(TrackTableRow::track).toList());
-                        PlayerTrackListManager.enqueueAndPlay(trackListReq);
+                        PlayerTrackListManager.enqueue(trackListReq);
                     }
                 }
             }

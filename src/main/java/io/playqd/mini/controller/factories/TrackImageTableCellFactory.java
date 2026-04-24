@@ -1,21 +1,17 @@
 package io.playqd.mini.controller.factories;
 
 import io.playqd.client.Images;
+import io.playqd.data.Track;
+import io.playqd.mini.controller.item.LibraryItemRow;
 import javafx.scene.image.Image;
 
 public final class TrackImageTableCellFactory extends RemoteImageTableCellFactory {
 
     @Override
-    protected Image getImage(long itemId, int size) {
-       return Images.track(itemId, size);
-    }
-
-    @Override
-    protected Image getDefaultImage(long itemId, int size, boolean updateCache) {
-        var defaultImage = Images.defaultAudioFile(size);
-        if (updateCache) {
-            Images.setAlbum(itemId, defaultImage, size);
+    protected Image getImage(LibraryItemRow row, int size) {
+        if (row.getSource() instanceof Track track) {
+            return Images.getImage(track, size);
         }
-        return defaultImage;
+        return null;
     }
 }

@@ -40,6 +40,10 @@ public final class ShowInContextMenuItemsBuilder {
                 .build();
     }
 
+    public static ShowInContextMenuItemsBuilder builder() {
+        return new ShowInContextMenuItemsBuilder(null);
+    }
+
     public ShowInContextMenuItemsBuilder inFolder(List<LibraryItemRow> items) {
         var canShowInFolder = items.size() == 1 && (items.getFirst() instanceof TrackItemRow);
         if (!canShowInFolder) {

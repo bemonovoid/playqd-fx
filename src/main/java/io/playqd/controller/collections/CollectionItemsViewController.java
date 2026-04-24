@@ -92,7 +92,7 @@ public class CollectionItemsViewController {
             }
             case TRACK -> {
                 var trackId = Long.parseLong(item.refId());
-                PlayerTrackListManager.enqueueAndPlay(new TrackListRequest(MusicLibrary.getTrackById(trackId)));
+                PlayerTrackListManager.enqueue(new TrackListRequest(MusicLibrary.getTrackById(trackId)));
             }
             case PLAYLIST -> {
             }

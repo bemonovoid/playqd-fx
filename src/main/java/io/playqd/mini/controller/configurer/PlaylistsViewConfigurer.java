@@ -1,19 +1,13 @@
 package io.playqd.mini.controller.configurer;
 
-import io.playqd.controller.playlists.PlaylistDialog;
-import io.playqd.mini.controller.ItemsTableColumnIds;
-import io.playqd.mini.controller.MiniLibraryItemsViewController;
-import io.playqd.mini.controller.NavigableItemsResolver;
-import io.playqd.mini.controller.factories.ImageTableCellFactory;
-import io.playqd.mini.controller.factories.MiscValueTableCellFactory;
-import io.playqd.mini.controller.factories.PlaylistImageTableCellFactory;
-import io.playqd.mini.controller.factories.TracksCountTableCellFactory;
-import io.playqd.mini.controller.item.LibraryItemRow;
-import io.playqd.mini.controller.item.PlaylistItemRow;
-import io.playqd.mini.controller.item.PlaylistTrackItemRow;
-import io.playqd.mini.controller.navigator.ItemsDescriptor;
-import io.playqd.mini.custom.ConfirmDeleteRowItemsDialog;
-import io.playqd.service.MusicLibrary;
+import java.time.Duration;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
+import java.util.function.Consumer;
+import java.util.function.Supplier;
+import java.util.stream.Collectors;
+
 import javafx.scene.control.Label;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.TableView;
@@ -22,13 +16,23 @@ import org.kordamp.ikonli.javafx.FontIcon;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
-import java.util.function.Consumer;
-import java.util.function.Supplier;
-import java.util.stream.Collectors;
+import io.playqd.controller.playlists.PlaylistDialog;
+import io.playqd.data.Playlist;
+import io.playqd.data.PlaylistTrack;
+import io.playqd.mini.controller.MiniLibraryItemsViewController;
+import io.playqd.mini.controller.NavigableItemsResolver;
+import io.playqd.mini.controller.factories.ImageTableCellFactory;
+import io.playqd.mini.controller.factories.MiscValueTableCellFactory;
+import io.playqd.mini.controller.factories.NameTableCellFactory;
+import io.playqd.mini.controller.factories.PlaylistImageTableCellFactory;
+import io.playqd.mini.controller.factories.TracksCountTableCellFactory;
+import io.playqd.mini.controller.item.LibraryItemRow;
+import io.playqd.mini.controller.item.PlaylistItemRow;
+import io.playqd.mini.controller.item.PlaylistTrackItemRow;
+import io.playqd.mini.controller.navigator.ItemsDescriptor;
+import io.playqd.mini.custom.ConfirmDeleteRowItemsDialog;
+import io.playqd.service.MusicLibrary;
+import io.playqd.utils.TimeUtils;
 
 public final class PlaylistsViewConfigurer extends DefaultItemsViewConfigurer {
 
@@ -41,6 +45,19 @@ public final class PlaylistsViewConfigurer extends DefaultItemsViewConfigurer {
     @Override
     protected ImageTableCellFactory geImageTableCellFactory() {
         return new PlaylistImageTableCellFactory();
+    }
+
+    @Override
+    protected NameTableCellFactory getNameTableCellFactory() {
+        return new NameTableCellFactory(this, libraryItemRow -> {
+            if (libraryItemRow.getSource() instanceof Playlist playlist) {
+                var totalTime = playlist.tracks().stream().mapToInt(PlaylistTrack::lengthInSeconds).sum();
+                return String.format("%s track%s, %s",
+                        playlist.tracks().size(), playlist.tracks().size() > 1 ? "s" : "",
+                        TimeUtils.durationToTimeFormat(Duration.ofSeconds(totalTime)));
+            }
+            return null;
+        });
     }
 
     @Override
@@ -91,7 +108,8 @@ public final class PlaylistsViewConfigurer extends DefaultItemsViewConfigurer {
     }
 
     @Override
-    public void onItemsOpen(List<LibraryItemRow> items) {
+    public void onOpen(TableView<LibraryItemRow> tableView) {
+        var items = tableView.getSelectionModel().getSelectedItems();
         if (items.getFirst() instanceof PlaylistItemRow playlistItemRow) {
             controller.showItems(NavigableItemsResolver.resolvePlaylistTracks(playlistItemRow));
         } else {
@@ -100,14 +118,9 @@ public final class PlaylistsViewConfigurer extends DefaultItemsViewConfigurer {
     }
 
     @Override
-    public Optional<Consumer<List<LibraryItemRow>>> onItemsDelete() {
+    public Optional<Consumer<List<LibraryItemRow>>> onDelete() {
         return Optional.of(libraryItemRows -> libraryItemRows.stream()
                 .filter(item -> item instanceof PlaylistItemRow)
                 .forEach(item -> MusicLibrary.deletePlaylist(item.getId())));
-    }
-
-    @Override
-    protected Set<String> getExcludedColumns() {
-        return Set.of(ItemsTableColumnIds.DESCRIPTION_COL, ItemsTableColumnIds.TAGS_COL);
     }
 }

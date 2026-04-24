@@ -1,37 +1,53 @@
 package io.playqd.mini.controller;
 
+import java.util.HashSet;
+import java.util.List;
+import java.util.function.Consumer;
+
 import de.jensd.fx.glyphs.fontawesome.FontAwesomeIcon;
 import de.jensd.fx.glyphs.fontawesome.FontAwesomeIconView;
-import io.playqd.client.Images;
-import io.playqd.data.Reaction;
-import io.playqd.data.Track;
-import io.playqd.event.MouseEventHelper;
-import io.playqd.mini.controller.item.TrackItemRow;
-import io.playqd.mini.events.NavigationEvent;
-import io.playqd.player.Player;
-import io.playqd.service.MusicLibrary;
-import io.playqd.utils.ImagePopup;
-import io.playqd.utils.TimeUtils;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.geometry.Pos;
-import javafx.scene.control.*;
+import javafx.scene.control.Button;
+import javafx.scene.control.Hyperlink;
+import javafx.scene.control.Label;
+import javafx.scene.control.Slider;
+import javafx.scene.control.ToggleButton;
+import javafx.scene.control.Tooltip;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
+import javafx.util.Duration;
 import org.kordamp.ikonli.fontawesome6.FontAwesomeRegular;
 import org.kordamp.ikonli.fontawesome6.FontAwesomeSolid;
 import org.kordamp.ikonli.javafx.FontIcon;
 
-import java.util.List;
-import java.util.function.Consumer;
+import io.playqd.client.Images;
+import io.playqd.config.AppConfig;
+import io.playqd.data.Reaction;
+import io.playqd.data.Track;
+import io.playqd.event.MouseEventHelper;
+import io.playqd.mini.controller.item.TrackItemRow;
+import io.playqd.mini.events.NavigationEvent;
+import io.playqd.player.Player;
+import io.playqd.player.PlayerTrack;
+import io.playqd.player.PlayerTrackListManager;
+import io.playqd.player.TrackListRequest;
+import io.playqd.service.MusicLibrary;
+import io.playqd.utils.ImagePopup;
+import io.playqd.utils.TimeUtils;
 
 public class MiniPlayerViewController {
 
+    private double unMuteVolume = -1;
     private Consumer<Boolean> onQueueViewToggle;
+
+    @FXML
+    private VBox root;
 
     @FXML
     private VBox miniPlayerView;
@@ -46,7 +62,7 @@ public class MiniPlayerViewController {
     private Label releaseDateLabel, genreLabel, trackNameLabel, trackLengthLabel, timeElapsedLabel;
 
     @FXML
-    private Slider trackSlider;
+    private Slider trackSlider, volumeSlider;
 
     @FXML
     private HBox leftControls, centerControls, rightControls;
@@ -55,11 +71,13 @@ public class MiniPlayerViewController {
     private ToggleButton toggleQueueView;
 
     @FXML
-    private Button reactionBtn, playPrevBtn, playBtn, playNextBtn;
+    private Button reactionBtn, playPrevBtn, playBtn, playNextBtn, volumeBtn;
 
     @FXML
     private void initialize() {
+        initPlayerState();
         initSlider();
+        initVolumeSlider();
         initPlayerControls();
         initPlayerEventListeners();
         initLibraryEventListeners();
@@ -69,14 +87,14 @@ public class MiniPlayerViewController {
     private void onArtworkImageClicked(MouseEvent mouseEvent) {
         if (MouseEventHelper.primaryButtonDoubleClicked(mouseEvent)) {
             if (!artworkImageView.getImage().getUrl().contains("no-album")) {
-                Player.playingTrack().ifPresent(ImagePopup::show);
+                Player.playerTrack().map(PlayerTrack::track).ifPresent(ImagePopup::show);
             }
         }
     }
 
     @FXML
     private void onArtistNameClicked() {
-        Player.playingTrack().ifPresent(track -> {
+        Player.playerTrack().map(PlayerTrack::track).ifPresent(track -> {
             var navItems = NavigableItemsResolver.resolveArtistAlbums(new TrackItemRow(track));
             miniPlayerView.fireEvent(new NavigationEvent(navItems));
         });
@@ -84,7 +102,7 @@ public class MiniPlayerViewController {
 
     @FXML
     private void onAlbumNameClicked() {
-        Player.playingTrack().ifPresent(track -> {
+        Player.playerTrack().map(PlayerTrack::track).ifPresent(track -> {
             var navItems = NavigableItemsResolver.resolveAlbumTracks(new TrackItemRow(track));
             miniPlayerView.fireEvent(new NavigationEvent(navItems));
         });
@@ -92,24 +110,42 @@ public class MiniPlayerViewController {
 
     @FXML
     private void changeReaction() {
-        Player.playingTrack().ifPresent(track -> {
+        Player.playerTrack().map(PlayerTrack::track).ifPresent(track -> {
             var reaction = Reaction.THUMB_UP == track.reaction() ? Reaction.NONE : Reaction.THUMB_UP;
             MusicLibrary.updateReaction(List.of(track.id()), reaction);
         });
     }
 
+    private void initPlayerState() {
+        var lastPlayedTrackIdProp = AppConfig.getProperties().player().state().lastPlayedTrackId();
+        var lastPlayingQueue = new HashSet<>(AppConfig.getProperties().player().state().tracklist());
+        if (lastPlayedTrackIdProp != null) {
+            var playerTrack = MusicLibrary.getTrackById(lastPlayedTrackIdProp.get());
+            updateArtwork(playerTrack);
+            updateTitle(playerTrack);
+            var tracks = MusicLibrary.getTracksById(lastPlayingQueue);
+            var startIdx = 0;
+            for (int i = 0; i < tracks.size(); i++) {
+                if (tracks.get(i).id() == playerTrack.id()) {
+                    startIdx = i;
+                    break;
+                }
+            }
+            PlayerTrackListManager.enqueue(new TrackListRequest(startIdx, tracks, false));
+        }
+    }
+
     private void initSlider() {
-        trackSlider.setOnMouseClicked(_ -> {
-            Player.playingTrack()
-                    .filter(Track::isCueTrack)
-                    .ifPresentOrElse(track -> {
-                        var parentTrack = MusicLibrary.getTrackById(track.realId());
-                        var seekCueTime = trackSlider.getValue() * (track.length().seconds());
-                        var seekParentTime = (track.startSecond()) + seekCueTime;
-                        var seekPosition = seekParentTime / (parentTrack.length().seconds());
-                        Player.seek((float) seekPosition);
-                    }, () -> Player.seek((float) trackSlider.getValue()));
-        });
+        trackSlider.setOnMouseClicked(_ -> Player.playerTrack()
+                .map(PlayerTrack::track)
+                .filter(Track::isCueTrack)
+                .ifPresentOrElse(track -> {
+                    var parentTrack = MusicLibrary.getTrackById(track.realId());
+                    var seekCueTime = trackSlider.getValue() * (track.length().seconds());
+                    var seekParentTime = (track.startSecond()) + seekCueTime;
+                    var seekPosition = seekParentTime / (parentTrack.length().seconds());
+                    Player.seek((float) seekPosition);
+                }, () -> Player.seek((float) trackSlider.getValue())));
         trackSlider.addEventFilter(MouseEvent.MOUSE_DRAGGED, MouseEvent::consume);
         trackSlider.valueProperty().addListener((_, _, newValue) -> {
             var percentage = newValue.doubleValue() * 100;
@@ -118,6 +154,32 @@ public class MiniPlayerViewController {
             );
             trackSlider.lookup(".track").setStyle(style);
         });
+    }
+
+    private void initVolumeSlider() {
+        var savedVolumeProperty = AppConfig.getProperties().player().state().volume();
+        var savedVolume = savedVolumeProperty.get();
+
+        var tooltip = new Tooltip();
+        tooltip.setShowDelay(Duration.millis(100));
+
+        volumeSlider.setTooltip(tooltip);
+        volumeSlider.valueProperty().addListener((_, _, newValue) -> {
+            var newVolume = newValue.intValue();
+            var lowVolumeLevel = 30;
+            if (newVolume <= 0) {
+                volumeBtn.setGraphic(FontIcon.of(FontAwesomeSolid.VOLUME_MUTE, 12));
+            } else if (newVolume <= lowVolumeLevel) {
+                volumeBtn.setGraphic(FontIcon.of(FontAwesomeSolid.VOLUME_DOWN, 12));
+            } else {
+                volumeBtn.setGraphic(FontIcon.of(FontAwesomeSolid.VOLUME_UP, 12));
+            }
+            tooltip.setText("" + newVolume);
+            Player.setVolume(newVolume);
+        });
+        volumeSlider.setValue(savedVolume);
+        Player.setVolume((int) savedVolume);
+        savedVolumeProperty.bind(volumeSlider.valueProperty());
     }
 
     private void initPlayerControls() {
@@ -163,8 +225,10 @@ public class MiniPlayerViewController {
     private void initLibraryEventListeners() {
         MusicLibrary.updatedTracksProperty().addListener((_, _, newValue) -> {
             if (newValue != null && newValue.tracks() != null && newValue.tracks().size() == 1) {
-                var track = newValue.tracks().getFirst();
-                updateReactionButton(track);
+                Platform.runLater(() -> {
+                    var track = newValue.tracks().getFirst();
+                    updateReactionButton(track);
+                });
             }
         });
     }
@@ -201,7 +265,8 @@ public class MiniPlayerViewController {
 
     private void updateSliderElapsedTime(long newTime) {
         if (newTime > 1000) {
-            Player.playingTrack()
+            Player.playerTrack()
+                    .map(PlayerTrack::track)
                     .filter(Track::isCueTrack)
                     .ifPresentOrElse(track -> {
                         // the 'newTime' is relative to parent track
@@ -216,9 +281,10 @@ public class MiniPlayerViewController {
     }
 
     private void updateSliderPosition(double newValue) {
-        Player.playingTrack()
+        Player.playerTrack()
                 // cue tracks are supposed to have parent id.
                 // slider position for cue tracks is updated upon time changed callback.
+                .map(PlayerTrack::track)
                 .filter(track -> track.parentId() == null)
                 .ifPresent(_ -> trackSlider.setValue(newValue));
     }
@@ -270,5 +336,15 @@ public class MiniPlayerViewController {
     private void playPrevious() {
         var hasNext = Player.playPrevious();
         playPrevBtn.setDisable(!hasNext);
+    }
+
+    @FXML
+    private void volumeOnOff() {
+        if (volumeSlider.getValue() > 0) {
+            unMuteVolume = volumeSlider.getValue();
+            volumeSlider.setValue(0);
+        } else {
+            volumeSlider.setValue(unMuteVolume < 0 ? 50 : unMuteVolume);
+        }
     }
 }

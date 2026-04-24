@@ -106,7 +106,7 @@ public class FolderItemsTableViewController {
                             .map(WatchFolderItem::path)
                             .collect(Collectors.toSet());
                     var tracks = MusicLibrary.getTracksByPaths(selectedItemPaths);
-                    PlayerTrackListManager.enqueueAndPlay(new TrackListRequest(tracks));
+                    PlayerTrackListManager.enqueue(new TrackListRequest(tracks));
                 } else if (MouseEventHelper.secondaryButtonSingleClicked(e)) {
                     if (row.getContextMenu() == null) {
                         var collectionsMenuItems = new CollectionsMenuItems()

@@ -26,7 +26,7 @@
     <CustomTextField fx:id="searchInputTextFld"
                      focusTraversable="false"
                      prefHeight="30"
-                     promptText="Search library"
+                     promptText="Search in:  'a' | 'aa' | 'c' | 'f' | 'g' | 'p' | 't' + Tab"
                      HBox.hgrow="ALWAYS"
                      left="$searchInputLeftNode"/>
 

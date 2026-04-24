@@ -6,11 +6,15 @@ public enum SearchScope {
 
     ALBUMS("Albums", "aa"),
 
-    TRACKS("Tracks", "t"),
+    COLLECTIONS("Collections", "c"),
+
+    FOLDERS("Folders", "f"),
+
+    GENRES("Genres", "g"),
 
     PLAYLISTS("Playlists", "p"),
 
-    COLLECTIONS("Collections", "c");
+    TRACKS("Tracks", "t");
 
     private final String displayText;
     private final String shortcut;

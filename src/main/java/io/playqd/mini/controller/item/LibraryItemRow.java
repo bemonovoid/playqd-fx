@@ -13,7 +13,7 @@ public abstract sealed class LibraryItemRow permits
         CollectionChildItemRow {
 
     private final StringProperty miscValue;
-    private final StringProperty tags = new SimpleStringProperty("");
+    private final StringProperty status = new SimpleStringProperty("");
 
     protected LibraryItemRow() {
         this(new SimpleStringProperty(""));
@@ -31,8 +31,8 @@ public abstract sealed class LibraryItemRow permits
         return "";
     }
 
-    public final StringProperty getTags() {
-        return tags;
+    public final StringProperty getStatus() {
+        return status;
     }
 
     public final StringProperty getMiscValue() {
@@ -43,8 +43,8 @@ public abstract sealed class LibraryItemRow permits
         this.miscValue.set(miscValue);
     }
 
-    public final void setTags(String tags) {
-        this.tags.set(tags);
+    public final void setStatus(String status) {
+        this.status.set(status);
     }
 
     public abstract Object getSource();

@@ -1,5 +1,17 @@
 package io.playqd.mini.controller.configurer;
 
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
+
+import javafx.scene.control.Label;
+import javafx.scene.control.TableView;
+import javafx.scene.layout.HBox;
+import org.apache.commons.io.FileUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import io.playqd.client.PlayqdApis;
 import io.playqd.data.ItemType;
 import io.playqd.data.WatchFolderItem;
@@ -9,6 +21,7 @@ import io.playqd.mini.controller.NavigableItemsResolver;
 import io.playqd.mini.controller.factories.FileSizeTableCellFactory;
 import io.playqd.mini.controller.factories.ImageTableCellFactory;
 import io.playqd.mini.controller.factories.MiscValueTableCellFactory;
+import io.playqd.mini.controller.factories.NameTableCellFactory;
 import io.playqd.mini.controller.factories.WatchFolderItemImageTableCellFactory;
 import io.playqd.mini.controller.item.ArtistItemRow;
 import io.playqd.mini.controller.item.FolderItemRow;
@@ -18,16 +31,6 @@ import io.playqd.platform.PlatformApi;
 import io.playqd.player.PlayerTrackListManager;
 import io.playqd.player.TrackListRequest;
 import io.playqd.service.MusicLibrary;
-import javafx.scene.control.Label;
-import javafx.scene.control.TableView;
-import javafx.scene.layout.HBox;
-import org.apache.commons.io.FileUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import java.util.List;
-import java.util.Set;
-import java.util.stream.Collectors;
 
 public final class FoldersViewConfigurer extends DefaultItemsViewConfigurer {
 
@@ -38,12 +41,17 @@ public final class FoldersViewConfigurer extends DefaultItemsViewConfigurer {
     }
 
     @Override
-    protected Set<String> getExcludedColumns() {
-        return Set.of(ItemsTableColumnIds.DESCRIPTION_COL, ItemsTableColumnIds.TAGS_COL);
+    protected Set<String> getIncludedColumns() {
+        return Set.of(ItemsTableColumnIds.MISC_VALUE_COL);
+    }
+
+    protected Map<String, String> getColumnNameOverrides() {
+        return Map.of(ItemsTableColumnIds.MISC_VALUE_COL, "Size");
     }
 
     @Override
-    public void onItemsOpen(List<LibraryItemRow> items) {
+    public void onOpen(TableView<LibraryItemRow> tableView) {
+        var items =  tableView.getSelectionModel().getSelectedItems();
         if (items.getFirst() instanceof FolderItemRow folderItemRow) {
             if (ItemType.FOLDER == folderItemRow.getSource().itemType()) {
                 controller.showItems(NavigableItemsResolver.resolveWatchFolderItems(folderItemRow));
@@ -63,6 +71,40 @@ public final class FoldersViewConfigurer extends DefaultItemsViewConfigurer {
     @Override
     protected ImageTableCellFactory geImageTableCellFactory() {
         return new WatchFolderItemImageTableCellFactory();
+    }
+
+    @Override
+    protected NameTableCellFactory getNameTableCellFactory() {
+        return new NameTableCellFactory(this, libraryItemRow -> {
+            if (libraryItemRow.getSource() instanceof WatchFolderItem wfi) {
+                var childrenCount = wfi.totalChildItemsCount();
+                if (wfi.children().isEmpty()) {
+                    if (wfi.itemType().isFile()) {
+                        return wfi.mimeType();
+                    }
+                    return "<empty>";
+                }
+                var foldersCount = wfi.childFoldersCount();
+                var filesCount = childrenCount - foldersCount;
+                var foldersText = foldersCount > 0 ? foldersCount + " folder" : "";
+                if (!foldersText.isEmpty()) {
+                    foldersText += foldersCount > 1 ? "s" : "";
+                }
+                var filesText = filesCount > 0 ? filesCount + " file" : "";
+                if (!filesText.isEmpty()) {
+                    filesText += filesCount > 1 ? "s" : "";
+                }
+
+                if (foldersText.isEmpty()) {
+                    return filesText;
+                }
+                if (filesText.isEmpty()) {
+                    return foldersText;
+                }
+                return foldersText + ", " + filesText;
+            }
+            return null;
+        });
     }
 
     @Override
@@ -100,6 +142,6 @@ public final class FoldersViewConfigurer extends DefaultItemsViewConfigurer {
                 .map(WatchFolderItem::path)
                 .collect(Collectors.toSet());
         var tracks = MusicLibrary.getTracksByPaths(selectedItemPaths);
-        PlayerTrackListManager.enqueueAndPlay(new TrackListRequest(tracks));
+        PlayerTrackListManager.enqueue(new TrackListRequest(tracks));
     }
 }

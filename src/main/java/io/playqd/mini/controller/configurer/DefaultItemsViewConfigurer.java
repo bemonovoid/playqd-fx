@@ -1,13 +1,12 @@
 package io.playqd.mini.controller.configurer;
 
-import io.playqd.mini.controller.ItemsTableColumnIds;
-import io.playqd.mini.controller.MiniLibraryItemsViewController;
-import io.playqd.mini.controller.factories.DescriptionTableCellFactory;
-import io.playqd.mini.controller.factories.ImageTableCellFactory;
-import io.playqd.mini.controller.factories.MiscValueTableCellFactory;
-import io.playqd.mini.controller.factories.TagsTableCellFactory;
-import io.playqd.mini.controller.item.LibraryItemRow;
-import io.playqd.mini.controller.navigator.ItemsDescriptor;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.function.Supplier;
+
 import javafx.scene.control.Label;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.TableColumn;
@@ -15,11 +14,14 @@ import javafx.scene.control.TableView;
 import javafx.scene.control.cell.TextFieldTableCell;
 import javafx.scene.layout.HBox;
 
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.function.Supplier;
+import io.playqd.mini.controller.ItemsTableColumnIds;
+import io.playqd.mini.controller.MiniLibraryItemsViewController;
+import io.playqd.mini.controller.factories.ImageTableCellFactory;
+import io.playqd.mini.controller.factories.MiscValueTableCellFactory;
+import io.playqd.mini.controller.factories.NameTableCellFactory;
+import io.playqd.mini.controller.factories.StatusTableCellFactory;
+import io.playqd.mini.controller.item.LibraryItemRow;
+import io.playqd.mini.controller.navigator.ItemsDescriptor;
 
 sealed abstract class DefaultItemsViewConfigurer implements ItemsViewConfigurer permits
         ArtistsViewConfigurer,
@@ -49,7 +51,7 @@ sealed abstract class DefaultItemsViewConfigurer implements ItemsViewConfigurer 
     @Override
     public void configureColumns(TableView<LibraryItemRow> tableView) {
         tableView.getColumns().forEach(col -> {
-            if (getExcludedColumns().contains(col.getId())) {
+            if (!getAllIncludedColumns().contains(col.getId())) {
                 col.setVisible(false);
                 return;
             } else {
@@ -59,21 +61,17 @@ sealed abstract class DefaultItemsViewConfigurer implements ItemsViewConfigurer 
                 @SuppressWarnings("unchecked")
                 var imageCol = (TableColumn<LibraryItemRow, Long>) col;
                 imageCol.setCellFactory(geImageTableCellFactory());
-            } else if (col.getId().equals(ItemsTableColumnIds.DESCRIPTION_COL)) {
+            } else if (col.getId().equals(ItemsTableColumnIds.NAME_COL)) {
                 @SuppressWarnings("unchecked")
-                var descriptionCol = (TableColumn<LibraryItemRow, String>) col;
-                if (getDescriptionTableCellFactory() == null) {
-                    descriptionCol.setCellFactory(TextFieldTableCell.forTableColumn());
-                } else {
-                    descriptionCol.setCellFactory(getDescriptionTableCellFactory());
-                }
-            } else if (col.getId().equals(ItemsTableColumnIds.TAGS_COL)) {
+                var nameCol = (TableColumn<LibraryItemRow, String>) col;
+                nameCol.setCellFactory(getNameTableCellFactory());
+            } else if (col.getId().equals(ItemsTableColumnIds.STATUS_COL)) {
                 @SuppressWarnings("unchecked")
-                var tagsCol = (TableColumn<LibraryItemRow, String>) col;
-                if (getTagsTableCellFactory() == null) {
-                    tagsCol.setCellFactory(TextFieldTableCell.forTableColumn());
+                var statusCol = (TableColumn<LibraryItemRow, String>) col;
+                if (getStatusTableCellFactory() == null) {
+                    statusCol.setCellFactory(TextFieldTableCell.forTableColumn());
                 } else {
-                    tagsCol.setCellFactory(getTagsTableCellFactory());
+                    statusCol.setCellFactory(getStatusTableCellFactory());
                 }
             } else if (col.getId().equals(ItemsTableColumnIds.MISC_VALUE_COL)) {
                 @SuppressWarnings("unchecked")
@@ -98,7 +96,7 @@ sealed abstract class DefaultItemsViewConfigurer implements ItemsViewConfigurer 
         }
     }
 
-    protected Set<String> getExcludedColumns() {
+    protected Set<String> getIncludedColumns() {
         return Collections.emptySet();
     }
 
@@ -118,11 +116,9 @@ sealed abstract class DefaultItemsViewConfigurer implements ItemsViewConfigurer 
 
     protected abstract ImageTableCellFactory geImageTableCellFactory();
 
-    protected DescriptionTableCellFactory getDescriptionTableCellFactory() {
-        return null;
-    }
+    protected abstract NameTableCellFactory getNameTableCellFactory();
 
-    protected TagsTableCellFactory getTagsTableCellFactory() {
+    protected StatusTableCellFactory getStatusTableCellFactory() {
         return null;
     }
 
@@ -134,5 +130,13 @@ sealed abstract class DefaultItemsViewConfigurer implements ItemsViewConfigurer 
 
     protected void configureHeaderRight(TableView<LibraryItemRow> tableView, HBox headerRight) {
 
+    }
+
+    private Set<String> getAllIncludedColumns() {
+        var included = new HashSet<String>();
+        included.add(ItemsTableColumnIds.IMAGE_COL);
+        included.add(ItemsTableColumnIds.NAME_COL);
+        included.addAll(getIncludedColumns());
+        return included;
     }
 }

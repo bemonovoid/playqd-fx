@@ -57,33 +57,27 @@
         </styleClass>
         <columns>
             <TableColumn fx:id="imageCol" text="Img" style="-fx-alignment: CENTER"
-                         reorderable="false" sortable="false" editable="false" minWidth="25" maxWidth="25">
+                         reorderable="false" sortable="false" editable="false" minWidth="30" maxWidth="30">
                 <cellValueFactory>
                     <PropertyValueFactory property="id"/>
                 </cellValueFactory>
             </TableColumn>
 
-            <TableColumn fx:id="nameCol" text="Name" sortable="false" editable="false" minWidth="100">
+            <TableColumn fx:id="nameCol" text="Name" sortable="false" editable="false" minWidth="100" style="-fx-padding: 0 0 0 5">
                 <cellValueFactory>
                     <PropertyValueFactory property="name"/>
                 </cellValueFactory>
             </TableColumn>
 
-            <TableColumn fx:id="descriptionCol" text="Details" sortable="false" editable="false" minWidth="100">
-                <cellValueFactory>
-                    <PropertyValueFactory property="description"/>
-                </cellValueFactory>
-            </TableColumn>
-
-            <TableColumn fx:id="tagsCol" text="Tags" sortable="false" editable="false" style="-fx-alignment: CENTER"
+            <TableColumn fx:id="statusCol" text="Status" sortable="false" editable="false" style="-fx-alignment: CENTER"
                          minWidth="60" maxWidth="60">
                 <cellValueFactory>
-                    <PropertyValueFactory property="tags"/>
+                    <PropertyValueFactory property="status"/>
                 </cellValueFactory>
             </TableColumn>
 
             <TableColumn fx:id="miscValueCol" sortable="false" editable="false" visible="false"
-                         style="-fx-alignment: CENTER-RIGHT" minWidth="50" maxWidth="80">
+                         style="-fx-alignment: CENTER-RIGHT" minWidth="50" maxWidth="70">
                 <cellValueFactory>
                     <PropertyValueFactory property="miscValue"/>
                 </cellValueFactory>

@@ -42,7 +42,7 @@ public class CachesConfigView extends VBox implements ConfigView {
     @FXML
     private void invalidateCaches() {
         if (allCachesToggle.isSelected()) {
-            PlayqdClientProvider.get().evictCaches();
+            PlayqdClientProvider.get().caches().evictCaches();
             Platform.runLater(() -> {
                 try {
                     TimeUnit.SECONDS.sleep(5);

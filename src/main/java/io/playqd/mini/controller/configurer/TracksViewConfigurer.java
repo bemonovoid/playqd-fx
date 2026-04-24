@@ -1,17 +1,12 @@
 package io.playqd.mini.controller.configurer;
 
-import io.playqd.data.Track;
-import io.playqd.mini.controller.ItemsTableColumnIds;
-import io.playqd.mini.controller.MiniLibraryItemsViewController;
-import io.playqd.mini.controller.NavigableItemsResolver;
-import io.playqd.mini.controller.factories.*;
-import io.playqd.mini.controller.item.LibraryItemRow;
-import io.playqd.mini.controller.item.TrackItemRow;
-import io.playqd.mini.controller.item.contextmenu.ContextMenuItemsBuilder;
-import io.playqd.mini.controller.navigator.ItemsDescriptor;
-import io.playqd.player.PlayerTrackListManager;
-import io.playqd.player.TrackListRequest;
-import io.playqd.utils.TimeUtils;
+import java.text.NumberFormat;
+import java.time.Duration;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.function.Supplier;
+
 import javafx.scene.control.Label;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.TableColumn;
@@ -21,11 +16,21 @@ import org.apache.commons.io.FileUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.text.NumberFormat;
-import java.time.Duration;
-import java.util.List;
-import java.util.Map;
-import java.util.function.Supplier;
+import io.playqd.data.Track;
+import io.playqd.mini.controller.ItemsTableColumnIds;
+import io.playqd.mini.controller.MiniLibraryItemsViewController;
+import io.playqd.mini.controller.factories.ImageTableCellFactory;
+import io.playqd.mini.controller.factories.NameTableCellFactory;
+import io.playqd.mini.controller.factories.StatusTableCellFactory;
+import io.playqd.mini.controller.factories.TrackImageTableCellFactory;
+import io.playqd.mini.controller.factories.TrackStatusTableCellFactory;
+import io.playqd.mini.controller.item.LibraryItemRow;
+import io.playqd.mini.controller.item.TrackItemRow;
+import io.playqd.mini.controller.item.contextmenu.ContextMenuItemsBuilder;
+import io.playqd.mini.controller.navigator.ItemsDescriptor;
+import io.playqd.player.PlayerTrackListManager;
+import io.playqd.player.TrackListRequest;
+import io.playqd.utils.TimeUtils;
 
 public sealed class TracksViewConfigurer extends DefaultItemsViewConfigurer permits
         ArtistTracksViewConfigurer,
@@ -44,19 +49,22 @@ public sealed class TracksViewConfigurer extends DefaultItemsViewConfigurer perm
         super.configureColumns(tableView);
         tableView.getColumns()
                 .forEach(col -> {
-                    if (col.getId().equals(ItemsTableColumnIds.TAGS_COL)) {
-                        col.setVisible(true);
+                    if (col.getId().equals(ItemsTableColumnIds.STATUS_COL)) {
                         @SuppressWarnings("unchecked")
-                        var tagsCol = (TableColumn<LibraryItemRow, String>) col;
-                        tagsCol.setCellValueFactory(c -> c.getValue().getTags());
+                        var statusCol = (TableColumn<LibraryItemRow, String>) col;
+                        statusCol.setCellValueFactory(c -> c.getValue().getStatus());
                     }
                     if (col.getId().equals(ItemsTableColumnIds.MISC_VALUE_COL)) {
-                        col.setVisible(true);
                         @SuppressWarnings("unchecked")
                         var miscValueCol = (TableColumn<LibraryItemRow, String>) col;
                         miscValueCol.setCellValueFactory(c -> c.getValue().getMiscValue());
                     }
                 });
+    }
+
+    @Override
+    protected Set<String> getIncludedColumns() {
+        return Set.of(ItemsTableColumnIds.STATUS_COL, ItemsTableColumnIds.MISC_VALUE_COL);
     }
 
     @Override
@@ -88,12 +96,13 @@ public sealed class TracksViewConfigurer extends DefaultItemsViewConfigurer perm
     }
 
     @Override
-    public void onItemsOpen(List<LibraryItemRow> items) {
+    public void onOpen(TableView<LibraryItemRow> tableView) {
+        var items = tableView.getSelectionModel().getSelectedItems();
         if (items.isEmpty()) {
             return;
         }
         if (items.getFirst() instanceof TrackItemRow trackItemRow) {
-            PlayerTrackListManager.enqueueAndPlay(new TrackListRequest(trackItemRow.getSource()));
+            PlayerTrackListManager.enqueue(new TrackListRequest(trackItemRow.getSource()));
         } else {
             LOG.error("Unexpected item type: {}. Expected type: {}", items.getFirst().getClass(),  TrackItemRow.class);
         }
@@ -118,13 +127,18 @@ public sealed class TracksViewConfigurer extends DefaultItemsViewConfigurer perm
     }
 
     @Override
-    protected DescriptionTableCellFactory getDescriptionTableCellFactory() {
-        return new HyperLinkTableCellFactory(NavigableItemsResolver::resolveArtistAlbums);
+    protected NameTableCellFactory getNameTableCellFactory() {
+        return new NameTableCellFactory(this, libraryItemRow -> {
+            if (libraryItemRow.getSource() instanceof Track track) {
+                return track.artistName();
+            }
+            return null;
+        });
     }
 
     @Override
-    protected TagsTableCellFactory getTagsTableCellFactory() {
-        return new TrackTagsTableCellFactory();
+    protected StatusTableCellFactory getStatusTableCellFactory() {
+        return new TrackStatusTableCellFactory();
     }
 
     @Override
@@ -138,6 +152,20 @@ public sealed class TracksViewConfigurer extends DefaultItemsViewConfigurer perm
             var trackContextOptions = new TrackContextViewOptions(tableView);
             return List.of(trackContextOptions.getFilterByMenu(), trackContextOptions.getSortByMenu());
         };
+    }
+
+    protected final void enqueueAll(TableView<LibraryItemRow> tableView) {
+        var selectedItems = tableView.getSelectionModel().getSelectedItems();
+        if (selectedItems.isEmpty()) {
+            return;
+        }
+        if (selectedItems.getFirst() instanceof TrackItemRow) {
+            if (selectedItems.size() == 1) {
+                var selectedIdx = tableView.getSelectionModel().getSelectedIndex();
+                var tracks = tableView.getItems().stream().map(item -> (Track) item.getSource()).toList();
+                PlayerTrackListManager.enqueue(new TrackListRequest(selectedIdx, tracks));
+            }
+        }
     }
 
  }

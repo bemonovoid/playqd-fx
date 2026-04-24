@@ -1,16 +1,18 @@
 package io.playqd.mini.controller;
 
-import io.playqd.data.ItemType;
+import io.playqd.data.*;
 import io.playqd.mini.controller.item.*;
 import io.playqd.mini.controller.navigator.ItemsDescriptor;
 import io.playqd.mini.controller.navigator.NavigableItems;
 import io.playqd.player.PlayerTrackListManager;
 import io.playqd.service.MusicLibrary;
+import io.playqd.service.TrackComparators;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
+import java.util.function.Predicate;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
@@ -18,46 +20,6 @@ public final class NavigableItemsResolver {
 
     private NavigableItemsResolver() {
 
-    }
-
-    public static NavigableItems resolveSearchArtists(String token) {
-        Supplier<List<LibraryItemRow>> supplier = () -> new ArrayList<>(MusicLibrary.getArtists().stream()
-                .filter(a -> a.name().toLowerCase().contains(token))
-                .map(ArtistItemRow::new)
-                .toList());
-        return new NavigableItems(ItemsDescriptor.forSearchArtists(token), supplier, ArtistItemRow.class);
-    }
-
-    public static NavigableItems resolveSearchAlbums(String token) {
-        Supplier<List<LibraryItemRow>> supplier = () -> new ArrayList<>(MusicLibrary.getAllAlbums().stream()
-                .filter(a -> a.name().toLowerCase().contains(token))
-                .map(AlbumItemRow::new)
-                .toList());
-        return new NavigableItems(ItemsDescriptor.forSearchAlbums(token), supplier, AlbumItemRow.class);
-    }
-
-    public static NavigableItems resolveSearchTracks(String token) {
-        Supplier<List<LibraryItemRow>> supplier = () -> new ArrayList<>(MusicLibrary.getAllTracks().stream()
-                .filter(t -> t.name().toLowerCase().contains(token))
-                .map(TrackItemRow::new)
-                .toList());
-        return new NavigableItems(ItemsDescriptor.forSearchTracks(token), supplier, TrackItemRow.class);
-    }
-
-    public static NavigableItems resolveSearchPlaylists(String token) {
-        Supplier<List<LibraryItemRow>> supplier = () -> new ArrayList<>(MusicLibrary.getPlaylists().stream()
-                .filter(p -> p.name().toLowerCase().contains(token))
-                .map(PlaylistItemRow::new)
-                .toList());
-        return new NavigableItems(ItemsDescriptor.forSearchPlaylists(token), supplier, PlaylistItemRow.class);
-    }
-
-    public static NavigableItems resolveSearchCollections(String token) {
-        Supplier<List<LibraryItemRow>> supplier = () -> new ArrayList<>(MusicLibrary.getCollections().stream()
-                .filter(p -> p.name().toLowerCase().contains(token))
-                .map(CollectionItemRow::new)
-                .toList());
-        return new NavigableItems(ItemsDescriptor.forSearchCollections(token), supplier, CollectionItemRow.class);
     }
 
     public static NavigableItems resolveArtistAlbums(LibraryItemRow item) {
@@ -105,7 +67,10 @@ public final class NavigableItemsResolver {
 
     public static NavigableItems resolveCollectionItems(LibraryItemRow item) {
         Supplier<List<LibraryItemRow>> supplier = () -> new ArrayList<>(
-                MusicLibrary.getCollection(item.getId()).items().stream().map(CollectionChildItemRow::new).toList());
+                MusicLibrary.getCollection(item.getId()).items().stream()
+                        .sorted(Comparator.comparing(MediaCollectionItem::createdDate))
+                        .map(CollectionChildItemRow::new)
+                        .toList());
         return new NavigableItems(ItemsDescriptor.forCollectionItems(item), supplier, CollectionChildItemRow.class);
     }
 
@@ -116,6 +81,7 @@ public final class NavigableItemsResolver {
     public static NavigableItems resolvePlaylistTracks(PlaylistItemRow playlist) {
         Supplier<List<LibraryItemRow>> supplier = () -> new ArrayList<>(
                 playlist.getSource().tracks().stream()
+                        .sorted(Comparator.comparing(PlaylistTrack::addedDate).reversed())
                         .map(plTrack -> MusicLibrary.getTrackById(plTrack.id()))
                         .map(PlaylistTrackItemRow::new)
                         .toList());
@@ -138,6 +104,18 @@ public final class NavigableItemsResolver {
     public static NavigableItems resolveTracks() {
         Supplier<List<LibraryItemRow>> supplier = () -> new ArrayList<>(
                 MusicLibrary.getAllTracks().stream().map(TrackItemRow::new).toList());
+        return new NavigableItems(ItemsDescriptor.forTracks(), supplier, TrackItemRow.class);
+    }
+
+    public static NavigableItems resolveLikedTracks() {
+        Supplier<List<LibraryItemRow>> supplier = () -> new ArrayList<>(
+                MusicLibrary.getReactedTracks(Reaction.THUMB_UP).stream().map(TrackItemRow::new).toList());
+        return new NavigableItems(ItemsDescriptor.forTracks(), supplier, TrackItemRow.class);
+    }
+
+    public static NavigableItems resolvePlayedTracks() {
+        Supplier<List<LibraryItemRow>> supplier = () -> new ArrayList<>(
+                MusicLibrary.getPlayedTracks().stream().map(TrackItemRow::new).toList());
         return new NavigableItems(ItemsDescriptor.forTracks(), supplier, TrackItemRow.class);
     }
 
@@ -167,8 +145,59 @@ public final class NavigableItemsResolver {
             var descriptor = ItemsDescriptor.forWatchFolderItems(parent);
             return new NavigableItems(descriptor, supplier, FolderItemRow.class);
         } else {
-            throw new  IllegalArgumentException("Parent is not of type UuidLibraryItemRow");
+            throw new IllegalArgumentException("Parent is not of type UuidLibraryItemRow");
         }
+    }
 
+    public static NavigableItems resolveSearchArtists(SearchToken token) {
+        Supplier<List<LibraryItemRow>> supplier = () -> new ArrayList<>(MusicLibrary.getArtists().stream()
+                .filter(filter(token))
+                .map(ArtistItemRow::new)
+                .sorted(Comparator.comparing(LibraryItemRow::getName))
+                .toList());
+        return new NavigableItems(ItemsDescriptor.forSearchArtists(token), supplier, ArtistItemRow.class);
+    }
+
+    public static NavigableItems resolveSearchAlbums(SearchToken token) {
+        Supplier<List<LibraryItemRow>> supplier = () -> new ArrayList<>(MusicLibrary.getAllAlbums().stream()
+                .filter(filter(token))
+                .map(AlbumItemRow::new)
+                .sorted(Comparator.comparing(LibraryItemRow::getName))
+                .toList());
+        return new NavigableItems(ItemsDescriptor.forSearchAlbums(token), supplier, AlbumItemRow.class);
+    }
+
+    public static NavigableItems resolveSearchCollections(SearchToken token) {
+        Supplier<List<LibraryItemRow>> supplier = () -> new ArrayList<>(MusicLibrary.getCollections().stream()
+                .filter(filter(token))
+                .map(CollectionItemRow::new)
+                .sorted(Comparator.comparing(LibraryItemRow::getName))
+                .toList());
+        return new NavigableItems(ItemsDescriptor.forSearchCollections(token), supplier, CollectionItemRow.class);
+    }
+
+    public static NavigableItems resolveSearchPlaylists(SearchToken token) {
+        Supplier<List<LibraryItemRow>> supplier = () -> new ArrayList<>(MusicLibrary.getPlaylists().stream()
+                .filter(filter(token))
+                .map(PlaylistItemRow::new)
+                .sorted(Comparator.comparing(LibraryItemRow::getName))
+                .toList());
+        return new NavigableItems(ItemsDescriptor.forSearchPlaylists(token), supplier, PlaylistItemRow.class);
+    }
+
+    public static NavigableItems resolveSearchTracks(SearchToken token) {
+        Supplier<List<LibraryItemRow>> supplier = () -> new ArrayList<>(MusicLibrary.getAllTracks().stream()
+                .filter(filter(token))
+                .map(TrackItemRow::new)
+                .sorted(Comparator.comparing(LibraryItemRow::getName))
+                .toList());
+        return new NavigableItems(ItemsDescriptor.forSearchTracks(token), supplier, TrackItemRow.class);
+    }
+
+    private static Predicate<LibraryItem> filter(SearchToken token) {
+        return switch (token.filterType()) {
+            case CONTAINS -> libraryItem -> libraryItem.name().toLowerCase().contains(token.value());
+            case STARTS_WITH -> libraryItem -> libraryItem.name().toLowerCase().startsWith(token.value());
+        };
     }
 }

@@ -2,6 +2,7 @@ package io.playqd.mini.controller.configurer;
 
 import io.playqd.controller.collections.CollectionDialog;
 import io.playqd.data.MediaCollection;
+import io.playqd.data.Playlist;
 import io.playqd.mini.controller.ItemsTableColumnIds;
 import io.playqd.mini.controller.MiniLibraryItemsViewController;
 import io.playqd.mini.controller.NavigableItemsResolver;
@@ -39,6 +40,16 @@ public final class CollectionsViewConfigurer extends DefaultItemsViewConfigurer 
     @Override
     protected ImageTableCellFactory geImageTableCellFactory() {
         return new CollectionImageTableCellFactory();
+    }
+
+    @Override
+    protected NameTableCellFactory getNameTableCellFactory() {
+        return new NameTableCellFactory(this, libraryItemRow -> {
+            if (libraryItemRow.getSource() instanceof MediaCollection collection) {
+                return String.format("%s item%s", collection.items().size(), collection.items().size() > 1 ? "s" : "");
+            }
+            return null;
+        });
     }
 
     @Override
@@ -89,7 +100,8 @@ public final class CollectionsViewConfigurer extends DefaultItemsViewConfigurer 
     }
 
     @Override
-    public void onItemsOpen(List<LibraryItemRow> items) {
+    public void onOpen(TableView<LibraryItemRow> tableView) {
+        var items = tableView.getSelectionModel().getSelectedItems();
         if (items.getFirst() instanceof CollectionItemRow collectionItemRow) {
             controller.showItems(NavigableItemsResolver.resolveCollectionItems(collectionItemRow));
         } else {
@@ -98,14 +110,10 @@ public final class CollectionsViewConfigurer extends DefaultItemsViewConfigurer 
     }
 
     @Override
-    public Optional<Consumer<List<LibraryItemRow>>> onItemsDelete() {
+    public Optional<Consumer<List<LibraryItemRow>>> onDelete() {
         return Optional.of(libraryItemRows -> libraryItemRows.stream()
                 .filter(item -> item instanceof CollectionItemRow)
                 .forEach(collectionItemRow -> MusicLibrary.deleteCollection(collectionItemRow.getId())));
     }
 
-    @Override
-    protected Set<String> getExcludedColumns() {
-        return Set.of(ItemsTableColumnIds.DESCRIPTION_COL, ItemsTableColumnIds.TAGS_COL);
-    }
 }

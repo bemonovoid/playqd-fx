@@ -4,6 +4,7 @@ import io.playqd.Application;
 import io.playqd.config.AppConfig;
 import io.playqd.data.Track;
 import io.playqd.player.Player;
+import io.playqd.player.PlayerTrack;
 import io.playqd.player.PlayerTrackListManager;
 import javafx.stage.Stage;
 import org.slf4j.Logger;
@@ -44,7 +45,7 @@ public class ApplicationCloseHandler {
         var tracklist = PlayerTrackListManager.trackList().stream().map(Track::id).toList();
         AppConfig.getProperties().player().state().tracklist().clear();
         AppConfig.getProperties().player().state().tracklist().addAll(tracklist);
-        Player.playingTrack().ifPresentOrElse(track ->
+        Player.playerTrack().map(PlayerTrack::track).ifPresentOrElse(track ->
                 AppConfig.getProperties().player().state().lastPlayedTrackId().set(track.id()),
                 () -> AppConfig.getProperties().player().state().lastPlayedTrackId().set(-1));
     }

@@ -74,7 +74,7 @@ public class TracksExplorerViewController {
     private void setEventHandlers() {
         tracksTableView.rowDoubleClickedProperty().addListener((_, _, row) -> {
             if (row != null) {
-                PlayerTrackListManager.enqueueAndPlay(new TrackListRequest(row.track()));
+                PlayerTrackListManager.enqueue(new TrackListRequest(row.track()));
             }
         });
         setMusicLibraryEventListeners();

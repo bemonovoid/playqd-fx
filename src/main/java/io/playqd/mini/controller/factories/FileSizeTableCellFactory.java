@@ -1,11 +1,11 @@
 package io.playqd.mini.controller.factories;
 
-import io.playqd.data.ItemType;
-import io.playqd.mini.controller.item.FolderItemRow;
-import io.playqd.mini.controller.item.LibraryItemRow;
 import javafx.scene.control.TableCell;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.cell.TextFieldTableCell;
+
+import io.playqd.mini.controller.item.FolderItemRow;
+import io.playqd.mini.controller.item.LibraryItemRow;
 
 public final class FileSizeTableCellFactory implements MiscValueTableCellFactory {
 
@@ -19,10 +19,10 @@ public final class FileSizeTableCellFactory implements MiscValueTableCellFactory
                 if (!empty && item != null) {
                     var rowItem = getTableRow().getItem();
                     if (rowItem instanceof FolderItemRow folderItemRow) {
-                        if (ItemType.FOLDER == folderItemRow.getSource().itemType()) {
-                            setText("<DIR>");
-                        } else {
+                        if (folderItemRow.getSource().itemType().isFile()) {
                             setText(folderItemRow.getSource().displaySize());
+                        } else {
+                            setText(null);
                         }
                     }
                 }

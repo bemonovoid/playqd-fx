@@ -27,7 +27,7 @@ public final class PlayMenuItems implements MenuItemsBuilder {
         var playMenuItem = new MenuItem(
                 "Play now", FontAwesomeIconFactory.get().createIcon(FontAwesomeIcon.PLAY));
 
-        playMenuItem.setOnAction(_ -> PlayerTrackListManager.enqueueAndPlay(new TrackListRequest(tracks)));
+        playMenuItem.setOnAction(_ -> PlayerTrackListManager.enqueue(new TrackListRequest(tracks)));
 
 //        var queueNextMenuItem = new MenuItem(
 //                "Queue next", FontAwesomeIconFactory.get().createIcon(FontAwesomeIcon.ANGLE_DOWN));

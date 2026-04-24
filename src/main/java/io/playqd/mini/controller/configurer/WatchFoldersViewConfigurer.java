@@ -1,8 +1,11 @@
 package io.playqd.mini.controller.configurer;
 
+import io.playqd.data.MediaCollection;
+import io.playqd.data.WatchFolder;
 import io.playqd.mini.controller.ItemsTableColumnIds;
 import io.playqd.mini.controller.MiniLibraryItemsViewController;
 import io.playqd.mini.controller.NavigableItemsResolver;
+import io.playqd.mini.controller.factories.NameTableCellFactory;
 import io.playqd.mini.controller.factories.WatchFolderImageTableCellFactory;
 import io.playqd.mini.controller.factories.ImageTableCellFactory;
 import io.playqd.mini.controller.item.ArtistItemRow;
@@ -10,6 +13,7 @@ import io.playqd.mini.controller.item.LibraryItemRow;
 import io.playqd.mini.controller.item.WatchFolderItemRow;
 import io.playqd.mini.controller.navigator.ItemsDescriptor;
 import javafx.scene.control.Label;
+import javafx.scene.control.TableView;
 import javafx.scene.layout.HBox;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -26,17 +30,23 @@ public final class WatchFoldersViewConfigurer extends DefaultItemsViewConfigurer
     }
 
     @Override
-    protected Set<String> getExcludedColumns() {
-        return Set.of(ItemsTableColumnIds.TAGS_COL, ItemsTableColumnIds.MISC_VALUE_COL);
-    }
-
-    @Override
     protected ImageTableCellFactory geImageTableCellFactory() {
         return new WatchFolderImageTableCellFactory();
     }
 
     @Override
-    public void onItemsOpen(List<LibraryItemRow> items) {
+    protected NameTableCellFactory getNameTableCellFactory() {
+        return new NameTableCellFactory(this, libraryItemRow -> {
+            if (libraryItemRow.getSource() instanceof WatchFolder watchFolder) {
+                return watchFolder.location();
+            }
+            return null;
+        });
+    }
+
+    @Override
+    public void onOpen(TableView<LibraryItemRow> tableView) {
+        var items = tableView.getSelectionModel().getSelectedItems();
         if (items.getFirst() instanceof WatchFolderItemRow watchFolderItemRow) {
             controller.showItems(NavigableItemsResolver.resolveWatchFolderItems(watchFolderItemRow));
         } else {

@@ -39,7 +39,7 @@ public final class ContextMenuItemsBuilder {
         var queueLastMenuItem = new MenuItem("Queue last",
                 FontAwesomeIconFactory.get().createIcon(FontAwesomeIcon.ANGLE_DOUBLE_DOWN));
 
-        playMenuItem.setOnAction(_ -> PlayerTrackListManager.enqueueAndPlay(new TrackListRequest(tracks)));
+        playMenuItem.setOnAction(_ -> PlayerTrackListManager.enqueue(new TrackListRequest(tracks)));
         queueNextMenuItem.setOnAction(_ -> PlayerTrackListManager.addNext(tracks));
         queueLastMenuItem.setOnAction(_ -> PlayerTrackListManager.addLast(tracks));
 

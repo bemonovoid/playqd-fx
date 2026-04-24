@@ -1,5 +1,15 @@
 package io.playqd.mini.controller.configurer;
 
+import java.util.List;
+import java.util.Set;
+
+import javafx.scene.control.Label;
+import javafx.scene.control.TableView;
+import javafx.scene.layout.HBox;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import io.playqd.data.Artist;
 import io.playqd.data.Tuple;
 import io.playqd.mini.controller.ItemsTableColumnIds;
 import io.playqd.mini.controller.MiniLibraryItemsViewController;
@@ -8,16 +18,10 @@ import io.playqd.mini.controller.factories.AlbumsAndTracksCountTableCellFactory;
 import io.playqd.mini.controller.factories.ArtistImageTableCellFactory;
 import io.playqd.mini.controller.factories.ImageTableCellFactory;
 import io.playqd.mini.controller.factories.MiscValueTableCellFactory;
+import io.playqd.mini.controller.factories.NameTableCellFactory;
 import io.playqd.mini.controller.item.ArtistItemRow;
 import io.playqd.mini.controller.item.LibraryItemRow;
 import io.playqd.mini.controller.navigator.ItemsDescriptor;
-import javafx.scene.control.Label;
-import javafx.scene.layout.HBox;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import java.util.List;
-import java.util.Set;
 
 public final class ArtistsViewConfigurer extends DefaultItemsViewConfigurer {
 
@@ -28,12 +32,8 @@ public final class ArtistsViewConfigurer extends DefaultItemsViewConfigurer {
     }
 
     @Override
-    protected Set<String> getExcludedColumns() {
-        return Set.of(ItemsTableColumnIds.DESCRIPTION_COL, ItemsTableColumnIds.TAGS_COL);
-    }
-
-    @Override
-    public void onItemsOpen(List<LibraryItemRow> items) {
+    public void onOpen(TableView<LibraryItemRow> tableView) {
+        var items = tableView.getSelectionModel().getSelectedItems();
         if (items.getFirst() instanceof ArtistItemRow artistItemRow) {
             controller.showItems(NavigableItemsResolver.resolveArtistAlbums(artistItemRow));
         } else {
@@ -44,6 +44,16 @@ public final class ArtistsViewConfigurer extends DefaultItemsViewConfigurer {
     @Override
     protected ImageTableCellFactory geImageTableCellFactory() {
         return new ArtistImageTableCellFactory();
+    }
+
+    @Override
+    protected NameTableCellFactory getNameTableCellFactory() {
+        return new NameTableCellFactory(this, libraryItemRow -> {
+            if (libraryItemRow.getSource() instanceof Artist artist) {
+                return String.format("%s album%s", artist.albumsCount(), artist.albumsCount() > 1 ? "s" : "");
+            }
+            return null;
+        });
     }
 
     @Override

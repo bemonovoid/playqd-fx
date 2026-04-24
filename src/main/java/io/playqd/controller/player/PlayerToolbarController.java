@@ -14,6 +14,7 @@ import io.playqd.event.MouseEventHelper;
 import io.playqd.player.FetchMode;
 import io.playqd.player.LoopMode;
 import io.playqd.player.Player;
+import io.playqd.player.PlayerTrack;
 import io.playqd.service.MusicLibrary;
 import io.playqd.utils.ImagePopup;
 import io.playqd.utils.TimeUtils;
@@ -67,7 +68,8 @@ public class PlayerToolbarController {
         initButtonEventHandlers();
 
         slider.setOnMouseClicked(_ -> {
-            Player.playingTrack()
+            Player.playerTrack()
+                    .map(PlayerTrack::track)
                     .filter(Track::isCueTrack)
                     .ifPresentOrElse(track -> {
                         var parentTrack = MusicLibrary.getTrackById(track.realId());
@@ -113,7 +115,7 @@ public class PlayerToolbarController {
         thumbsUpBtn.setOnAction(_ -> {
             removeThumbsUpReactionBtnStyle();
             removeThumbsDownReactionBtnStyle();
-            Player.playingTrack().ifPresent(track -> {
+            Player.playerTrack().map(PlayerTrack::track).ifPresent(track -> {
                 var trackFromLibrary = MusicLibrary.getTrackById(track.id());
                 var newReaction = Reaction.THUMB_UP == trackFromLibrary.reaction() ? Reaction.NONE : Reaction.THUMB_UP;
 //                MusicLibrary.updateReaction(newReaction, List.of(track.id()));
@@ -125,7 +127,7 @@ public class PlayerToolbarController {
         thumbsDownBtn.setOnAction(_ -> {
             removeThumbsUpReactionBtnStyle();
             removeThumbsDownReactionBtnStyle();
-            Player.playingTrack().ifPresent(track -> {
+            Player.playerTrack().map(PlayerTrack::track).ifPresent(track -> {
                 var trackFromLibrary = MusicLibrary.getTrackById(track.id());
                 var newReaction = Reaction.THUMB_DOWN == trackFromLibrary.reaction() ? Reaction.NONE : Reaction.THUMB_DOWN;
 //                MusicLibrary.updateReaction(newReaction, List.of(track.id()));
@@ -243,7 +245,7 @@ public class PlayerToolbarController {
                 showFullSizeImageInPopup();
             } else if (MouseEventHelper.secondaryButtonSingleClicked(mouseEvent)) {
                 var collectionsMenuItems = new CollectionsMenuItems()
-                        .onAddItemsToCollection(() -> Player.playingTrack()
+                        .onAddItemsToCollection(() -> Player.playerTrack().map(PlayerTrack::track)
                                 .map(track -> List.of(NewMediaCollectionItem.createForAlbumArtwork(track)))
                                 .orElse(Collections.emptyList()))
                         .build();
@@ -282,9 +284,10 @@ public class PlayerToolbarController {
     }
 
     private void updateSliderPosition(double newValue) {
-        Player.playingTrack()
+        Player.playerTrack()
                 // cue tracks are supposed to have parent id.
                 // slider position for cue tracks is updated upon time changed callback.
+                .map(PlayerTrack::track)
                 .filter(track -> track.parentId() == null)
                 .ifPresent(_ -> slider.setValue(newValue));
     }
@@ -311,7 +314,8 @@ public class PlayerToolbarController {
 
     private void updateTrackPlayingTime(long newTime) {
         if (newTime > 1000) {
-            Player.playingTrack()
+            Player.playerTrack()
+                    .map(PlayerTrack::track)
                     .filter(Track::isCueTrack)
                     .ifPresentOrElse(track -> {
                         // the 'newTime' is relative to parent track
@@ -332,7 +336,7 @@ public class PlayerToolbarController {
     }
 
     private void showFullSizeImageInPopup() {
-        Player.playingTrack().ifPresent(ImagePopup::show);
+        Player.playerTrack().map(PlayerTrack::track).ifPresent(ImagePopup::show);
     }
 
     private void setThumbsUpReactionBtnStyle() {

@@ -1,14 +1,12 @@
 package io.playqd.controller.gallery;
 
-import io.playqd.client.Images;
-import io.playqd.client.PlayqdApis;
-import io.playqd.client.PlayqdClientProvider;
-import io.playqd.controller.view.menuitem.ShowInFolderItems;
-import io.playqd.data.AlbumFolderImageRef;
-import io.playqd.data.Track;
-import io.playqd.event.MouseEventHelper;
-import io.playqd.fxml.FXMLLoaderUtils;
-import io.playqd.fxml.FXMLResource;
+import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicReference;
+
 import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
@@ -25,11 +23,16 @@ import org.apache.commons.io.FileUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.concurrent.atomic.AtomicInteger;
-import java.util.concurrent.atomic.AtomicReference;
+import io.playqd.client.Images;
+import io.playqd.client.PlayqdApis;
+import io.playqd.controller.view.menuitem.ShowInFolderItems;
+import io.playqd.data.ItemType;
+import io.playqd.data.Track;
+import io.playqd.data.WatchFolderItem;
+import io.playqd.event.MouseEventHelper;
+import io.playqd.fxml.FXMLLoaderUtils;
+import io.playqd.fxml.FXMLResource;
+import io.playqd.service.MusicLibrary;
 
 public class ArtworkGalleryView extends BorderPane {
 
@@ -37,8 +40,8 @@ public class ArtworkGalleryView extends BorderPane {
 
     private final Track track;
     private final Image artworkImage;
-    private final AtomicInteger currentIndexRef = new AtomicInteger();
-    private final AtomicReference<List<AlbumFolderImageRef>> images = new AtomicReference<>(new ArrayList<>());
+    private final AtomicInteger currentIndexWfi = new AtomicInteger();
+    private final AtomicReference<List<WatchFolderItem>> images = new AtomicReference<>(new ArrayList<>());
 
     @FXML
     private StackPane centerPane;
@@ -57,26 +60,38 @@ public class ArtworkGalleryView extends BorderPane {
 
     public ArtworkGalleryView(Track track) {
         this.track = track;
-        var image = Images.album(track.id());
+        var image = Images.getImage(track, -1);
         var resourceLoader = FXMLLoaderUtils.resourceLoader(FXMLResource.ARTWORK_GALLERY_VIEW);
         resourceLoader.setRoot(this);
         resourceLoader.setController(this);
         FXMLLoaderUtils.loadObject(resourceLoader, ArtworkGalleryView.class);
-        images.get().addFirst(new AlbumFolderImageRef(null, "Artwork", null, 0));
+        images.get().addFirst(new WatchFolderItem(
+                null,
+                "",
+                "Artwork",
+                "",
+                0L,
+                "",
+                null,
+                "",
+                Map.of(),
+                null,
+                null));
         artworkImage = image;
     }
 
     @FXML
     private void initialize() {
         Platform.runLater(() -> {
-            var imageRefs = PlayqdClientProvider.get().watchFolders().getAlbumFolderImages(track.id());
-            images.get().addAll(imageRefs);
+            var wfis =
+                    MusicLibrary.getWatchFolderItemsByLocation(track.fileAttributes().location(), ItemType.IMAGE_FILE);
+            images.get().addAll(wfis);
             for (int i = 0; i < images.get().size(); i++) {
                 var image = (Image) null;
                 if (i == 0 && images.get().get(i).id() == null) {
                     image = artworkImage;
                 } else {
-                    var imageUrl = PlayqdApis.albumFolderImage(track.id(), images.get().get(i).id());
+                    var imageUrl = PlayqdApis.watchFolderItemBinary(images.get().get(i).id());
                     image = new Image(imageUrl, 100, 100, true, true, true);
                 }
                 var imageView = new ImageView(image);
@@ -92,7 +107,7 @@ public class ArtworkGalleryView extends BorderPane {
                 var btn = new Button();
                 btn.setGraphic(imageView);
                 btn.setOnAction(_ -> {
-                    currentIndexRef.set((int) imageView.getUserData());
+                    currentIndexWfi.set((int) imageView.getUserData());
                     updateMainImage();
                 });
 
@@ -134,7 +149,7 @@ public class ArtworkGalleryView extends BorderPane {
     }
 
     private void navigate(int direction) {
-        var currentIndex = this.currentIndexRef.get();
+        var currentIndex = this.currentIndexWfi.get();
         currentIndex += direction;
         if (currentIndex < 0) {
             currentIndex = images.get().size() - 1;
@@ -151,12 +166,12 @@ public class ArtworkGalleryView extends BorderPane {
 
     private void updateMainImage() {
         if (!images.get().isEmpty()) {
-            var imageRef = images.get().get(currentIndexRef.get());
-            if (imageRef.id() == null) {
+            var imageWfi = images.get().get(currentIndexWfi.get());
+            if (imageWfi.id() == null) {
                 mainImageView.setImage(artworkImage);
-                imageFileName.setText(imageRef.filename());
+                imageFileName.setText(imageWfi.name());
             } else {
-                var imageUrl = PlayqdApis.albumFolderImage(track.id(), imageRef.id());
+                var imageUrl = PlayqdApis.watchFolderItemBinary(imageWfi.id());
                 var image = new Image(
                         imageUrl,
                         centerPane.widthProperty().multiply(0.9).get(),
@@ -165,8 +180,8 @@ public class ArtworkGalleryView extends BorderPane {
                         true,
                         true);
                 mainImageView.setImage(image);
-                mainImageView.setUserData(imageRef.location());
-                imageFileName.setText(imageRef.filename() + " (" + FileUtils.byteCountToDisplaySize(imageRef.size()) + ")");
+                mainImageView.setUserData(imageWfi.location());
+                imageFileName.setText(imageWfi.name() + " (" + FileUtils.byteCountToDisplaySize(imageWfi.size()) + ")");
             }
         }
     }

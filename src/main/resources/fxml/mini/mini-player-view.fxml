@@ -101,13 +101,10 @@
 
         <HBox fx:id="rightControls" alignment="CENTER_RIGHT" spacing="5" pickOnBounds="false">
 
-            <Button styleClass="icon-button" focusTraversable="false">
-                <graphic>
-                    <FontIcon iconLiteral="fas-volume-up" iconSize="10"/>
-                </graphic>
-            </Button>
+            <Button fx:id="volumeBtn" styleClass="icon-button" focusTraversable="false" onAction="#volumeOnOff"
+                    prefWidth="25" minWidth="25" maxWidth="25"/>
 
-            <Slider fx:id="volumeSlider" prefWidth="70">
+            <Slider fx:id="volumeSlider" prefWidth="70" focusTraversable="false" value="50">
                 <styleClass>
                     <String fx:value="volume-slider"/>
                 </styleClass>
