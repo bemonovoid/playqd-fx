@@ -1,6 +1,5 @@
 package io.playqd.controller.gallery;
 
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -18,14 +17,12 @@ import javafx.scene.image.ImageView;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.StackPane;
-import javafx.stage.WindowEvent;
 import org.apache.commons.io.FileUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import io.playqd.client.Images;
 import io.playqd.client.PlayqdApis;
-import io.playqd.controller.view.menuitem.ShowInFolderItems;
 import io.playqd.data.ItemType;
 import io.playqd.data.Track;
 import io.playqd.data.WatchFolderItem;
@@ -122,17 +119,17 @@ public class ArtworkGalleryView extends BorderPane {
         mainImageView.setOnMouseClicked(e -> {
             if (MouseEventHelper.secondaryButtonSingleClicked(e)) {
                 var contextMenu = new ContextMenu();
-                var items = new ShowInFolderItems(() -> {
-                    var userData = mainImageView.getUserData();
-                    mainImageView.fireEvent(new WindowEvent(
-                            mainImageView.getScene().getWindow(), WindowEvent.WINDOW_CLOSE_REQUEST));
-                    if (userData == null) {
-                        return Paths.get(track.fileAttributes().location());
-                    } else {
-                        return Paths.get(userData.toString());
-                    }
-                }).build();
-                contextMenu.getItems().addAll(items);
+//                var items = new ShowInFolderItems(() -> {
+//                    var userData = mainImageView.getUserData();
+//                    mainImageView.fireEvent(new WindowEvent(
+//                            mainImageView.getScene().getWindow(), WindowEvent.WINDOW_CLOSE_REQUEST));
+//                    if (userData == null) {
+//                        return Paths.get(track.fileAttributes().location());
+//                    } else {
+//                        return Paths.get(userData.toString());
+//                    }
+//                }).build();
+//                contextMenu.getItems().addAll(items);
                 contextMenu.show(mainImageView, e.getScreenX(), e.getScreenY());
             }
         });

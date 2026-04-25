@@ -16,7 +16,7 @@ import org.kordamp.ikonli.javafx.FontIcon;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import io.playqd.controller.playlists.PlaylistDialog;
+import io.playqd.dialog.playlist.PlaylistDialog;
 import io.playqd.data.Playlist;
 import io.playqd.data.PlaylistTrack;
 import io.playqd.mini.controller.MiniLibraryItemsViewController;

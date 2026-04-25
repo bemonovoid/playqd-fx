@@ -1,13 +1,5 @@
 package io.playqd.mini.controller;
 
-import io.playqd.data.*;
-import io.playqd.mini.controller.item.*;
-import io.playqd.mini.controller.navigator.ItemsDescriptor;
-import io.playqd.mini.controller.navigator.NavigableItems;
-import io.playqd.player.PlayerTrackListManager;
-import io.playqd.service.MusicLibrary;
-import io.playqd.service.TrackComparators;
-
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -15,6 +7,31 @@ import java.util.List;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
+
+import io.playqd.data.ItemType;
+import io.playqd.data.LibraryItem;
+import io.playqd.data.MediaCollectionItem;
+import io.playqd.data.PlaylistTrack;
+import io.playqd.data.Reaction;
+import io.playqd.mini.controller.item.AlbumItemRow;
+import io.playqd.mini.controller.item.AlbumTrackItemRow;
+import io.playqd.mini.controller.item.ArtistAlbumItemRow;
+import io.playqd.mini.controller.item.ArtistItemRow;
+import io.playqd.mini.controller.item.ArtistTrackItemRow;
+import io.playqd.mini.controller.item.CollectionChildItemRow;
+import io.playqd.mini.controller.item.CollectionItemRow;
+import io.playqd.mini.controller.item.FolderItemRow;
+import io.playqd.mini.controller.item.LibraryItemRow;
+import io.playqd.mini.controller.item.PlaylistItemRow;
+import io.playqd.mini.controller.item.PlaylistTrackItemRow;
+import io.playqd.mini.controller.item.QueuedTrackItemRow;
+import io.playqd.mini.controller.item.TrackItemRow;
+import io.playqd.mini.controller.item.UuidLibraryItemRow;
+import io.playqd.mini.controller.item.WatchFolderItemRow;
+import io.playqd.mini.controller.navigator.ItemsDescriptor;
+import io.playqd.mini.controller.navigator.NavigableItems;
+import io.playqd.player.PlayerTrackListManager;
+import io.playqd.service.MusicLibrary;
 
 public final class NavigableItemsResolver {
 

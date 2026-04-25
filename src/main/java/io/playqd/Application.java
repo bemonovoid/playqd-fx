@@ -50,7 +50,7 @@ public class Application extends javafx.application.Application {
                 size.height().get() > 0 ? size.width().get() : PREF_WIDTH,
                 size.height().get() > 0 ? size.height().get() : PREF_HEIGHT);
         stage.setTitle(TITLE);
-        scene.getStylesheets().addAll("css/buttons.css", "css/mini/mini-player.css");
+        scene.getStylesheets().addAll("css/buttons.css", "css/mini-player.css");
         stage.setScene(scene);
         PlatformApi.setHostServices(getHostServices());
         Accelerators.initialize(scene);
@@ -77,8 +77,8 @@ public class Application extends javafx.application.Application {
         stage.setTitle(TITLE);
         stage.setScene(scene);
         stage.setMaximized(true);
-        scene.getStylesheets().addAll(
-                "css/glyphs.css", "css/tables.css", "css/music-library.css", "css/player.css", "css/buttons.css");
+//        scene.getStylesheets().addAll(
+//                "css/glyphs.css", "css/tables.css", "css/music-library.css", "css/player.css", "css/buttons.css");
 
         PlatformApi.setHostServices(getHostServices());
 

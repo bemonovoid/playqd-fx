@@ -1,18 +1,18 @@
-package io.playqd.controller.collections;
+package io.playqd.dialog.playlist;
 
 import javafx.scene.control.TextInputDialog;
 
-public class CollectionDialog extends TextInputDialog {
+public class PlaylistDialog extends TextInputDialog {
 
-    public CollectionDialog() {
+    public PlaylistDialog() {
         this(null);
     }
 
-    public CollectionDialog(String name) {
+    public PlaylistDialog(String name) {
         super(name == null ? "" : name);
         setGraphic(null);
         setHeaderText(null);
-        setTitle(name != null ? "Rename collection" : "New collection");
+        setTitle(name != null ? "Rename playlist" : "New playlist");
         getEditor().setPromptText("New name");
         getDialogPane().setStyle("-fx-background-color: #f4f4f4;");
     }

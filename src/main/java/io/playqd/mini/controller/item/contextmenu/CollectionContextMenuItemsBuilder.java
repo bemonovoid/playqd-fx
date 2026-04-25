@@ -2,7 +2,7 @@ package io.playqd.mini.controller.item.contextmenu;
 
 import de.jensd.fx.glyphs.fontawesome.FontAwesomeIcon;
 import de.jensd.fx.glyphs.fontawesome.FontAwesomeIconView;
-import io.playqd.controller.collections.CollectionDialog;
+import io.playqd.dialog.collection.CollectionDialog;
 import io.playqd.data.NewMediaCollectionItem;
 import io.playqd.mini.controller.item.LibraryItemRow;
 import io.playqd.mini.controller.item.TrackItemRow;

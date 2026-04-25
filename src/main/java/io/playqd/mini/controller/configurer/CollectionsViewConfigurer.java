@@ -1,9 +1,7 @@
 package io.playqd.mini.controller.configurer;
 
-import io.playqd.controller.collections.CollectionDialog;
+import io.playqd.dialog.collection.CollectionDialog;
 import io.playqd.data.MediaCollection;
-import io.playqd.data.Playlist;
-import io.playqd.mini.controller.ItemsTableColumnIds;
 import io.playqd.mini.controller.MiniLibraryItemsViewController;
 import io.playqd.mini.controller.NavigableItemsResolver;
 import io.playqd.mini.controller.factories.*;
@@ -21,13 +19,10 @@ import org.kordamp.ikonli.javafx.FontIcon;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import java.util.Set;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
-import java.util.stream.Collectors;
 
 public final class CollectionsViewConfigurer extends DefaultItemsViewConfigurer {
 

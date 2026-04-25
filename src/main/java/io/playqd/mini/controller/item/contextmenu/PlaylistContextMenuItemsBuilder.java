@@ -2,7 +2,7 @@ package io.playqd.mini.controller.item.contextmenu;
 
 import de.jensd.fx.glyphs.fontawesome.FontAwesomeIcon;
 import de.jensd.fx.glyphs.fontawesome.FontAwesomeIconView;
-import io.playqd.controller.playlists.PlaylistDialog;
+import io.playqd.dialog.playlist.PlaylistDialog;
 import io.playqd.data.PlaylistTrack;
 import io.playqd.data.Track;
 import io.playqd.service.MusicLibrary;
