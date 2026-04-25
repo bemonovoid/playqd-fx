@@ -1,10 +1,22 @@
 package io.playqd.service;
 
-import io.playqd.client.*;
-import io.playqd.data.*;
-import io.playqd.data.request.*;
-import io.playqd.event.LibraryRefreshedEvent;
-import io.playqd.player.Player;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Set;
+import java.util.function.Consumer;
+import java.util.function.Function;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.ReadOnlyObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
@@ -14,14 +26,30 @@ import javafx.collections.ObservableMap;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.util.*;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.function.Consumer;
-import java.util.function.Function;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
+import io.playqd.client.ClientException;
+import io.playqd.client.Images;
+import io.playqd.client.PageRequest;
+import io.playqd.client.PlayqdClient;
+import io.playqd.client.PlayqdClientProvider;
+import io.playqd.data.Album;
+import io.playqd.data.Artist;
+import io.playqd.data.ItemType;
+import io.playqd.data.MediaCollection;
+import io.playqd.data.MediaItemType;
+import io.playqd.data.NewMediaCollectionItem;
+import io.playqd.data.Playlist;
+import io.playqd.data.Reaction;
+import io.playqd.data.Result;
+import io.playqd.data.Track;
+import io.playqd.data.WatchFolder;
+import io.playqd.data.WatchFolderItem;
+import io.playqd.data.request.MovePlaylistTracksRequest;
+import io.playqd.data.request.UpdateMediaCollectionItemRequest;
+import io.playqd.data.request.UpdateMediaCollectionRequest;
+import io.playqd.data.request.UpdatePlaylistRequest;
+import io.playqd.data.request.UpdateReactionRequest;
+import io.playqd.event.LibraryRefreshedEvent;
+import io.playqd.player.Player;
 
 public final class MusicLibrary {
 

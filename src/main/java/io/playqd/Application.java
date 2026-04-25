@@ -70,7 +70,7 @@ public class Application extends javafx.application.Application {
             });
         }
 
-        var fxmlLoader = FXMLLoaderUtils.resourceLoader(FXMLResource.APPLICATION);
+        var fxmlLoader = FXMLLoaderUtils.resourceLoader(null);
 
         var scene = new Scene(fxmlLoader.load());
 

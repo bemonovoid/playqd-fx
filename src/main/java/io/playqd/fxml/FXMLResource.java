@@ -2,15 +2,9 @@ package io.playqd.fxml;
 
 public enum FXMLResource {
 
-    APPLICATION("/fxml/application.fxml"),
     APPLICATION_MINI("/fxml/mini-application.fxml"),
 
     ARTWORK_GALLERY_VIEW("/fxml/artwork-gallery-view.fxml"),
-
-    TRACKS_VIEW("/fxml/tracks-view.fxml"),
-    TRACKS_TABLE_HEADER("/fxml/tracks-table-header.fxml"),
-    TRACKS_TABLE_VIEW("/fxml/tracks-table-view.fxml"),
-    TRACKS_TABLE_FOOTER("/fxml/tracks-table-footer.fxml"),
 
     DIALOG_SETTINGS("/fxml/dialog/settings/settings.fxml"),
     DIALOG_SETTINGS_SERVER("/fxml/dialog/settings/server-config.fxml"),
