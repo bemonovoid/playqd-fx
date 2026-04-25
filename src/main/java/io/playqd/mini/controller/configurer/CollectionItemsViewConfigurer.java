@@ -1,5 +1,17 @@
 package io.playqd.mini.controller.configurer;
 
+import java.util.List;
+import java.util.Optional;
+import java.util.function.Consumer;
+
+import javafx.geometry.Insets;
+import javafx.scene.control.Hyperlink;
+import javafx.scene.control.Label;
+import javafx.scene.control.TableView;
+import javafx.scene.layout.HBox;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import io.playqd.data.MediaCollectionItem;
 import io.playqd.data.MediaItemType;
 import io.playqd.mini.controller.MiniLibraryItemsViewController;
@@ -11,20 +23,9 @@ import io.playqd.mini.controller.item.CollectionChildItemRow;
 import io.playqd.mini.controller.item.LibraryItemRow;
 import io.playqd.mini.controller.item.PlaylistItemRow;
 import io.playqd.mini.controller.navigator.ItemsDescriptor;
-import io.playqd.player.PlayerTrackListManager;
+import io.playqd.player.Player;
 import io.playqd.player.TrackListRequest;
 import io.playqd.service.MusicLibrary;
-import javafx.geometry.Insets;
-import javafx.scene.control.Hyperlink;
-import javafx.scene.control.Label;
-import javafx.scene.control.TableView;
-import javafx.scene.layout.HBox;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import java.util.List;
-import java.util.Optional;
-import java.util.function.Consumer;
 
 public final class CollectionItemsViewConfigurer extends DefaultItemsViewConfigurer {
 
@@ -66,7 +67,7 @@ public final class CollectionItemsViewConfigurer extends DefaultItemsViewConfigu
             var itemMediaType = collectionChildItemRow.getSource().itemType();
             if (MediaItemType.TRACK == itemMediaType) {
                 var track = MusicLibrary.getTrackById(Long.parseLong(collectionChildItemRow.getSource().refId()));
-                PlayerTrackListManager.enqueue(new TrackListRequest(track));
+                Player.enqueue(new TrackListRequest(track));
             }
         } else {
             LOG.warn("Unexpected item type: {}. Expected type: {}", items.getFirst().getClass(), PlaylistItemRow.class);

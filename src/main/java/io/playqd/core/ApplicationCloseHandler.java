@@ -1,14 +1,14 @@
 package io.playqd.core;
 
+import javafx.stage.Stage;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import io.playqd.Application;
 import io.playqd.config.AppConfig;
 import io.playqd.data.Track;
 import io.playqd.player.Player;
 import io.playqd.player.PlayerTrack;
-import io.playqd.player.PlayerTrackListManager;
-import javafx.stage.Stage;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public class ApplicationCloseHandler {
 
@@ -42,7 +42,7 @@ public class ApplicationCloseHandler {
     }
 
     private static void setPlayerStateProperties() {
-        var tracklist = PlayerTrackListManager.trackList().stream().map(Track::id).toList();
+        var tracklist = Player.list().stream().map(Track::id).toList();
         AppConfig.getProperties().player().state().tracklist().clear();
         AppConfig.getProperties().player().state().tracklist().addAll(tracklist);
         Player.playerTrack().map(PlayerTrack::track).ifPresentOrElse(track ->

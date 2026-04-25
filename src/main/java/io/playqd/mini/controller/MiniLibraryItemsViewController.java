@@ -241,10 +241,9 @@ public class MiniLibraryItemsViewController {
     }
 
     private void initPlayerEventHandlers() {
-        Player.onPlayingTrackChanged(track -> {
-            Platform.runLater(() -> {
-                if (!tableView.getItems().isEmpty()
-                        && tableView.getItems().getFirst() instanceof QueuedTrackItemRow queuedTrackItemRow) {
+        Player.onPlayingTrackChanged(track -> Platform.runLater(() -> {
+            if (!tableView.getItems().isEmpty()) {
+                if (tableView.getItems().getFirst() instanceof QueuedTrackItemRow) {
                     var selectedIdx = tableView.getSelectionModel().getSelectedIndex();
                     var playingTrackIdx = -1;
                     for (int i = 0; i < tableView.getItems().size(); i++) {
@@ -256,10 +255,18 @@ public class MiniLibraryItemsViewController {
                     if (selectedIdx != playingTrackIdx) {
                         tableView.getSelectionModel().clearSelection();
                         tableView.getSelectionModel().select(playingTrackIdx);
-                        tableView.scrollTo(playingTrackIdx);
+                        if (playingTrackIdx > 15) {
+                            tableView.scrollTo(playingTrackIdx);
+                        }
                     }
                 }
-            });
+                tableView.refresh();
+            }
+        }));
+        Player.onPaused(_ -> {
+            if (tableView.getItems().getFirst() instanceof TrackItemRow) {
+                tableView.refresh();
+            }
         });
     }
 
@@ -315,7 +322,6 @@ public class MiniLibraryItemsViewController {
     }
 
     private void showItems(NavigableItems navigableItems, boolean saveState) {
-        LOG.info("Showing items for path: {}", navigableItems.descriptor().path());
         showItems(navigableItems, saveState, null);
     }
 
@@ -356,9 +362,12 @@ public class MiniLibraryItemsViewController {
                     }
                 }
             }
-            tableView.scrollTo(selectedIdx);
+            if (selectedIdx >= 15) {
+                tableView.scrollTo(selectedIdx);
+            }
             tableView.getSelectionModel().select(selectedIdx);
         }
     }
+
 }
 

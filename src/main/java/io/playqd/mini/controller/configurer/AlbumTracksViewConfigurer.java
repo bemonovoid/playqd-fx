@@ -4,13 +4,9 @@ import javafx.scene.control.Label;
 import javafx.scene.control.TableView;
 import javafx.scene.layout.HBox;
 
-import io.playqd.data.Track;
 import io.playqd.mini.controller.MiniLibraryItemsViewController;
 import io.playqd.mini.controller.item.LibraryItemRow;
-import io.playqd.mini.controller.item.TrackItemRow;
 import io.playqd.mini.controller.navigator.ItemsDescriptor;
-import io.playqd.player.PlayerTrackListManager;
-import io.playqd.player.TrackListRequest;
 
 public final class AlbumTracksViewConfigurer extends TracksViewConfigurer {
 

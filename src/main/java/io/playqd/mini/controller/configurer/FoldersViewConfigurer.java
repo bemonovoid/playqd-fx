@@ -28,7 +28,7 @@ import io.playqd.mini.controller.item.FolderItemRow;
 import io.playqd.mini.controller.item.LibraryItemRow;
 import io.playqd.mini.controller.navigator.ItemsDescriptor;
 import io.playqd.platform.PlatformApi;
-import io.playqd.player.PlayerTrackListManager;
+import io.playqd.player.Player;
 import io.playqd.player.TrackListRequest;
 import io.playqd.service.MusicLibrary;
 
@@ -142,6 +142,6 @@ public final class FoldersViewConfigurer extends DefaultItemsViewConfigurer {
                 .map(WatchFolderItem::path)
                 .collect(Collectors.toSet());
         var tracks = MusicLibrary.getTracksByPaths(selectedItemPaths);
-        PlayerTrackListManager.enqueue(new TrackListRequest(tracks));
+        Player.enqueue(new TrackListRequest(tracks));
     }
 }

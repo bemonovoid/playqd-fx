@@ -2,10 +2,8 @@
 
 <?import de.jensd.fx.glyphs.fontawesome.FontAwesomeIconView?>
 <?import javafx.geometry.Insets?>
-<?import javafx.scene.control.MenuButton?>
 <?import javafx.scene.layout.HBox?>
 <?import org.controlsfx.control.textfield.CustomTextField?>
-<?import org.kordamp.ikonli.javafx.FontIcon?>
 <HBox xmlns="http://javafx.com/javafx/25"
       xmlns:fx="http://javafx.com/fxml"
       alignment="CENTER_LEFT"
@@ -29,11 +27,5 @@
                      promptText="Search in:  'a' | 'aa' | 'c' | 'f' | 'g' | 'p' | 't' + Tab"
                      HBox.hgrow="ALWAYS"
                      left="$searchInputLeftNode"/>
-
-    <MenuButton fx:id="quickNavItemsMenuBtn" accessibleRole="BUTTON" prefHeight="29">
-        <graphic>
-            <FontIcon iconLiteral="fas-music"/>
-        </graphic>
-    </MenuButton>
 
 </HBox>

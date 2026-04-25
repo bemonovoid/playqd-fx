@@ -63,20 +63,20 @@
                 </cellValueFactory>
             </TableColumn>
 
-            <TableColumn fx:id="nameCol" text="Name" sortable="false" editable="false" minWidth="100" style="-fx-padding: 0 0 0 5">
+            <TableColumn fx:id="nameCol" text="Name" reorderable="false" sortable="false" editable="false" minWidth="100" style="-fx-padding: 0 0 0 5">
                 <cellValueFactory>
                     <PropertyValueFactory property="name"/>
                 </cellValueFactory>
             </TableColumn>
 
-            <TableColumn fx:id="statusCol" text="Status" sortable="false" editable="false" style="-fx-alignment: CENTER"
+            <TableColumn fx:id="statusCol" text="Status" reorderable="false" sortable="false" editable="false" style="-fx-alignment: CENTER"
                          minWidth="60" maxWidth="60">
                 <cellValueFactory>
                     <PropertyValueFactory property="status"/>
                 </cellValueFactory>
             </TableColumn>
 
-            <TableColumn fx:id="miscValueCol" sortable="false" editable="false" visible="false"
+            <TableColumn fx:id="miscValueCol" reorderable="false" sortable="false" editable="false" visible="false"
                          style="-fx-alignment: CENTER-RIGHT" minWidth="50" maxWidth="70">
                 <cellValueFactory>
                     <PropertyValueFactory property="miscValue"/>

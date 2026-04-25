@@ -1,18 +1,19 @@
 package io.playqd.mini.controller.item.contextmenu;
 
-import de.jensd.fx.glyphs.fontawesome.FontAwesomeIcon;
-import de.jensd.fx.glyphs.fontawesome.utils.FontAwesomeIconFactory;
-import io.playqd.data.Track;
-import io.playqd.mini.controller.MiniLibraryItemsViewController;
-import io.playqd.mini.controller.item.LibraryItemRow;
-import io.playqd.player.PlayerTrackListManager;
-import io.playqd.player.TrackListRequest;
-import javafx.scene.control.MenuItem;
-import javafx.scene.control.SeparatorMenuItem;
-
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+
+import de.jensd.fx.glyphs.fontawesome.FontAwesomeIcon;
+import de.jensd.fx.glyphs.fontawesome.utils.FontAwesomeIconFactory;
+import javafx.scene.control.MenuItem;
+import javafx.scene.control.SeparatorMenuItem;
+
+import io.playqd.data.Track;
+import io.playqd.mini.controller.MiniLibraryItemsViewController;
+import io.playqd.mini.controller.item.LibraryItemRow;
+import io.playqd.player.Player;
+import io.playqd.player.TrackListRequest;
 
 public final class ContextMenuItemsBuilder {
 
@@ -39,9 +40,9 @@ public final class ContextMenuItemsBuilder {
         var queueLastMenuItem = new MenuItem("Queue last",
                 FontAwesomeIconFactory.get().createIcon(FontAwesomeIcon.ANGLE_DOUBLE_DOWN));
 
-        playMenuItem.setOnAction(_ -> PlayerTrackListManager.enqueue(new TrackListRequest(tracks)));
-        queueNextMenuItem.setOnAction(_ -> PlayerTrackListManager.addNext(tracks));
-        queueLastMenuItem.setOnAction(_ -> PlayerTrackListManager.addLast(tracks));
+        playMenuItem.setOnAction(_ -> Player.enqueue(new TrackListRequest(tracks)));
+        queueNextMenuItem.setOnAction(_ -> Player.addNext(tracks));
+        queueLastMenuItem.setOnAction(_ -> Player.addLast(tracks));
 
         menuItems.addAll(List.of(playMenuItem, queueNextMenuItem, queueLastMenuItem));
 

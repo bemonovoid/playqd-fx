@@ -1,15 +1,14 @@
 package io.playqd.mini.controller;
 
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.function.BiConsumer;
+
 import javafx.fxml.FXML;
 import javafx.scene.control.Label;
-import javafx.scene.control.MenuButton;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.HBox;
 import org.controlsfx.control.textfield.CustomTextField;
-
-import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.function.BiConsumer;
 
 
 public class MiniSearchBarController {
@@ -25,18 +24,9 @@ public class MiniSearchBarController {
     private CustomTextField searchInputTextFld;
 
     @FXML
-    private MenuButton quickNavItemsMenuBtn;
-
-    @FXML
     private void initialize() {
         searchInputTextFld.textProperty().addListener((_, oldValue, newValue) -> onSearchInputChanged(oldValue, newValue));
         searchInputTextFld.setOnKeyPressed(this::onSearchInputKeyPressed);
-        initQuickNavItemsMenuBtn();
-    }
-
-    private void initQuickNavItemsMenuBtn() {
-        quickNavItemsMenuBtn.getStyleClass().setAll("button", "icon-button");
-        quickNavItemsMenuBtn.getItems().addAll(QuickNavigationMenuItems.get(quickNavItemsMenuBtn));
     }
 
     private void onSearchInputChanged(String oldValue, String newValue) {

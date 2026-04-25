@@ -1,19 +1,21 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import javafx.scene.control.Label?>
-<?import javafx.scene.image.ImageView?>
-<?import javafx.scene.layout.HBox?>
-<?import javafx.scene.layout.VBox?>
-<?import javafx.scene.control.Slider?>
-<?import javafx.scene.control.Button?>
+<?import java.lang.String?>
 <?import de.jensd.fx.glyphs.fontawesome.FontAwesomeIconView?>
 <?import javafx.geometry.Insets?>
-<?import java.lang.String?>
-<?import javafx.scene.layout.StackPane?>
-<?import javafx.scene.control.ToggleButton?>
+<?import javafx.scene.control.Button?>
 <?import javafx.scene.control.Hyperlink?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.MenuButton?>
 <?import javafx.scene.control.Separator?>
+<?import javafx.scene.control.Slider?>
+<?import javafx.scene.control.ToggleButton?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.StackPane?>
+<?import javafx.scene.layout.VBox?>
 <?import org.kordamp.ikonli.javafx.FontIcon?>
+<?import javafx.scene.layout.Region?>
 <VBox xmlns="http://javafx.com/javafx"
       xmlns:fx="http://javafx.com/fxml"
       spacing="10"
@@ -50,16 +52,28 @@
     </HBox>
 
     <StackPane>
-        <HBox fx:id="leftControls" alignment="CENTER_LEFT" spacing="5" pickOnBounds="false">
-            <ToggleButton fx:id="toggleQueueView" focusTraversable="false">
+        <HBox fx:id="leftControls" alignment="CENTER_LEFT" spacing="2" pickOnBounds="false">
+            <Button focusTraversable="false" onAction="#showQueueView">
                 <graphic>
-                    <FontIcon iconLiteral="fas-list-ul"/>
+                    <FontIcon iconLiteral="fas-indent" iconColor="ROYALBLUE"/>
                 </graphic>
                 <styleClass>
                     <String fx:value="icon-button"/>
                     <String fx:value="icon-toggle-button"/>
                 </styleClass>
-            </ToggleButton>
+            </Button>
+
+            <MenuButton fx:id="quickNavItemsMenuBtn" accessibleRole="BUTTON" focusTraversable="false">
+                <graphic>
+                    <FontIcon iconLiteral="fas-music"/>
+                </graphic>
+            </MenuButton>
+
+            <Region visible="false">
+                <padding>
+                    <Insets right="20"/>
+                </padding>
+            </Region>
 
             <Button fx:id="reactionBtn" styleClass="icon-button" focusTraversable="false" onAction="#changeReaction">
                 <graphic>

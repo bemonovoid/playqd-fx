@@ -11,15 +11,17 @@ class MediaPlayerEventAdapterImpl extends MediaPlayerEventAdapter {
     private static final Logger LOG = LoggerFactory.getLogger(MediaPlayerEventAdapterImpl.class);
 
     private final MediaListPlayer mediaListPlayer;
+    private final PlayerObservableProperties playerProperties;
 
-    MediaPlayerEventAdapterImpl(MediaListPlayer mediaListPlayer) {
+    MediaPlayerEventAdapterImpl(MediaListPlayer mediaListPlayer, PlayerObservableProperties playerProperties) {
         this.mediaListPlayer = mediaListPlayer;
+        this.playerProperties = playerProperties;
     }
 
     @Override
     public void mediaPlayerReady(MediaPlayer mediaPlayer) {
-        Player.PAUSED_PROPERTY.set(false);
-        Player.STOPPED_PROPERTY.set(false);
+        playerProperties.setPausedProperty(false);
+        playerProperties.setStoppedProperty(false);
 
         if (Player.LIST_PLAYER_EVENT_LISTENER == null) {
             Player.LIST_PLAYER_EVENT_LISTENER = new MediaListPlayerEventListenerImpl();
@@ -28,24 +30,24 @@ class MediaPlayerEventAdapterImpl extends MediaPlayerEventAdapter {
 
         var trackRef = (TrackRef) mediaPlayer.userData();
         if (trackRef != null) {
-            Player.PLAYING_TRACK_PROPERTY.set(trackRef.track());
+            playerProperties.setPlayingTrackProperty(trackRef.track());
         }
     }
 
     @Override
     public void playing(MediaPlayer mediaPlayer) {
-        Player.PAUSED_PROPERTY.set(false);
-        Player.STOPPED_PROPERTY.set(false);
+        playerProperties.setPausedProperty(false);
+        playerProperties.setStoppedProperty(false);
     }
 
     @Override
     public void paused(MediaPlayer mediaPlayer) {
-        Player.PAUSED_PROPERTY.set(true);
+        playerProperties.setPausedProperty(true);
     }
 
     @Override
     public void stopped(MediaPlayer mediaPlayer) {
-        Player.STOPPED_PROPERTY.set(true);
+        playerProperties.setStoppedProperty(true);
 
     }
 
@@ -53,18 +55,18 @@ class MediaPlayerEventAdapterImpl extends MediaPlayerEventAdapter {
     public void finished(MediaPlayer mediaPlayer) {
         var trackRef = (TrackRef) mediaPlayer.userData();
         if (trackRef != null) {
-            Player.FINISHED_PROPERTY.set(trackRef.track());
+            playerProperties.setFinishedProperty(trackRef.track());
         }
     }
 
     @Override
     public void positionChanged(MediaPlayer mediaPlayer, float newPosition) {
-        Player.POSITION_CHANGED_PROPERTY.set(newPosition);
+        playerProperties.setPositionChangedProperty(newPosition);
     }
 
     @Override
     public void timeChanged(MediaPlayer mediaPlayer, long newTime) {
-        Player.TIME_CHANGED_PROPERTY.set(newTime);
+        playerProperties.setTimeChangedProperty(newTime);
     }
 
     @Override

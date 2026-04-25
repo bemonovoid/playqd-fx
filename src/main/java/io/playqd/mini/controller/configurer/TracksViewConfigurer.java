@@ -28,7 +28,7 @@ import io.playqd.mini.controller.item.LibraryItemRow;
 import io.playqd.mini.controller.item.TrackItemRow;
 import io.playqd.mini.controller.item.contextmenu.ContextMenuItemsBuilder;
 import io.playqd.mini.controller.navigator.ItemsDescriptor;
-import io.playqd.player.PlayerTrackListManager;
+import io.playqd.player.Player;
 import io.playqd.player.TrackListRequest;
 import io.playqd.utils.TimeUtils;
 
@@ -102,7 +102,7 @@ public sealed class TracksViewConfigurer extends DefaultItemsViewConfigurer perm
             return;
         }
         if (items.getFirst() instanceof TrackItemRow trackItemRow) {
-            PlayerTrackListManager.enqueue(new TrackListRequest(trackItemRow.getSource()));
+            Player.enqueue(new TrackListRequest(trackItemRow.getSource()));
         } else {
             LOG.error("Unexpected item type: {}. Expected type: {}", items.getFirst().getClass(),  TrackItemRow.class);
         }
@@ -163,7 +163,7 @@ public sealed class TracksViewConfigurer extends DefaultItemsViewConfigurer perm
             if (selectedItems.size() == 1) {
                 var selectedIdx = tableView.getSelectionModel().getSelectedIndex();
                 var tracks = tableView.getItems().stream().map(item -> (Track) item.getSource()).toList();
-                PlayerTrackListManager.enqueue(new TrackListRequest(selectedIdx, tracks));
+                Player.enqueue(new TrackListRequest(selectedIdx, tracks));
             }
         }
     }

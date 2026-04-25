@@ -39,12 +39,12 @@ public abstract sealed class LibraryItemRow permits
         return miscValue;
     }
 
-    public final void setMiscValue(String miscValue) {
-        this.miscValue.set(miscValue);
-    }
-
     public final void setStatus(String status) {
         this.status.set(status);
+    }
+
+    public final void setMiscValue(String miscValue) {
+        this.miscValue.set(miscValue);
     }
 
     public abstract Object getSource();

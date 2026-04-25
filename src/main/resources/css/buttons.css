@@ -19,7 +19,8 @@
 }
 
 .icon-toggle-button:selected {
-    -fx-background-color: rgba(0, 0, 0, 0.2);
+    -fx-background-color: rgb(0 0 0 / 0.07);
+    /*-fx-background-color: transparent;*/
     -fx-text-fill: white;
 }
 

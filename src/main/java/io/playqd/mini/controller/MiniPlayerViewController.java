@@ -2,7 +2,6 @@ package io.playqd.mini.controller;
 
 import java.util.HashSet;
 import java.util.List;
-import java.util.function.Consumer;
 
 import de.jensd.fx.glyphs.fontawesome.FontAwesomeIcon;
 import de.jensd.fx.glyphs.fontawesome.FontAwesomeIconView;
@@ -12,8 +11,8 @@ import javafx.geometry.Pos;
 import javafx.scene.control.Button;
 import javafx.scene.control.Hyperlink;
 import javafx.scene.control.Label;
+import javafx.scene.control.MenuButton;
 import javafx.scene.control.Slider;
-import javafx.scene.control.ToggleButton;
 import javafx.scene.control.Tooltip;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseEvent;
@@ -25,6 +24,8 @@ import javafx.util.Duration;
 import org.kordamp.ikonli.fontawesome6.FontAwesomeRegular;
 import org.kordamp.ikonli.fontawesome6.FontAwesomeSolid;
 import org.kordamp.ikonli.javafx.FontIcon;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import io.playqd.client.Images;
 import io.playqd.config.AppConfig;
@@ -35,7 +36,6 @@ import io.playqd.mini.controller.item.TrackItemRow;
 import io.playqd.mini.events.NavigationEvent;
 import io.playqd.player.Player;
 import io.playqd.player.PlayerTrack;
-import io.playqd.player.PlayerTrackListManager;
 import io.playqd.player.TrackListRequest;
 import io.playqd.service.MusicLibrary;
 import io.playqd.utils.ImagePopup;
@@ -43,11 +43,9 @@ import io.playqd.utils.TimeUtils;
 
 public class MiniPlayerViewController {
 
-    private double unMuteVolume = -1;
-    private Consumer<Boolean> onQueueViewToggle;
+    private static final Logger LOG = LoggerFactory.getLogger(MiniPlayerViewController.class);
 
-    @FXML
-    private VBox root;
+    private double unMuteVolume = -1;
 
     @FXML
     private VBox miniPlayerView;
@@ -68,7 +66,7 @@ public class MiniPlayerViewController {
     private HBox leftControls, centerControls, rightControls;
 
     @FXML
-    private ToggleButton toggleQueueView;
+    private MenuButton quickNavItemsMenuBtn;
 
     @FXML
     private Button reactionBtn, playPrevBtn, playBtn, playNextBtn, volumeBtn;
@@ -131,7 +129,7 @@ public class MiniPlayerViewController {
                     break;
                 }
             }
-            PlayerTrackListManager.enqueue(new TrackListRequest(startIdx, tracks, false));
+            Player.enqueue(new TrackListRequest(startIdx, tracks, false));
         }
     }
 
@@ -191,11 +189,8 @@ public class MiniPlayerViewController {
     }
 
     private void initLeftControls() {
-        toggleQueueView.selectedProperty().addListener((_, _, selected) -> {
-            if (selected != null) {
-                onQueueViewToggle.accept(selected);
-            }
-        });
+        quickNavItemsMenuBtn.getStyleClass().setAll("button", "icon-button");
+        quickNavItemsMenuBtn.getItems().addAll(QuickNavigationMenuItems.get(quickNavItemsMenuBtn));
     }
 
     private void initCenterControls() {
@@ -313,8 +308,10 @@ public class MiniPlayerViewController {
         ((FontAwesomeIconView) playBtn.getGraphic()).setIcon(FontAwesomeIcon.PLAY);
     }
 
-    void setOnQueueViewToggle(Consumer<Boolean> onQueueViewToggle) {
-        this.onQueueViewToggle = onQueueViewToggle;
+    @FXML
+    private void showQueueView() {
+        var navItems = NavigableItemsResolver.resolveQueuedTracks();
+        miniPlayerView.fireEvent(new NavigationEvent(navItems));
     }
 
     @FXML

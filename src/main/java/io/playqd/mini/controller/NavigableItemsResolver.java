@@ -30,7 +30,7 @@ import io.playqd.mini.controller.item.UuidLibraryItemRow;
 import io.playqd.mini.controller.item.WatchFolderItemRow;
 import io.playqd.mini.controller.navigator.ItemsDescriptor;
 import io.playqd.mini.controller.navigator.NavigableItems;
-import io.playqd.player.PlayerTrackListManager;
+import io.playqd.player.Player;
 import io.playqd.service.MusicLibrary;
 
 public final class NavigableItemsResolver {
@@ -107,7 +107,7 @@ public final class NavigableItemsResolver {
 
     public static NavigableItems resolveQueuedTracks() {
         Supplier<List<LibraryItemRow>> supplier = () -> new ArrayList<>(
-                PlayerTrackListManager.trackList().stream().map(QueuedTrackItemRow::new).toList());
+                Player.list().stream().map(QueuedTrackItemRow::new).toList());
         return new NavigableItems(ItemsDescriptor.empty(), supplier, QueuedTrackItemRow.class);
     }
 

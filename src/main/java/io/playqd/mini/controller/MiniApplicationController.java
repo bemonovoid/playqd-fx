@@ -6,6 +6,7 @@ import javafx.fxml.FXML;
 import javafx.scene.layout.VBox;
 
 import io.playqd.mini.controller.item.LibraryItemRow;
+import io.playqd.mini.controller.item.QueuedTrackItemRow;
 import io.playqd.mini.controller.navigator.NavigableItems;
 import io.playqd.mini.events.ApplicationEvent;
 import io.playqd.player.Player;
@@ -30,14 +31,6 @@ public class MiniApplicationController {
         setMiniPlayerAppEventHandlers();
         miniSearchBarController.setOnSearchSubmit((searchScope, searchText) ->
                 miniLibraryItemsViewController.showItems(resolveNavigableItems(searchScope, searchText)));
-        miniPlayerViewController.setOnQueueViewToggle(selected -> {
-            if (selected) {
-                miniLibraryItemsViewController.showItems(
-                        NavigableItemsResolver.resolveQueuedTracks(), selectIfPlaying());
-            } else {
-                miniLibraryItemsViewController.refreshLastState();
-            }
-        });
         miniLibraryItemsViewController.showItems(NavigableItemsResolver.resolveTracks());
     }
 
@@ -56,11 +49,16 @@ public class MiniApplicationController {
     private void setMiniPlayerAppEventHandlers() {
         miniApplicationVBox.addEventHandler(ApplicationEvent.NAVIGATION, event -> {
             event.consume();
-            miniLibraryItemsViewController.showItems(event.getNavigableItems());
+            var navItems = event.getNavigableItems();
+            if  (navItems.type() == QueuedTrackItemRow.class) {
+                miniLibraryItemsViewController.showItems(navItems, selectIfPlaying());
+            } else {
+                miniLibraryItemsViewController.showItems(navItems);
+            }
         });
     }
 
-    private Predicate<LibraryItemRow> selectIfPlaying() {
+    private static Predicate<LibraryItemRow> selectIfPlaying() {
         return libraryItemRow -> Player.playerTrack()
                 .map(PlayerTrack::track)
                 .filter(track -> track.id() == libraryItemRow.getId())
