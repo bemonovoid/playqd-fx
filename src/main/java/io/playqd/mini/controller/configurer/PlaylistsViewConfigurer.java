@@ -11,6 +11,7 @@ import java.util.stream.Collectors;
 import javafx.scene.control.Label;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.TableView;
+import javafx.scene.input.KeyCombination;
 import javafx.scene.layout.HBox;
 import org.kordamp.ikonli.javafx.FontIcon;
 import org.slf4j.Logger;

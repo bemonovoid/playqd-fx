@@ -3,6 +3,7 @@ package io.playqd.mini.controller;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
@@ -33,9 +34,13 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import io.playqd.data.Track;
+import io.playqd.dialog.collection.CollectionDialog;
+import io.playqd.dialog.playlist.PlaylistDialog;
 import io.playqd.event.MouseEventHelper;
 import io.playqd.mini.controller.configurer.ItemsViewConfigurerFactory;
+import io.playqd.mini.controller.item.CollectionItemRow;
 import io.playqd.mini.controller.item.LibraryItemRow;
+import io.playqd.mini.controller.item.PlaylistItemRow;
 import io.playqd.mini.controller.item.QueuedTrackItemRow;
 import io.playqd.mini.controller.item.TrackItemRow;
 import io.playqd.mini.controller.navigator.ItemsNavigator;
@@ -196,6 +201,8 @@ public class MiniLibraryItemsViewController {
                         moveBack();
                     } else if (keyCode == KeyCode.RIGHT) {
                         moveForward();
+                    } else if (keyCode == KeyCode.N) {
+                        createNewItem(tableView.getItems().getFirst().getClass());
                     }
                 }
             } else if (keyCode == KeyCode.BACK_SPACE) {
@@ -267,6 +274,11 @@ public class MiniLibraryItemsViewController {
             if (tableView.getItems().getFirst() instanceof TrackItemRow) {
                 tableView.refresh();
             }
+        });
+        Player.onQueueFinished(() -> {
+            tableView.refresh();
+            tableView.getSelectionModel().clearSelection();
+            tableView.scrollTo(0);
         });
     }
 
@@ -366,6 +378,31 @@ public class MiniLibraryItemsViewController {
                 tableView.scrollTo(selectedIdx);
             }
             tableView.getSelectionModel().select(selectedIdx);
+        }
+    }
+
+    private void createNewItem(Class<? extends LibraryItemRow> itemClass) {
+        var createdItem = new AtomicReference<LibraryItemRow>();
+        if (PlaylistItemRow.class == itemClass) {
+            var dialog = new PlaylistDialog();
+            dialog.showAndWait().ifPresent(name -> {
+                if (!name.trim().isEmpty()) {
+                    createdItem.set(new PlaylistItemRow(MusicLibrary.createPlaylist(name)));
+                }
+            });
+        } else if (CollectionItemRow.class == itemClass) {
+            var dialog = new CollectionDialog();
+            dialog.showAndWait().ifPresent(name -> {
+                if (!name.trim().isEmpty()) {
+                    createdItem.set(new CollectionItemRow(MusicLibrary.createCollection(name)));
+                }
+            });
+        }
+        if (createdItem.get() != null) {
+            tableView.getSelectionModel().clearSelection();
+            tableView.getItems().add(createdItem.get());
+            tableView.refresh();
+            tableView.getSelectionModel().select(createdItem.get());
         }
     }
 

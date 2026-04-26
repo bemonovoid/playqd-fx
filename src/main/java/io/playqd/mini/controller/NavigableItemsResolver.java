@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Map;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
@@ -13,6 +14,7 @@ import io.playqd.data.LibraryItem;
 import io.playqd.data.MediaCollectionItem;
 import io.playqd.data.PlaylistTrack;
 import io.playqd.data.Reaction;
+import io.playqd.data.Track;
 import io.playqd.mini.controller.item.AlbumItemRow;
 import io.playqd.mini.controller.item.AlbumTrackItemRow;
 import io.playqd.mini.controller.item.ArtistAlbumItemRow;
@@ -107,7 +109,7 @@ public final class NavigableItemsResolver {
 
     public static NavigableItems resolveQueuedTracks() {
         Supplier<List<LibraryItemRow>> supplier = () -> new ArrayList<>(
-                Player.list().stream().map(QueuedTrackItemRow::new).toList());
+                Player.queueList().stream().map(QueuedTrackItemRow::new).toList());
         return new NavigableItems(ItemsDescriptor.empty(), supplier, QueuedTrackItemRow.class);
     }
 
@@ -118,7 +120,7 @@ public final class NavigableItemsResolver {
         return new NavigableItems(descriptor, supplier, AlbumTrackItemRow.class);
     }
 
-    public static NavigableItems resolveTracks() {
+    public static NavigableItems allTracks() {
         Supplier<List<LibraryItemRow>> supplier = () -> new ArrayList<>(
                 MusicLibrary.getAllTracks().stream().map(TrackItemRow::new).toList());
         return new NavigableItems(ItemsDescriptor.forTracks(), supplier, TrackItemRow.class);
@@ -127,13 +129,31 @@ public final class NavigableItemsResolver {
     public static NavigableItems resolveLikedTracks() {
         Supplier<List<LibraryItemRow>> supplier = () -> new ArrayList<>(
                 MusicLibrary.getReactedTracks(Reaction.THUMB_UP).stream().map(TrackItemRow::new).toList());
-        return new NavigableItems(ItemsDescriptor.forTracks(), supplier, TrackItemRow.class);
+        return new NavigableItems(ItemsDescriptor.forTracks(Map.of("liked", true)), supplier, TrackItemRow.class);
     }
 
     public static NavigableItems resolvePlayedTracks() {
         Supplier<List<LibraryItemRow>> supplier = () -> new ArrayList<>(
                 MusicLibrary.getPlayedTracks().stream().map(TrackItemRow::new).toList());
-        return new NavigableItems(ItemsDescriptor.forTracks(), supplier, TrackItemRow.class);
+        return new NavigableItems(ItemsDescriptor.forTracks(Map.of("played", true)), supplier, TrackItemRow.class);
+    }
+
+    public static NavigableItems cueTracks() {
+        Supplier<List<LibraryItemRow>> supplier = () -> new ArrayList<>(
+                MusicLibrary.getAllTracks().stream()
+                        .filter(Track::isCueTrack)
+                        .map(TrackItemRow::new)
+                        .toList());
+        return new NavigableItems(ItemsDescriptor.forTracks(Map.of("isCue", true)), supplier, TrackItemRow.class);
+    }
+
+    public static NavigableItems cueParentTracks() {
+        Supplier<List<LibraryItemRow>> supplier = () -> new ArrayList<>(
+                MusicLibrary.getAllTracks().stream()
+                        .filter(Track::isCueParentTrack)
+                        .map(TrackItemRow::new)
+                        .toList());
+        return new NavigableItems(ItemsDescriptor.forTracks(Map.of("isCueParent", true)), supplier, TrackItemRow.class);
     }
 
     public static NavigableItems resolveWatchFolders() {

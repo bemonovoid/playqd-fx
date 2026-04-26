@@ -13,6 +13,7 @@ import javafx.scene.control.Hyperlink;
 import javafx.scene.control.Label;
 import javafx.scene.control.MenuButton;
 import javafx.scene.control.Slider;
+import javafx.scene.control.ToggleButton;
 import javafx.scene.control.Tooltip;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseEvent;
@@ -34,6 +35,8 @@ import io.playqd.data.Track;
 import io.playqd.event.MouseEventHelper;
 import io.playqd.mini.controller.item.TrackItemRow;
 import io.playqd.mini.events.NavigationEvent;
+import io.playqd.player.FetchMode;
+import io.playqd.player.PlaybackMode;
 import io.playqd.player.Player;
 import io.playqd.player.PlayerTrack;
 import io.playqd.player.TrackListRequest;
@@ -69,7 +72,10 @@ public class MiniPlayerViewController {
     private MenuButton quickNavItemsMenuBtn;
 
     @FXML
-    private Button reactionBtn, playPrevBtn, playBtn, playNextBtn, volumeBtn;
+    private Button reactionBtn, playPrevBtn, playBtn, playNextBtn, playbackModeBtn, volumeBtn;
+
+    @FXML
+    private ToggleButton fetchModeToggleBtn;
 
     @FXML
     private void initialize() {
@@ -117,7 +123,7 @@ public class MiniPlayerViewController {
     private void initPlayerState() {
         var lastPlayedTrackIdProp = AppConfig.getProperties().player().state().lastPlayedTrackId();
         var lastPlayingQueue = new HashSet<>(AppConfig.getProperties().player().state().tracklist());
-        if (lastPlayedTrackIdProp != null) {
+        if (lastPlayedTrackIdProp != null && lastPlayedTrackIdProp.get() > 0) {
             var playerTrack = MusicLibrary.getTrackById(lastPlayedTrackIdProp.get());
             updateArtwork(playerTrack);
             updateTitle(playerTrack);
@@ -194,8 +200,10 @@ public class MiniPlayerViewController {
     }
 
     private void initCenterControls() {
-
-
+        updateFetchModeButton(Player.getFetchMode());
+        updatePlaybackModeButton(Player.getPlaybackMode());
+        fetchModeToggleBtn.selectedProperty().addListener((_, _, selected) ->
+                Player.setFetchMode(selected ? FetchMode.RANDOM : FetchMode.NORMAL));
     }
 
     private void initPlayerEventListeners() {
@@ -215,6 +223,7 @@ public class MiniPlayerViewController {
         Player.onPositionChanged(this::updateSliderPosition);
         Player.onPaused(this::updatePlayButton);
         Player.onTimeChanged(newTime -> Platform.runLater(() -> updateSliderElapsedTime(newTime)));
+        Player.onPlaybackModeChanged(this::updatePlaybackModeButton);
     }
 
     private void initLibraryEventListeners() {
@@ -302,6 +311,18 @@ public class MiniPlayerViewController {
         }
     }
 
+    private void updatePlaybackModeButton(PlaybackMode playbackMode) {
+        switch (playbackMode) {
+            case DEFAULT -> playbackModeBtn.setGraphic(FontIcon.of(FontAwesomeSolid.REDO, Color.web("#666")));
+            case REPEAT -> playbackModeBtn.setGraphic(FontIcon.of(FontAwesomeSolid.REDO, Color.RED));
+            case LOOP -> playbackModeBtn.setGraphic(FontIcon.of(FontAwesomeSolid.RETWEET, Color.RED));
+        }
+    }
+
+    private void updateFetchModeButton(FetchMode fetchMode) {
+        fetchModeToggleBtn.setSelected(FetchMode.RANDOM == fetchMode);
+    }
+
     private void handleTrackStopped() {
         trackSlider.setValue(0);
         timeElapsedLabel.setText("0:00");
@@ -333,6 +354,16 @@ public class MiniPlayerViewController {
     private void playPrevious() {
         var hasNext = Player.playPrevious();
         playPrevBtn.setDisable(!hasNext);
+    }
+
+    @FXML
+    private void setPlaybackMode() {
+        var playbackMode = Player.getPlaybackMode();
+        var next = playbackMode.ordinal() + 1;
+        if (next >= PlaybackMode.values().length) {
+            next = 0;
+        }
+        Player.setPlaybackMode(PlaybackMode.values()[next]);
     }
 
     @FXML

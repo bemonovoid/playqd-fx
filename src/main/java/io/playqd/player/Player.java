@@ -13,7 +13,6 @@ import uk.co.caprica.vlcj.player.base.MediaPlayer;
 import uk.co.caprica.vlcj.player.base.State;
 import uk.co.caprica.vlcj.player.list.MediaListPlayer;
 import uk.co.caprica.vlcj.player.list.MediaListPlayerEventListener;
-import uk.co.caprica.vlcj.player.list.PlaybackMode;
 
 import io.playqd.data.Track;
 import io.playqd.service.MusicLibrary;
@@ -27,6 +26,7 @@ public class Player {
     private static final MediaPlayer MEDIA_PLAYER = MEDIA_PLAYER_FACTORY.mediaPlayers().newEmbeddedMediaPlayer();
     private static final MediaListPlayer MEDIA_LIST_PLAYER = newMediaListPlayerInstance();
 
+    static List<Track> ORIGINAL_TRACKS;
     static int START_UP_TRACK_IDX_ON_MANUAL_PLAY_REQUEST = -1;
     static MediaListPlayerEventListener LIST_PLAYER_EVENT_LISTENER;
 
@@ -127,29 +127,28 @@ public class Player {
         MEDIA_PLAYER.audio().setVolume(volume);
     }
 
-    public static int getVolume() {
-        return MEDIA_PLAYER.audio().volume();
+    public static FetchMode getFetchMode() {
+        return properties().fetchMode().get();
     }
 
-    public static void fetchMode(FetchMode mode) {
-        switch (mode) {
-            case NORMAL -> setNewMediaList(getPlayerListTrackRefs());
-            case RANDOM -> {
-                var shuffledTrackRefs = getPlayerListTrackRefs();
-                Collections.shuffle(shuffledTrackRefs);
-                setNewMediaList(shuffledTrackRefs);
-            }
-        }
-        LOG.info("Media list player fetch mode was set to {}", mode);
+    public static PlaybackMode getPlaybackMode() {
+        return properties().playbackMode().get();
     }
 
-    public static void loopMode(LoopMode mode) {
+    public static void setFetchMode(FetchMode fetchMode) {
+        properties().setFetchMode(fetchMode);
+        enqueue(new TrackListRequest(0, ORIGINAL_TRACKS, false));
+        LOG.info("Media list player fetch mode was set to {}", fetchMode);
+    }
+
+    public static void setPlaybackMode(PlaybackMode mode) {
         var playbackMode = switch (mode) {
-            case ON -> PlaybackMode.LOOP;
-            case OFF -> PlaybackMode.DEFAULT;
-            case SINGLE -> PlaybackMode.REPEAT;
+            case LOOP -> uk.co.caprica.vlcj.player.list.PlaybackMode.LOOP;
+            case DEFAULT -> uk.co.caprica.vlcj.player.list.PlaybackMode.DEFAULT;
+            case REPEAT -> uk.co.caprica.vlcj.player.list.PlaybackMode.REPEAT;
         };
         MEDIA_LIST_PLAYER.controls().setMode(playbackMode);
+        properties().setPlaybackMode(mode);
         LOG.info("Media list player playback mode was set to {}", mode);
     }
 
@@ -165,6 +164,16 @@ public class Player {
         properties().finished().addListener((_, _, finishedTrack) -> callback.accept(finishedTrack));
     }
 
+    public static void onQueueFinished(Runnable callback) {
+        properties().queueFinished().addListener((_, _, finished) -> {
+            var repeat = MEDIA_PLAYER.controls().getRepeat();
+            LOG.info("Queue finished: {}. Repeat enabled: {}", finished, repeat);
+            if (finished && !repeat) {
+                callback.run();
+            }
+        });
+    }
+
     public static void onPositionChanged(Consumer<Float> callback) {
         properties().positionChanged().addListener((_, _, newPosition) -> callback.accept(newPosition));
     }
@@ -173,6 +182,10 @@ public class Player {
         properties().timeChanged().addListener((_, _, newTime) -> {
             callback.accept(newTime);
         });
+    }
+
+    public static void onPlaybackModeChanged(Consumer<PlaybackMode> callback) {
+        properties().playbackMode().addListener((_, _, playbackMode) -> callback.accept(playbackMode));
     }
 
     public static void onPlayingTrackChanged(Consumer<Track> callback) {
@@ -214,29 +227,41 @@ public class Player {
      *
      */
     public static void enqueue(TrackListRequest trackListRequest) {
-        var playTrackRef = enqueueNewList(trackListRequest);
+        var enqueueRequest = trackListRequest;
+        ORIGINAL_TRACKS = enqueueRequest.tracks();
+        if (FetchMode.RANDOM == getFetchMode()) {
+            var shuffled = new ArrayList<>(ORIGINAL_TRACKS);
+            Collections.shuffle(shuffled);
+            enqueueRequest = new TrackListRequest(0, shuffled, enqueueRequest.autoPlay());
+        }
+
+        var playTrackRef = enqueueNewList(enqueueRequest);
         preparePlayer(playTrackRef);
-        if (trackListRequest.autoPlay()) {
-            play(trackListRequest.firstTrackPosition());
+        if (enqueueRequest.autoPlay()) {
+            play(enqueueRequest.firstTrackPosition());
         } else {
-            START_UP_TRACK_IDX_ON_MANUAL_PLAY_REQUEST = trackListRequest.firstTrackPosition();
+            START_UP_TRACK_IDX_ON_MANUAL_PLAY_REQUEST = enqueueRequest.firstTrackPosition();
         }
     }
 
     public static void addNext(List<Track> tracks) {
-        addToQueue(new TrackListRequest(list().size(), tracks)); //todo resolve next idx
+        addToQueue(new TrackListRequest(queueList().size(), tracks)); //todo resolve next idx
     }
 
     public static void addLast(List<Track> tracks) {
-        Player.addToQueue(new TrackListRequest(list().size(), tracks));
+        Player.addToQueue(new TrackListRequest(queueList().size(), tracks));
     }
 
-    public static List<Track> list() {
+    public static List<Track> queueList() {
         var trackRefs = getPlayerListTrackRefs();
         if (trackRefs == null) {
             return Collections.emptyList();
         }
         return trackRefs.stream().map(ref -> MusicLibrary.getTrackById(ref.track().id())).toList();
+    }
+
+    public static List<Track> originalList() {
+        return ORIGINAL_TRACKS == null ? Collections.emptyList() : ORIGINAL_TRACKS;
     }
 
     static void clear() {
@@ -362,7 +387,7 @@ public class Player {
     private static MediaListPlayer newMediaListPlayerInstance() {
         var instance = MEDIA_PLAYER_FACTORY.mediaPlayers().newMediaListPlayer();
         instance.mediaPlayer().setMediaPlayer(MEDIA_PLAYER);
-        instance.controls().setMode(PlaybackMode.DEFAULT);
+        instance.controls().setMode(uk.co.caprica.vlcj.player.list.PlaybackMode.DEFAULT);
         return instance;
     }
 

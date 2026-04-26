@@ -10,9 +10,16 @@ class MediaListPlayerEventListenerImpl implements MediaListPlayerEventListener {
 
     private static final Logger LOG = LoggerFactory.getLogger(MediaListPlayerEventListenerImpl.class);
 
+    private final PlayerObservableProperties playerProperties;
+
+    MediaListPlayerEventListenerImpl(PlayerObservableProperties playerProperties) {
+        this.playerProperties = playerProperties;
+    }
+
     @Override
     public void mediaListPlayerFinished(MediaListPlayer mediaListPlayer) {
         LOG.info("End of media list. No more items to play.");
+        playerProperties.setQueueFinishedProperty(true);
     }
 
     @Override

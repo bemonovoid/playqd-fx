@@ -76,7 +76,7 @@
                 </cellValueFactory>
             </TableColumn>
 
-            <TableColumn fx:id="miscValueCol" reorderable="false" sortable="false" editable="false" visible="false"
+            <TableColumn fx:id="miscValueCol" reorderable="false" editable="false" visible="false"
                          style="-fx-alignment: CENTER-RIGHT" minWidth="50" maxWidth="70">
                 <cellValueFactory>
                     <PropertyValueFactory property="miscValue"/>

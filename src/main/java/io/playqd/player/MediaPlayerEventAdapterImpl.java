@@ -24,7 +24,7 @@ class MediaPlayerEventAdapterImpl extends MediaPlayerEventAdapter {
         playerProperties.setStoppedProperty(false);
 
         if (Player.LIST_PLAYER_EVENT_LISTENER == null) {
-            Player.LIST_PLAYER_EVENT_LISTENER = new MediaListPlayerEventListenerImpl();
+            Player.LIST_PLAYER_EVENT_LISTENER = new MediaListPlayerEventListenerImpl(playerProperties);
             mediaListPlayer.events().addMediaListPlayerEventListener(Player.LIST_PLAYER_EVENT_LISTENER);
         }
 

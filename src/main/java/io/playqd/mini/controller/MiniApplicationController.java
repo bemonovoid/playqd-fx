@@ -31,7 +31,7 @@ public class MiniApplicationController {
         setMiniPlayerAppEventHandlers();
         miniSearchBarController.setOnSearchSubmit((searchScope, searchText) ->
                 miniLibraryItemsViewController.showItems(resolveNavigableItems(searchScope, searchText)));
-        miniLibraryItemsViewController.showItems(NavigableItemsResolver.resolveTracks());
+        miniLibraryItemsViewController.showItems(NavigableItemsResolver.allTracks());
     }
 
     private NavigableItems resolveNavigableItems(SearchScope searchScope, SearchToken token) {

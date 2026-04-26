@@ -1,5 +1,11 @@
 package io.playqd;
 
+import javafx.scene.Scene;
+import javafx.scene.image.Image;
+import javafx.stage.Stage;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import io.playqd.client.PlayqdClientProvider;
 import io.playqd.config.AppConfig;
 import io.playqd.core.ApplicationCloseHandler;
@@ -13,10 +19,6 @@ import io.playqd.fxml.FXMLResource;
 import io.playqd.mini.controller.Accelerators;
 import io.playqd.platform.PlatformApi;
 import io.playqd.service.MusicLibraryScanServiceManager;
-import javafx.scene.Scene;
-import javafx.stage.Stage;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public class Application extends javafx.application.Application {
 
@@ -56,6 +58,10 @@ public class Application extends javafx.application.Application {
         Accelerators.initialize(scene);
         ApplicationCloseHandler.register(stage);
         ApplicationTitleUpdateListener.register(stage);
+        stage.getIcons().setAll(
+                new Image("/ico/app-icon-16.png"),
+                new Image("/ico/app-icon-32.png"),
+                new Image("/ico/app-icon-128.png"));
         stage.show();
     }
 

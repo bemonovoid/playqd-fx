@@ -34,18 +34,22 @@ public final class TrackStatusTableCellFactory implements StatusTableCellFactory
                 statusHBox.setSpacing(5);
                 statusHBox.setAlignment(Pos.CENTER);
                 statusHBox.setOnMouseEntered(e -> {
-                    var track = (Track) getTableRow().getItem().getSource();
-                    if (Reaction.THUMB_UP != track.reaction()) {
-                        statusHBox.getChildren().add(createLikeBtn(FontIcon.of(FontAwesomeRegular.HEART)));
+                    if (getTableRow().getItem() != null) {
+                        var track = (Track) getTableRow().getItem().getSource();
+                        if (Reaction.THUMB_UP != track.reaction()) {
+                            statusHBox.getChildren().addFirst(createLikeBtn(FontIcon.of(FontAwesomeRegular.HEART)));
+                        }
                     }
                     e.consume();
                 });
                 statusHBox.setOnMouseExited(e -> {
-                    var track = (Track) getTableRow().getItem().getSource();
-                    if (Reaction.THUMB_UP != track.reaction()) {
-                        statusHBox.getChildren().removeLast();
+                    if (getTableRow().getItem() != null) {
+                        var track = (Track) getTableRow().getItem().getSource();
+                        if (Reaction.THUMB_UP != track.reaction()) {
+                            statusHBox.getChildren().removeFirst();
+                        }
+                        e.consume();
                     }
-                    e.consume();
                 });
             }
 

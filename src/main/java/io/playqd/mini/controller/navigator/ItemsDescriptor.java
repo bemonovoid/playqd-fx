@@ -1,6 +1,8 @@
 package io.playqd.mini.controller.navigator;
 
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 import io.playqd.mini.controller.SearchToken;
 import io.playqd.mini.controller.item.AlbumItemRow;
@@ -43,6 +45,16 @@ public interface ItemsDescriptor {
     }
 
     static ItemsDescriptor forTracks() {
+        return forTracks(null);
+    }
+
+    static ItemsDescriptor forTracks(Map<String, Object> requestParams) {
+        if (requestParams != null && !requestParams.isEmpty()) {
+            var params = requestParams.entrySet().stream()
+                    .map(entry -> String.format("%s=%s", entry.getKey(), entry.getValue().toString()))
+                    .collect(Collectors.joining("&"));
+            return new ItemDescriptorImpl("tracks/" + params);
+        }
         return new ItemDescriptorImpl("tracks");
     }
 
@@ -100,8 +112,8 @@ public interface ItemsDescriptor {
             return new ItemDescriptorImpl("[search]/artists/*");
         }
         var path =  switch (token.filterType()) {
-            case CONTAINS -> String.format("[search]/artists?nameContains=%s", token.value());
-            case STARTS_WITH -> String.format("[search]/artists?nameStartsWith=%s", token.value());
+            case CONTAINS -> String.format("[search]/artists/nameContains=%s", token.value());
+            case STARTS_WITH -> String.format("[search]/artists/nameStartsWith=%s", token.value());
         };
         return new ItemDescriptorImpl(path);
     }
@@ -111,8 +123,8 @@ public interface ItemsDescriptor {
             return new ItemDescriptorImpl("[search]/albums/*");
         }
         var path =  switch (token.filterType()) {
-            case CONTAINS -> String.format("[search]/albums?nameContains=%s", token.value());
-            case STARTS_WITH -> String.format("[search]/albums?nameStartsWith=%s", token.value());
+            case CONTAINS -> String.format("[search]/albums/nameContains=%s", token.value());
+            case STARTS_WITH -> String.format("[search]/albums/nameStartsWith=%s", token.value());
         };
         return new ItemDescriptorImpl(path);
     }
@@ -122,8 +134,8 @@ public interface ItemsDescriptor {
             return new ItemDescriptorImpl("[search]/tracks/*");
         }
         var path =  switch (token.filterType()) {
-            case CONTAINS -> String.format("[search]/tracks?nameContains=%s", token.value());
-            case STARTS_WITH -> String.format("[search]/tracks?nameStartsWith=%s", token.value());
+            case CONTAINS -> String.format("[search]/tracks/nameContains=%s", token.value());
+            case STARTS_WITH -> String.format("[search]/tracks/nameStartsWith=%s", token.value());
         };
         return new ItemDescriptorImpl(path);
     }
@@ -133,8 +145,8 @@ public interface ItemsDescriptor {
             return new ItemDescriptorImpl("[search]/playlists/*");
         }
         var path =  switch (token.filterType()) {
-            case CONTAINS -> String.format("[search]/playlists?nameContains=%s", token.value());
-            case STARTS_WITH -> String.format("[search]/playlists?nameStartsWith=%s", token.value());
+            case CONTAINS -> String.format("[search]/playlists/nameContains=%s", token.value());
+            case STARTS_WITH -> String.format("[search]/playlists/nameStartsWith=%s", token.value());
         };
         return new ItemDescriptorImpl(path);
     }
@@ -144,8 +156,8 @@ public interface ItemsDescriptor {
             return new ItemDescriptorImpl("[search]/collections/*");
         }
         var path =  switch (token.filterType()) {
-            case CONTAINS -> String.format("[search]/collections?nameContains=%s", token.value());
-            case STARTS_WITH -> String.format("[search]/collections?nameStartsWith=%s", token.value());
+            case CONTAINS -> String.format("[search]/collections/nameContains=%s", token.value());
+            case STARTS_WITH -> String.format("[search]/collections/nameStartsWith=%s", token.value());
         };
         return new ItemDescriptorImpl(path);
     }

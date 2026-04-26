@@ -42,7 +42,7 @@ public class ApplicationCloseHandler {
     }
 
     private static void setPlayerStateProperties() {
-        var tracklist = Player.list().stream().map(Track::id).toList();
+        var tracklist = Player.queueList().stream().map(Track::id).toList();
         AppConfig.getProperties().player().state().tracklist().clear();
         AppConfig.getProperties().player().state().tracklist().addAll(tracklist);
         Player.playerTrack().map(PlayerTrack::track).ifPresentOrElse(track ->

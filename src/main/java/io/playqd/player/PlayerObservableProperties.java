@@ -5,63 +5,98 @@ import javafx.beans.property.ReadOnlyObjectProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleObjectProperty;
 
+import io.playqd.config.AppConfig;
 import io.playqd.data.Track;
 
 public final class PlayerObservableProperties {
 
-    private final SimpleObjectProperty<Track> FINISHED_PROPERTY = new SimpleObjectProperty<>();
-    private final SimpleBooleanProperty PAUSED_PROPERTY = new SimpleBooleanProperty();
-    private final SimpleObjectProperty<Track> PLAYING_TRACK_PROPERTY = new SimpleObjectProperty<>();
-    private final SimpleObjectProperty<Float> POSITION_CHANGED_PROPERTY = new SimpleObjectProperty<>();
-    private final SimpleBooleanProperty STOPPED_PROPERTY = new SimpleBooleanProperty();
-    private final SimpleObjectProperty<Long> TIME_CHANGED_PROPERTY = new SimpleObjectProperty<>();
+    private final SimpleObjectProperty<PlaybackMode> playbackMode = new SimpleObjectProperty<>(PlaybackMode.DEFAULT);
+    private final SimpleObjectProperty<FetchMode> fetchMode = new SimpleObjectProperty<>(FetchMode.NORMAL);
+    private final SimpleObjectProperty<Track> finished = new SimpleObjectProperty<>();
+    private final SimpleBooleanProperty paused = new SimpleBooleanProperty();
+    private final SimpleObjectProperty<Track> playingTrack = new SimpleObjectProperty<>();
+    private final SimpleObjectProperty<Float> positionChanged = new SimpleObjectProperty<>();
+    private final SimpleBooleanProperty stopped = new SimpleBooleanProperty();
+    private final SimpleObjectProperty<Long> timeChanged = new SimpleObjectProperty<>();
+    private final SimpleBooleanProperty queueFinished = new SimpleBooleanProperty();
+
+    {
+        setFetchMode(AppConfig.getProperties().player().state().fetchMode().get());
+        setPlaybackMode(AppConfig.getProperties().player().state().playbackMode().get());
+        AppConfig.getProperties().player().state().fetchMode().bind(fetchMode);
+        AppConfig.getProperties().player().state().playbackMode().bind(playbackMode);
+    }
+
+    public ReadOnlyObjectProperty<FetchMode> fetchMode() {
+        return fetchMode;
+    }
+
+    public ReadOnlyObjectProperty<PlaybackMode> playbackMode() {
+        return playbackMode;
+    }
 
     public ReadOnlyObjectProperty<Track> finished() {
-        return FINISHED_PROPERTY;
+        return finished;
     }
 
     public ReadOnlyBooleanProperty paused() {
-        return PAUSED_PROPERTY;
+        return paused;
     }
 
     public ReadOnlyBooleanProperty stopped() {
-        return STOPPED_PROPERTY;
+        return stopped;
     }
 
     public ReadOnlyObjectProperty<Long> timeChanged() {
-        return TIME_CHANGED_PROPERTY;
+        return timeChanged;
     }
 
     public ReadOnlyObjectProperty<Track> playingTrack() {
-        return PLAYING_TRACK_PROPERTY;
+        return playingTrack;
     }
 
     public ReadOnlyObjectProperty<Float> positionChanged() {
-        return POSITION_CHANGED_PROPERTY;
+        return positionChanged;
+    }
+
+    public ReadOnlyBooleanProperty queueFinished() {
+        return queueFinished;
+    }
+
+    void setFetchMode(FetchMode fetchMode) {
+        this.fetchMode.set(fetchMode);
+    }
+
+    void setPlaybackMode(PlaybackMode mode) {
+        playbackMode.set(mode);
     }
 
     void setFinishedProperty(Track track) {
-        FINISHED_PROPERTY.set(track);
+        finished.set(track);
     }
 
     void setPausedProperty(boolean paused) {
-        PAUSED_PROPERTY.set(paused);
+        this.paused.set(paused);
     }
 
     void setStoppedProperty(boolean stopped) {
-        STOPPED_PROPERTY.set(stopped);
+        this.stopped.set(stopped);
     }
 
     void setPlayingTrackProperty(Track track) {
-        PLAYING_TRACK_PROPERTY.set(track);
+        playingTrack.set(track);
     }
 
     void setPositionChangedProperty(float position) {
-        POSITION_CHANGED_PROPERTY.set(position);
+        positionChanged.set(position);
     }
 
     void setTimeChangedProperty(long timeChanged) {
-        TIME_CHANGED_PROPERTY.set(timeChanged);
+        this.timeChanged.set(timeChanged);
+    }
+
+    void setQueueFinishedProperty(boolean queueFinished) {
+        this.queueFinished.set(queueFinished);
     }
 
 }

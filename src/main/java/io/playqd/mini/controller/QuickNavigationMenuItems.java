@@ -27,7 +27,7 @@ final class QuickNavigationMenuItems {
         genres.setOnAction(_ -> node.fireEvent(new NavigationEvent(NavigableItemsResolver.resolveGenres())));
         playlists.setOnAction(_ -> node.fireEvent(new NavigationEvent(NavigableItemsResolver.resolvePlaylists())));
         collections.setOnAction(_ -> node.fireEvent(new NavigationEvent(NavigableItemsResolver.resolveCollections())));
-        allTracks.setOnAction(_ -> node.fireEvent(new NavigationEvent(NavigableItemsResolver.resolveTracks())));
+        allTracks.setOnAction(_ -> node.fireEvent(new NavigationEvent(NavigableItemsResolver.allTracks())));
         likedTracks.setOnAction(_ -> node.fireEvent(new NavigationEvent(NavigableItemsResolver.resolveLikedTracks())));
         playedTracks.setOnAction(_ -> node.fireEvent(new NavigationEvent(NavigableItemsResolver.resolvePlayedTracks())));
         folders.setOnAction(_ -> node.fireEvent(new NavigationEvent(NavigableItemsResolver.resolveWatchFolders())));

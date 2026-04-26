@@ -4,7 +4,6 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -66,10 +65,11 @@ public final class MusicLibrary {
     private static final ObservableMap<Long, MediaCollection> COLLECTION_CACHE =
             FXCollections.observableMap(new HashMap<>());
 
-    private static final Map<Long, Track> TRACKS_CACHE = Collections.synchronizedMap(new HashMap<>());
+    private static final ObservableMap<Long, Track> TRACKS_CACHE =
+            FXCollections.synchronizedObservableMap(FXCollections.observableMap(new HashMap<>()));
 
     static {
-        getAllTracks();
+        loadCachesFromServer();
         MusicLibraryScanServiceManager.scanResultProperty().addListener((_, _, scanDataResult) -> {
             scanDataResult.ifPresent(scanData -> {
                 if (scanData.added() + scanData.updated() + scanData.deleted() > 0) {
@@ -81,17 +81,27 @@ public final class MusicLibrary {
     }
 
     public static void refresh() {
-        LOG.info("Refreshing library caches: collections, playlists, tracks, images ...");
-        COLLECTION_CACHE.clear();
-        PLAYLIST_CACHE.clear();
-        TRACKS_CACHE.clear();
-        Images.clearCaches();
-        getAllTracks();
-        LOG.info("Music library caches were refreshed.");
+        clearAllCaches();
+        loadCachesFromServer();
         LIBRARY_REFRESHED_EVENT_PROPERTY.set(new LibraryRefreshedEvent());
     }
 
-    public static ReadOnlyObjectProperty<LibraryRefreshedEvent> libraryRefreshedEventProperty() {
+    private static void clearAllCaches() {
+        Images.clearCaches();
+        PLAYLIST_CACHE.clear();
+        COLLECTION_CACHE.clear();
+        TRACKS_CACHE.clear();
+        LOG.info("All music library caches were evicted.");
+    }
+
+    private static void loadCachesFromServer() {
+        COLLECTION_CACHE.putAll(getCollectionsFromServer());
+        PLAYLIST_CACHE.putAll(getPlaylistsFromServer());
+        TRACKS_CACHE.putAll(getTracksFromServer());
+        LOG.info("Refreshing library caches: collections, playlists, tracks, images ...");
+    }
+
+    public static ReadOnlyObjectProperty<LibraryRefreshedEvent> refreshedEventProperty() {
         return LIBRARY_REFRESHED_EVENT_PROPERTY;
     }
 
@@ -143,6 +153,14 @@ public final class MusicLibrary {
         return TRACKS_CACHE.computeIfAbsent(id, MusicLibrary::getTrackFromServer);
     }
 
+    public static Track getRealTrackById(long id) {
+        var track = TRACKS_CACHE.computeIfAbsent(id, MusicLibrary::getTrackFromServer);
+        if (track.isCueTrack()) {
+            track = TRACKS_CACHE.computeIfAbsent(track.parentId(), MusicLibrary::getTrackFromServer);
+        }
+        return track;
+    }
+
     public static Result<Track> findTrackById(long id) {
         try {
             return Result.success(TRACKS_CACHE.computeIfAbsent(id, MusicLibrary::getTrackFromServer));
@@ -169,7 +187,7 @@ public final class MusicLibrary {
     }
 
     public static List<Track> getAllTracks() {
-        return new ArrayList<>(getTracksFromCache().values());
+        return new ArrayList<>(TRACKS_CACHE.values());
     }
 
     public static List<Track> getAllTracksExcludingCueParent() {
@@ -210,12 +228,6 @@ public final class MusicLibrary {
                 .reversed());
     }
 
-    public static List<Track> getCueTracks() {
-        return new ArrayList<>(getTracksFromCache().values().stream()
-                .filter(Track::isCueTrack)
-                .toList());
-    }
-
     public static List<Track> getReactedTracks(Reaction reaction) {
         return new ArrayList<>(getAllTracksStreamExcludingCueParent()
                 .filter(t -> Reaction.NONE != reaction && t.reaction() == reaction)
@@ -234,15 +246,7 @@ public final class MusicLibrary {
     }
 
     public static List<Playlist> getPlaylists() {
-        if (PLAYLIST_CACHE.isEmpty()) {
-            PLAYLIST_CACHE.putAll(playlistApi().getAll().stream()
-                    .collect(Collectors.toMap(Playlist::id, p -> p)));
-        }
         return new ArrayList<>(PLAYLIST_CACHE.values());
-    }
-
-    public static List<Playlist> findPlaylistsWithTrackId(long trackId) {
-        return getPlaylists().stream().filter(p -> p.tracks().stream().anyMatch(t -> t.id() == trackId)).toList();
     }
 
     public static Playlist createPlaylist(String name) {
@@ -252,6 +256,9 @@ public final class MusicLibrary {
     public static Playlist createPlaylist(String name, List<Long> trackIds) {
         var playlist = playlistApi().create(name, trackIds);
         PLAYLIST_CACHE.put(playlist.id(), playlist);
+        if (!trackIds.isEmpty()) {
+            setUpdatedTracksProperty(trackIds.stream().map(MusicLibrary::getTrackById).collect(Collectors.toList()));
+        }
         return playlist;
     }
 
@@ -259,10 +266,10 @@ public final class MusicLibrary {
         return PLAYLIST_CACHE.computeIfAbsent(id, _ -> playlistApi().get(id));
     }
 
-    public static Playlist addTracksToPlaylist(long id, List<Long> trackIds) {
+    public static void addTracksToPlaylist(long id, List<Long> trackIds) {
         var playlist = playlistApi().addTracks(id, trackIds);
         PLAYLIST_CACHE.put(playlist.id(), playlist);
-        return playlist;
+        setUpdatedTracksProperty(trackIds.stream().map(MusicLibrary::getTrackById).collect(Collectors.toList()));
     }
 
     public static void movePlaylistTracks(long fromPlaylistId, long toPlaylistId, List<Long> trackIds) {
@@ -275,12 +282,6 @@ public final class MusicLibrary {
         var playlist = playlistApi().removeTracks(id, trackIds);
         PLAYLIST_CACHE.put(playlist.id(), playlist);
         return playlist;
-    }
-
-    public static MediaCollection removeTracksFromCollection(long id, List<Long> ids) {
-        var collection = playqdClient().collections().removeItems(id, ids);
-        COLLECTION_CACHE.put(collection.id(), collection);
-        return collection;
     }
 
     public static void deletePlaylist(long id) {
@@ -300,10 +301,6 @@ public final class MusicLibrary {
     }
 
     public static List<MediaCollection> getCollections() {
-        if (COLLECTION_CACHE.isEmpty()) {
-            COLLECTION_CACHE.putAll(collectionsApi().getAll().stream()
-                    .collect(Collectors.toMap(MediaCollection::id, p -> p)));
-        }
         return new ArrayList<>(COLLECTION_CACHE.values());
     }
 
@@ -325,6 +322,16 @@ public final class MusicLibrary {
     public static MediaCollection createCollection(String name, List<NewMediaCollectionItem> items) {
         var collection = collectionsApi().create(name, items);
         COLLECTION_CACHE.put(collection.id(), collection);
+        if (!items.isEmpty()) {
+            var updatedTracks = items.stream()
+                    .filter(i -> MediaItemType.TRACK == i.getItemType())
+                    .map(i -> Long.parseLong(i.getRefId()))
+                    .map(MusicLibrary::getTrackById)
+                    .collect(Collectors.toList());
+            if (!updatedTracks.isEmpty()) {
+                setUpdatedTracksProperty(updatedTracks);
+            }
+        }
         return collection;
     }
 
@@ -340,10 +347,22 @@ public final class MusicLibrary {
         COLLECTION_CACHE.put(updated.id(), updated);
     }
 
-    public static MediaCollection addItemsToCollection(long id, List<NewMediaCollectionItem> items) {
+    public static void addItemsToCollection(long id, List<NewMediaCollectionItem> items) {
         var collection = collectionsApi().addItems(id, items);
         COLLECTION_CACHE.put(id, collection);
-        return collection;
+        var updatedTracks = items.stream()
+                .filter(i -> MediaItemType.TRACK == i.getItemType())
+                .map(i -> Long.parseLong(i.getRefId()))
+                .map(MusicLibrary::getTrackById)
+                .collect(Collectors.toList());
+        if (!updatedTracks.isEmpty()) {
+            setUpdatedTracksProperty(updatedTracks);
+        }
+    }
+
+    public static void removeTracksFromCollection(long id, List<Long> ids) {
+        var collection = playqdClient().collections().removeItems(id, ids);
+        COLLECTION_CACHE.put(collection.id(), collection);
     }
 
     public static void deleteCollectionItems(long id, List<Long> itemIds) {
@@ -383,23 +402,23 @@ public final class MusicLibrary {
         UPDATED_TRACKS_PROPERTY.set(new UpdatedTracks(tracks));
     }
 
-    private static Map<Long, Track> getTracksFromCache() {
-        if (TRACKS_CACHE.isEmpty()) {
-            LOG.info("Music library cache is empty, retrieving item from server ...");
-            var tracksFromServer = getTracksFromServer().stream()
-                    .collect(Collectors.toMap(Track::id, Function.identity()));
-            LOG.info("Retrieved and cached {} tracks from server", tracksFromServer.size());
-            TRACKS_CACHE.putAll(tracksFromServer);
-        }
-        return TRACKS_CACHE;
-    }
-
-    private static List<Track> getTracksFromServer() {
-        return new ArrayList<>(playqdClient().getAllTracks(PageRequest.unpaged()).content());
+    private static Map<Long, Track> getTracksFromServer() {
+        var response = playqdClient().getAllTracks(PageRequest.unpaged()).content();
+        var tracks = response.stream().collect(Collectors.toMap(Track::id, Function.identity()));
+        LOG.info("Retrieved {} tracks from server", tracks.size());
+        return tracks;
     }
 
     private static Track getTrackFromServer(long id) {
         return playqdClient().getTrackById(id);
+    }
+
+    private static Map<Long, Playlist> getPlaylistsFromServer() {
+        return playlistApi().getAll().stream().collect(Collectors.toMap(Playlist::id, p -> p));
+    }
+
+    private static Map<Long, MediaCollection> getCollectionsFromServer() {
+        return collectionsApi().getAll().stream().collect(Collectors.toMap(MediaCollection::id, p -> p));
     }
 
     private static Album tracksToAlbum(List<Track> tracks) {

@@ -53,7 +53,7 @@ public final class ShowInContextMenuItemsBuilder {
         this.showInFolderMenuItem = new MenuItem("Folder");
         showInFolderMenuItem.setGraphic(new FontIcon("far-folder"));
         this.showInFolderMenuItem.setOnAction(_ -> {
-            var track = (Track) items.getFirst().getSource();
+            var track = MusicLibrary.getRealTrackById(items.getFirst().getId());
             var trackLocation = Paths.get(track.fileAttributes().location());
             var parentPath = trackLocation.getParent().toString();
             var wfi = MusicLibrary.getWatchFolderItemByLocation(parentPath);

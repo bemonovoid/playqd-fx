@@ -84,11 +84,15 @@
         </HBox>
 
         <HBox fx:id="centerControls" alignment="CENTER" spacing="15" pickOnBounds="false">
-            <Button styleClass="icon-button" focusTraversable="false">
+            <ToggleButton fx:id="fetchModeToggleBtn" focusTraversable="false">
                 <graphic>
-                    <FontAwesomeIconView glyphName="RANDOM" glyphSize="14" style="-fx-fill: #666"/>
+                    <FontIcon iconLiteral="fas-random" style="-fx-fill: #666"/>
                 </graphic>
-            </Button>
+                <styleClass>
+                    <String fx:value="icon-button"/>
+                    <String fx:value="icon-toggle-button"/>
+                </styleClass>
+            </ToggleButton>
             <Button fx:id="playPrevBtn" styleClass="icon-button" focusTraversable="false" onAction="#playPrevious">
                 <graphic>
                     <FontAwesomeIconView glyphName="STEP_BACKWARD" glyphSize="14" style="-fx-fill: #666"/>
@@ -105,9 +109,10 @@
                 </graphic>
             </Button>
 
-            <Button styleClass="icon-button" focusTraversable="false" style="-fx-fill: #666">
+            <Button fx:id="playbackModeBtn" styleClass="icon-button" focusTraversable="false" prefWidth="40"
+                    onAction="#setPlaybackMode">
                 <graphic>
-                    <FontAwesomeIconView glyphName="REPEAT" glyphSize="14" style="-fx-fill: #666"/>
+                    <FontIcon iconLiteral="fas-redo"/>
                 </graphic>
             </Button>
 
