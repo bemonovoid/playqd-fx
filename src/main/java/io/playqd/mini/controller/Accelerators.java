@@ -8,6 +8,8 @@ import javafx.scene.input.KeyCombination;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import io.playqd.dialog.settings.SettingsDialog;
+
 public final class Accelerators {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(Accelerators.class);
@@ -26,9 +28,15 @@ public final class Accelerators {
             LOGGER.warn("Accelerators already initialized");
             return;
         }
+        createSettingsDialogAccelerator(scene);
         createQuickNavigationAccelerator(scene);
         createRequestSearchInputFocusAccelerator(scene);
         INITIALIZED = true;
+    }
+
+    private static void createSettingsDialogAccelerator(Scene scene) {
+        var keyCodeCombination = new KeyCodeCombination(KeyCode.P, KeyCombination.SHORTCUT_DOWN);
+        scene.getAccelerators().put(keyCodeCombination,  () -> new SettingsDialog().afterShowAndWait(_ -> {}));
     }
 
     private static void createQuickNavigationAccelerator(Scene scene) {
@@ -36,17 +44,8 @@ public final class Accelerators {
         scene.getAccelerators().put(keyCodeCombination,  () -> {
             var menuBtn = (MenuButton) scene.lookup("#" + QUICK_NAV_ITEMS_MENU_BTN);
             menuBtn.fire();
-//            var bounds = menuBtn.localToScreen(menuBtn.getBoundsInLocal());
-//            double centerX = bounds.getMinX() + (bounds.getWidth() / 2);
-//            double centerY = bounds.getMinY() + (bounds.getHeight() / 2);
-//            var contextMenu = new ContextMenu();
-//            contextMenu.getStyleClass().add("nav-context-menu");
-//            contextMenu.getItems().addAll(QuickNavigationMenuItems.get(menuBtn));
-//            contextMenu.show(menuBtn, centerX, centerY);
         });
     }
-
-
 
     private static void createRequestSearchInputFocusAccelerator(Scene scene) {
         var keyCodeCombination = new KeyCodeCombination(KeyCode.F, KeyCombination.CONTROL_DOWN);

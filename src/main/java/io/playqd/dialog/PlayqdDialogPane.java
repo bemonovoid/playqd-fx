@@ -5,7 +5,7 @@ import javafx.scene.control.DialogPane;
 public abstract class PlayqdDialogPane<D extends PlayqdDialog<?>, C extends PlayqdDialogController> extends DialogPane {
 
     protected PlayqdDialogPane() {
-        getStylesheets().add("/css/glyphs.css");
+
     }
 
     private D dialog;
