@@ -62,6 +62,10 @@ public interface ItemsDescriptor {
         return new ItemDescriptorImpl(String.format("playlists/%s", parent.getName()), parent);
     }
 
+    static ItemsDescriptor forQueuedTracks() {
+        return new ItemDescriptorImpl("player/queue");
+    }
+
     static ItemsDescriptor forArtistAlbums(LibraryItemRow parent) {
         var artistName = parent.getName();
         if (parent instanceof AlbumItemRow item) {

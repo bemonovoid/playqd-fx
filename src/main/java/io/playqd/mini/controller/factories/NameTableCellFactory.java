@@ -4,7 +4,6 @@ import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
-import javafx.beans.property.StringProperty;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.control.Hyperlink;
@@ -103,8 +102,11 @@ public final class NameTableCellFactory implements
                     if (libraryItemRow.getSource() instanceof Track track) {
                         Player.playerTrack()
                                 .filter(playingTrack -> playingTrack.track().id() == track.id())
-                                .ifPresentOrElse(playerTrack ->
-                                                container.getChildren().add(playerTrackStatusToLabel(playerTrack.status().get())),
+                                .ifPresentOrElse(playerTrack -> {
+                                            if (!(container.getChildren().getLast() instanceof Label)) {
+                                                container.getChildren().add(playerTrackStatusToLabel(playerTrack.status().get()));
+                                            }
+                                        },
                                         () -> {
                                             if (container.getChildren().getLast() instanceof Label) {
                                                 container.getChildren().removeLast();

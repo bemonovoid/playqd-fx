@@ -110,7 +110,7 @@ public final class NavigableItemsResolver {
     public static NavigableItems resolveQueuedTracks() {
         Supplier<List<LibraryItemRow>> supplier = () -> new ArrayList<>(
                 Player.queueList().stream().map(QueuedTrackItemRow::new).toList());
-        return new NavigableItems(ItemsDescriptor.empty(), supplier, QueuedTrackItemRow.class);
+        return new NavigableItems(ItemsDescriptor.forQueuedTracks(), supplier, QueuedTrackItemRow.class);
     }
 
     public static NavigableItems resolveAlbumTracks(LibraryItemRow item) {

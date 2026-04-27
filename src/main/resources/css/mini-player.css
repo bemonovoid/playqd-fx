@@ -51,12 +51,14 @@
 
 /* 3. Remove the outer border of the table (Optional) */
 .library-item-table {
-    -fx-background-color: transparent;
+    /*-fx-background-color: transparent;*/
+    -fx-background-color: #a4ccd9;
     -fx-background-insets: 0;
 }
 
 .library-item-table .table-row-cell, .table-row-cell:odd {
-    -fx-background-color: white;
+    /*-fx-background-color: white;*/
+    -fx-background-color: #f3f7ff;
 }
 
 .library-item-table .table-row-cell:filled:selected {

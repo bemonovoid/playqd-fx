@@ -20,7 +20,13 @@ public class ConfirmDeleteRowItemsDialog {
 
         var deleteMessage = "Delete ";
         var item = items.getFirst();
-        if (item instanceof PlaylistItemRow p) {
+        if (item instanceof QueuedTrackItemRow q) {
+            if (items.size() > 1) {
+                deleteMessage += String.format("%s tracks from queue", items.size());
+            } else {
+                deleteMessage += "'" + q.getSource().artistName() + " - " + q.getSource().name() + "' from queue";
+            }
+        } else if (item instanceof PlaylistItemRow p) {
             if (items.size() > 1) {
                 deleteMessage += String.format("%s playlists", items.size());
             } else {

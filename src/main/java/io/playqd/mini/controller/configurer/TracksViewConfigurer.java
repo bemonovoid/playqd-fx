@@ -113,6 +113,7 @@ public sealed class TracksViewConfigurer extends DefaultItemsViewConfigurer perm
         var items = selectedItems.stream().map(i -> (Track) i.getSource()).toList();
         return ContextMenuItemsBuilder.newBuilder(controller)
                 .playMenuItems(items)
+                .addToQueueMenuItems(items)
                 .separatorMenuItem()
                 .playlistMenuItems(items)
                 .collectionsMenuItems(selectedItems)

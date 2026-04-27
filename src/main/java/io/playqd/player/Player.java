@@ -2,8 +2,11 @@ package io.playqd.player;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
+import java.util.TreeSet;
 import java.util.function.Consumer;
 
 import org.slf4j.Logger;
@@ -288,15 +291,22 @@ public class Player {
         }
     }
 
-    // Indices must be in descending order
-    static void remove(List<Integer> indices) {
+    public static void remove(List<Track> tracks) {
         if (MEDIA_LIST_PLAYER.list().media() == null) {
             return;
         }
-        if (indices == null || indices.isEmpty()) {
+        if (tracks == null || tracks.isEmpty()) {
             return;
         }
+        var trackIds = tracks.stream().map(Track::id).toList();
         var userDataTrackRefs = getPlayerListTrackRefs();
+        // Indices must be in descending order
+        var indices = new TreeSet<Integer>((i1, i2) -> Integer.compare(i2, i1));
+        for (int i = 0; i < userDataTrackRefs.size(); i++) {
+            if (trackIds.contains(userDataTrackRefs.get(i).track().id())) {
+                indices.add(i);
+            }
+        }
         indices.forEach(idx -> {
             userDataTrackRefs.remove(idx.intValue());
             MEDIA_LIST_PLAYER.list().media().remove(idx);
