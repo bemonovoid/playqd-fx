@@ -1,16 +1,10 @@
 package io.playqd.mini.controller.configurer;
 
-import io.playqd.dialog.collection.CollectionDialog;
-import io.playqd.data.MediaCollection;
-import io.playqd.mini.controller.MiniLibraryItemsViewController;
-import io.playqd.mini.controller.NavigableItemsResolver;
-import io.playqd.mini.controller.factories.*;
-import io.playqd.mini.controller.item.CollectionItemRow;
-import io.playqd.mini.controller.item.LibraryItemRow;
-import io.playqd.mini.controller.item.PlaylistItemRow;
-import io.playqd.mini.controller.navigator.ItemsDescriptor;
-import io.playqd.mini.custom.ConfirmDeleteRowItemsDialog;
-import io.playqd.service.MusicLibrary;
+import java.util.List;
+import java.util.Optional;
+import java.util.function.Consumer;
+import java.util.function.Supplier;
+
 import javafx.scene.control.Label;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.TableView;
@@ -19,10 +13,19 @@ import org.kordamp.ikonli.javafx.FontIcon;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.List;
-import java.util.Optional;
-import java.util.function.Consumer;
-import java.util.function.Supplier;
+import io.playqd.data.MediaCollection;
+import io.playqd.dialog.collection.CollectionDialog;
+import io.playqd.mini.controller.MiniLibraryItemsViewController;
+import io.playqd.mini.controller.NavigableItemsResolver;
+import io.playqd.mini.controller.factories.CollectionImageTableCellFactory;
+import io.playqd.mini.controller.factories.ImageTableCellFactory;
+import io.playqd.mini.controller.factories.NameTableCellFactory;
+import io.playqd.mini.controller.item.CollectionItemRow;
+import io.playqd.mini.controller.item.LibraryItemRow;
+import io.playqd.mini.controller.item.PlaylistItemRow;
+import io.playqd.mini.controller.navigator.ItemsDescriptor;
+import io.playqd.mini.custom.ConfirmDeleteRowItemsDialog;
+import io.playqd.service.MusicLibrary;
 
 public final class CollectionsViewConfigurer extends DefaultItemsViewConfigurer {
 
@@ -44,17 +47,6 @@ public final class CollectionsViewConfigurer extends DefaultItemsViewConfigurer 
                 return String.format("%s item%s", collection.items().size(), collection.items().size() > 1 ? "s" : "");
             }
             return null;
-        });
-    }
-
-    @Override
-    protected MiscValueTableCellFactory getMiscValueTableCellFactory() {
-        return new CollectionItemsCountTableCellFactory(libraryItemRow -> {
-            if (libraryItemRow instanceof CollectionItemRow collectionItemRow) {
-                return collectionItemRow.getSource().items().size();
-            }
-            LOG.trace("Unexpected row type: {}", libraryItemRow.getClass());
-            return -1;
         });
     }
 

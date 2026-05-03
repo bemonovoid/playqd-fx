@@ -47,6 +47,7 @@ final class TrackContextViewOptions {
 
         var played = new MenuItem("Played");
         played.setGraphic(new FontIcon("fas-play"));
+        played.setOnAction(_ -> tableView.fireEvent(new NavigationEvent(NavigableItemsResolver.resolvePlayedTracks())));
 
         var filterByMenu = new Menu("Filter");
         filterByMenu.setGraphic(new FontIcon("fas-filter"));

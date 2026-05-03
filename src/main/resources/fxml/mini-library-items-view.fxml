@@ -63,7 +63,7 @@
                 </cellValueFactory>
             </TableColumn>
 
-            <TableColumn fx:id="nameCol" text="Name" reorderable="false" sortable="false" editable="false" minWidth="100" style="-fx-padding: 0 0 0 5">
+            <TableColumn fx:id="nameCol" text="Name" reorderable="false" editable="false" minWidth="100" style="-fx-padding: 0 0 0 5">
                 <cellValueFactory>
                     <PropertyValueFactory property="name"/>
                 </cellValueFactory>

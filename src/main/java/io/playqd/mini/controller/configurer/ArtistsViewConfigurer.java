@@ -1,27 +1,30 @@
 package io.playqd.mini.controller.configurer;
 
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
-import java.util.Set;
+import java.util.function.Supplier;
 
 import javafx.scene.control.Label;
+import javafx.scene.control.MenuItem;
 import javafx.scene.control.TableView;
 import javafx.scene.layout.HBox;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import io.playqd.data.Artist;
-import io.playqd.data.Tuple;
-import io.playqd.mini.controller.ItemsTableColumnIds;
 import io.playqd.mini.controller.MiniLibraryItemsViewController;
 import io.playqd.mini.controller.NavigableItemsResolver;
-import io.playqd.mini.controller.factories.AlbumsAndTracksCountTableCellFactory;
 import io.playqd.mini.controller.factories.ArtistImageTableCellFactory;
 import io.playqd.mini.controller.factories.ImageTableCellFactory;
-import io.playqd.mini.controller.factories.MiscValueTableCellFactory;
 import io.playqd.mini.controller.factories.NameTableCellFactory;
 import io.playqd.mini.controller.item.ArtistItemRow;
 import io.playqd.mini.controller.item.LibraryItemRow;
 import io.playqd.mini.controller.navigator.ItemsDescriptor;
+import io.playqd.service.MusicLibrary;
+import io.playqd.service.TrackComparators;
 
 public final class ArtistsViewConfigurer extends DefaultItemsViewConfigurer {
 
@@ -57,19 +60,29 @@ public final class ArtistsViewConfigurer extends DefaultItemsViewConfigurer {
     }
 
     @Override
-    protected MiscValueTableCellFactory getMiscValueTableCellFactory() {
-        return new AlbumsAndTracksCountTableCellFactory(libraryItemRow -> {
-            if (libraryItemRow instanceof ArtistItemRow artistItemRow) {
-                var artist = artistItemRow.getSource();
-                return Tuple.unaryFrom(artist.albumsCount(), artist.tracksCount());
-            }
-            LOG.trace("Unexpected row type: {}", libraryItemRow.getClass());
-            return Tuple.empty();
-        });
-    }
-
-    @Override
     protected void configureHeaderLeft(ItemsDescriptor itemsDescriptor, HBox headerLeft) {
         headerLeft.getChildren().add(new Label("Artists:"));
     }
+
+    @Override
+    public Supplier<List<MenuItem>> configureViewOptionsMenuItems(TableView<LibraryItemRow> tableView) {
+        return () -> {
+            Comparator<LibraryItemRow> comp = (a1, a2) -> {
+                if (a1.getSource() instanceof Artist artist1 && a2.getSource() instanceof Artist artist2) {
+                    var a1Date = MusicLibrary.getArtistTracks(artist1.id()).stream()
+                            .max(TrackComparators.byAddedDate())
+                            .map(t -> t.fileAttributes().createdDate())
+                            .orElse(LocalDateTime.now());
+                    var a2Date = MusicLibrary.getArtistTracks(artist2.id()).stream()
+                            .max(TrackComparators.byAddedDate())
+                            .map(t -> t.fileAttributes().createdDate())
+                            .orElse(LocalDateTime.now());
+                    return a2Date.compareTo(a1Date);
+                }
+                return 0;
+            };
+            return List.of(); //todo finish Sort By added date
+        };
+    }
+
 }

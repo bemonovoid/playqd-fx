@@ -80,6 +80,10 @@ public final class TrackComparators {
         };
     }
 
+    public static Comparator<Track> byAddedDate() {
+        return Comparator.comparing(t -> t.fileAttributes().createdDate());
+    }
+
     private TrackComparators() {
 
     }

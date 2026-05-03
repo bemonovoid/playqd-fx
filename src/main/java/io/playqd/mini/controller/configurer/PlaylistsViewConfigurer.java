@@ -11,22 +11,20 @@ import java.util.stream.Collectors;
 import javafx.scene.control.Label;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.TableView;
-import javafx.scene.input.KeyCombination;
 import javafx.scene.layout.HBox;
 import org.kordamp.ikonli.javafx.FontIcon;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import io.playqd.dialog.playlist.PlaylistDialog;
 import io.playqd.data.Playlist;
 import io.playqd.data.PlaylistTrack;
+import io.playqd.dialog.playlist.PlaylistDialog;
 import io.playqd.mini.controller.MiniLibraryItemsViewController;
 import io.playqd.mini.controller.NavigableItemsResolver;
 import io.playqd.mini.controller.factories.ImageTableCellFactory;
 import io.playqd.mini.controller.factories.MiscValueTableCellFactory;
 import io.playqd.mini.controller.factories.NameTableCellFactory;
 import io.playqd.mini.controller.factories.PlaylistImageTableCellFactory;
-import io.playqd.mini.controller.factories.TracksCountTableCellFactory;
 import io.playqd.mini.controller.item.LibraryItemRow;
 import io.playqd.mini.controller.item.PlaylistItemRow;
 import io.playqd.mini.controller.item.PlaylistTrackItemRow;
@@ -63,13 +61,7 @@ public final class PlaylistsViewConfigurer extends DefaultItemsViewConfigurer {
 
     @Override
     protected MiscValueTableCellFactory getMiscValueTableCellFactory() {
-        return new TracksCountTableCellFactory(libraryItemRow -> {
-            if (libraryItemRow instanceof PlaylistItemRow playlistItemRow) {
-                return playlistItemRow.getSource().tracks().size();
-            }
-            LOG.trace("Unexpected row type: {}", libraryItemRow.getClass());
-            return -1;
-        });
+       return null;
     }
 
     @Override
